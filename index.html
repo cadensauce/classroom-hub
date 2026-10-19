@@ -2,166 +2,1113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Classroom Hub</title>
-<style>
-:root{color-scheme:dark;--bg:#0b0e16;--panel:#141a28;--panel2:#1c2435;--line:#2a3449;--text:#f2f4fc;--muted:#9ba8bf;--accent:#8878ff;--teal:#55dfc8}
-*{box-sizing:border-box}
-body{margin:0;background:radial-gradient(ellipse at 80% 0%,#44347b40,transparent 45%),var(--bg);color:var(--text);font:15px system-ui,Segoe UI,Arial,sans-serif}
-button,input,select{font:inherit}
-button{cursor:pointer}
-.layout{display:grid;grid-template-columns:225px 1fr;min-height:100vh}
-aside{background:#10141ff2;border-right:1px solid var(--line);padding:24px 15px;display:flex;flex-direction:column;gap:28px}
-.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;padding:0 7px}
-.logo{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--teal));color:#111526}
-.navtitle{color:#718099;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;margin:0 9px 8px}
-nav{display:grid;gap:5px}
-nav button{border:0;background:transparent;color:var(--muted);text-align:left;border-radius:10px;padding:11px}
-nav button:hover,nav button.active{background:#27253e;color:white}
-aside .note{margin-top:auto;color:var(--muted);font-size:12px;line-height:1.6;padding:13px;border:1px solid var(--line);border-radius:12px}
-main{padding:32px clamp(16px,4vw,55px);max-width:1500px;width:100%;margin:auto}
-header{display:flex;justify-content:space-between;align-items:center;gap:15px}
-.eyebrow{color:var(--teal);font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase}
-h1{font-size:clamp(27px,4vw,39px);margin:7px 0}
-h2{font-size:19px;margin:0}
-p{color:var(--muted)}
-#clock{color:var(--muted);font-size:12px}
-.search{display:flex;gap:9px;margin:27px 0 30px}
-.search input{flex:1;min-width:0}
-input,select{background:#0e1320;border:1px solid var(--line);color:var(--text);border-radius:11px;padding:12px;outline:none}
-input:focus,select:focus{border-color:var(--accent)}
-.btn{border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--panel2);color:var(--text)}
-.btn:hover{border-color:var(--accent)}
-.primary{background:var(--accent);color:white;border:0;font-weight:700}
-.row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:20px 0 13px}
-.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-.tile{position:relative;text-align:left;min-width:0;background:linear-gradient(145deg,#1a2233,#131824);border:1px solid var(--line);border-radius:15px;padding:16px;color:var(--text);min-height:128px}
-.tile:hover{border-color:#8274ef;transform:translateY(-2px)}
-.tile .symbol{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:#8878ff24;color:#c7c0ff;font-size:20px;margin-bottom:12px}
-.tile strong{display:block;overflow-wrap:anywhere}
-.tile small{display:block;color:var(--muted);margin-top:3px;overflow-wrap:anywhere}
-.star{position:absolute;right:9px;top:8px;border:0;background:transparent;color:#8994a9;font-size:20px;padding:2px}
-.star.on{color:#ffdb76}
-.section{margin-top:32px}
-.groups{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
-.group{background:#ffffff04;border:1px solid var(--line);border-radius:14px;padding:16px}
-.group h3{font-size:14px;margin:0 0 10px}
-.group a{display:flex;justify-content:space-between;gap:8px;color:var(--muted);text-decoration:none;padding:9px;border-radius:8px}
-.group a:hover{background:#8878ff19;color:white}
-.browser{border:1px solid var(--line);background:var(--panel);border-radius:15px;overflow:hidden;margin-top:24px}
-.browserbar{display:flex;gap:8px;align-items:center;padding:11px;border-bottom:1px solid var(--line);flex-wrap:wrap}
-.browserbar input{flex:1;min-width:130px}
-.browser iframe{display:block;width:100%;height:62vh;min-height:350px;background:white;border:0}
-.hint{font-size:12px;color:var(--muted);padding:12px 15px;margin:0}
-.hidden{display:none!important}
-.empty{border:1px dashed var(--line);padding:28px;text-align:center;border-radius:12px;color:var(--muted);grid-column:1/-1}
-footer{margin-top:35px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:#718099}
-dialog{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:16px;width:min(520px,calc(100% - 25px));padding:0}
-dialog::backdrop{background:#05070dcc;backdrop-filter:blur(4px)}
-.modalhead{display:flex;justify-content:space-between;align-items:center;padding:18px;border-bottom:1px solid var(--line)}
-.modalbody{padding:18px;display:grid;gap:13px}
-.modalbody label{display:grid;gap:6px;color:var(--muted);font-size:13px}
-.modalbody input,.modalbody select{width:100%}
-.actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
-#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#273149;border:1px solid var(--line);padding:11px 16px;border-radius:10px;display:none}
-@media(max-width:950px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.groups{grid-template-columns:1fr 1fr}}
-@media(max-width:650px){.layout{grid-template-columns:1fr}aside{padding:13px;border-right:0;border-bottom:1px solid var(--line);gap:12px}.brand{margin-bottom:3px}.navtitle,.note{display:none!important}nav{display:flex;overflow-x:auto}nav button{white-space:nowrap;padding:9px}main{padding:23px 14px}.groups{grid-template-columns:1fr}#clock{display:none}.tile{padding:12px}.browser iframe{height:55vh}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080808">
+  <title>Classroom Hub</title>
+  <style>
+    :root {
+      --bg: #080808;
+      --panel: #101010;
+      --panel2: #151515;
+      --border: #262626;
+      --text: #f5f5f5;
+      --muted: #888888;
+      --accent: #c9c9c9;
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(ellipse at 50% -20%, #202020 0%, transparent 55%),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+        BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+    }
+
+    button, input, select {
+      font: inherit;
+    }
+
+    button { color: inherit; }
+
+    button:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    .app {
+      width: min(1160px, calc(100% - 36px));
+      margin: auto;
+      padding: 28px 0 48px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 16px;
+      font-weight: 750;
+      letter-spacing: -.5px;
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border: 1px solid #414141;
+      border-radius: 12px;
+      background: linear-gradient(145deg, #292929, #101010);
+      font-size: 18px;
+    }
+
+    .brand-sub {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 450;
+      letter-spacing: .3px;
+    }
+
+    .header-actions { display: flex; gap: 8px; }
+
+    .btn, .icon-btn, .select, .field {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 10px;
+    }
+
+    .btn {
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: background .18s, border-color .18s, transform .18s;
+    }
+
+    .btn:hover, .icon-btn:hover {
+      background: #202020;
+      border-color: #454545;
+    }
+
+    .btn:active, .icon-btn:active { transform: scale(.98); }
+
+    .btn.primary {
+      background: var(--accent);
+      color: #080808;
+      border-color: var(--accent);
+      font-weight: 750;
+    }
+
+    .btn.primary:hover { filter: brightness(.9); }
+
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 66px 0 34px;
+    }
+
+    .eyebrow {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 14px 0 10px;
+      font-size: clamp(36px, 6vw, 62px);
+      line-height: 1.06;
+      letter-spacing: -3px;
+      font-weight: 780;
+    }
+
+    h1 span { color: #858585; }
+
+    .hero p {
+      color: var(--muted);
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .search-wrap {
+      width: min(700px, 100%);
+      margin: 30px auto 0;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px;
+      border: 1px solid #333;
+      border-radius: 15px;
+      background: #111;
+      box-shadow: 0 14px 50px #0008;
+      transition: border-color .2s;
+    }
+
+    .search-box:focus-within { border-color: #666; }
+
+    .search-icon {
+      color: #aaa;
+      padding-left: 10px;
+      font-size: 18px;
+    }
+
+    .search-box input {
+      flex: 1;
+      width: 0;
+      min-width: 0;
+      padding: 12px 0;
+      border: 0;
+      outline: none;
+      background: transparent;
+      color: var(--text);
+    }
+
+    .search-box select {
+      max-width: 145px;
+      padding: 10px 8px;
+      border: 0;
+      border-left: 1px solid var(--border);
+      background: transparent;
+      color: #ccc;
+      outline: none;
+      cursor: pointer;
+    }
+
+    option { background: #151515; color: white; }
+
+    .section { margin-top: 42px; }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -.2px;
+    }
+
+    .section-sub {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 5px;
+    }
+
+    .section-actions { display: flex; gap: 8px; }
+
+    .link-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .link-card {
+      position: relative;
+      min-width: 0;
+      min-height: 105px;
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 17px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: linear-gradient(145deg, #141414, #0e0e0e);
+      text-decoration: none;
+      color: var(--text);
+      transition: transform .2s, border-color .2s, background .2s;
+      animation: appear .35s both;
+    }
+
+    .link-card:hover {
+      transform: translateY(-3px);
+      border-color: #555;
+      background: #171717;
+    }
+
+    .link-icon {
+      display: grid;
+      place-items: center;
+      width: 43px;
+      height: 43px;
+      flex-shrink: 0;
+      border: 1px solid #333;
+      border-radius: 13px;
+      background: #202020;
+      font-size: 19px;
+    }
+
+    .link-info { min-width: 0; padding-right: 8px; }
+
+    .link-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 650;
+      font-size: 13px;
+    }
+
+    .link-url {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 5px;
+    }
+
+    .favorite {
+      position: absolute;
+      right: 9px;
+      top: 8px;
+      padding: 3px;
+      border: 0;
+      background: transparent;
+      color: #666;
+      cursor: pointer;
+      font-size: 17px;
+    }
+
+    .favorite.active { color: #f0cf83; }
+
+    .empty {
+      grid-column: 1 / -1;
+      padding: 32px 15px;
+      border: 1px dashed #333;
+      border-radius: var(--radius);
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .browser-panel {
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #0d0d0d;
+    }
+
+    .browser-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      background: #121212;
+    }
+
+    .browser-dots { display: flex; gap: 5px; padding: 0 3px; }
+
+    .browser-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #484848;
+    }
+
+    .browser-address {
+      flex: 1;
+      min-width: 0;
+      padding: 10px 12px;
+      border: 1px solid #303030;
+      border-radius: 9px;
+      background: #090909;
+      color: white;
+      outline: none;
+    }
+
+    .browser-stage {
+      min-height: 300px;
+      display: grid;
+      place-items: center;
+      padding: 28px;
+      text-align: center;
+      background:
+        radial-gradient(ellipse at center, #171717 0%, #0a0a0a 72%);
+    }
+
+    .browser-welcome { max-width: 420px; }
+
+    .browser-symbol {
+      width: 58px;
+      height: 58px;
+      margin: 0 auto 18px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #373737;
+      border-radius: 18px;
+      background: #171717;
+      font-size: 24px;
+    }
+
+    .browser-welcome h3 { margin: 0 0 9px; font-size: 19px; }
+
+    .browser-welcome p {
+      color: var(--muted);
+      line-height: 1.65;
+      margin: 0 0 18px;
+    }
+
+    .browser-frame {
+      display: none;
+      width: 100%;
+      height: 560px;
+      border: 0;
+      background: white;
+    }
+
+    .browser-note {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 48px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      color: #777;
+      font-size: 11px;
+    }
+
+    .footer-brand { color: #bbb; font-weight: 700; }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: #000b;
+      backdrop-filter: blur(8px);
+    }
+
+    .overlay.open { display: flex; }
+
+    .modal {
+      width: min(440px, 100%);
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 24px;
+      border: 1px solid #333;
+      border-radius: 18px;
+      background: #111;
+      box-shadow: 0 25px 100px #000b;
+      animation: appear .2s both;
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .modal-head h2 { margin: 0; font-size: 19px; }
+
+    .form-group { margin-bottom: 17px; }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #bbb;
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .field, .select {
+      width: 100%;
+      padding: 12px;
+      color: white;
+      outline: none;
+    }
+
+    .field:focus, .select:focus { border-color: #666; }
+
+    .color-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    input[type="color"] {
+      width: 45px;
+      height: 40px;
+      padding: 3px;
+      border: 1px solid #333;
+      border-radius: 9px;
+      background: #171717;
+      cursor: pointer;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 22px;
+    }
+
+    .toast {
+      position: fixed;
+      z-index: 20;
+      bottom: 24px;
+      left: 50%;
+      transform: translate(-50%, 15px);
+      padding: 12px 17px;
+      border: 1px solid #393939;
+      border-radius: 12px;
+      background: #181818;
+      color: white;
+      opacity: 0;
+      pointer-events: none;
+      transition: .2s;
+      box-shadow: 0 10px 40px #0008;
+    }
+
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @keyframes appear {
+      from { opacity: 0; transform: translateY(7px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 850px) {
+      .link-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .hero { padding-top: 48px; }
+    }
+
+    @media (max-width: 520px) {
+      .app { width: calc(100% - 24px); padding-top: 16px; }
+      .brand { font-size: 14px; }
+      .brand-mark { width: 34px; height: 34px; }
+      .header-actions .btn { padding: 9px 10px; }
+      h1 { letter-spacing: -1.8px; }
+      .hero { padding: 44px 0 20px; }
+      .search-box { gap: 5px; }
+      .search-box select { max-width: 112px; font-size: 11px; }
+      .link-grid { gap: 8px; }
+      .link-card { padding: 12px; gap: 9px; min-height: 90px; }
+      .link-icon { width: 36px; height: 36px; font-size: 16px; }
+      .section { margin-top: 32px; }
+      .browser-toolbar { flex-wrap: wrap; }
+      .browser-address { order: 1; flex-basis: 100%; }
+      .browser-frame { height: 420px; }
+      footer { align-items: flex-start; flex-direction: column; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
 </head>
 <body>
-<div class="layout">
-<aside>
-  <div class="brand"><div class="logo">C</div>Classroom Hub</div>
-  <div><div class="navtitle">Workspace</div><nav>
-    <button class="active" data-page="home">⌂ &nbsp; Home</button>
-    <button data-page="favorites">☆ &nbsp; Favorites</button>
-    <button data-page="browser">▣ &nbsp; Browser</button>
-    <button id="settingsButton">⚙ &nbsp; Settings</button>
-  </nav></div>
-  <div class="note">Your personal launchpad.<br><br>Save useful websites, customize shortcuts, and open supported pages in the browsing panel.</div>
-</aside>
-<main>
-<header><div><div class="eyebrow">Your personal launchpad</div><h1 id="greeting">Welcome back.</h1><p id="subtitle">Your favorite links, all in one place.</p></div><div id="clock"></div></header>
-<form class="search" id="searchForm"><input id="query" placeholder="Search the web..." aria-label="Search the web"><button class="btn primary">Search ↗</button></form>
-<section id="homePage">
-  <div class="row"><div><h2>Quick launch</h2><p style="margin:4px 0;font-size:13px">Your shortcuts, ready when you are.</p></div><button class="btn primary" id="addButton">＋ Add link</button></div>
-  <div class="grid" id="shortcutGrid"></div>
-  <div class="section"><div class="row"><h2>Explore</h2></div><div class="groups" id="groupGrid"></div></div>
-</section>
-<section id="favoritesPage" class="hidden"><div class="row"><div><h2>Favorites</h2><p>Quick access to your saved sites.</p></div></div><div class="grid" id="favoriteGrid"></div></section>
-<section id="browserPage" class="hidden">
-  <div class="row"><div><h2>Browsing area</h2><p>Some websites do not allow themselves to be embedded.</p></div></div>
-  <div class="browser"><form class="browserbar" id="browseForm"><button class="btn" type="button" id="backButton">← Back</button><input id="browseUrl" placeholder="https://example.com" aria-label="Website address"><button class="btn primary">Go</button><button class="btn" type="button" id="openExternal">Open tab ↗</button></form><iframe id="frame" title="Website browsing area" sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" referrerpolicy="strict-origin-when-cross-origin"></iframe><p class="hint" id="frameHint">Enter a website address above. If it refuses to load here, use Open tab.</p></div>
-</section>
-<footer>Classroom Hub · Your settings and shortcuts are stored in this browser.</footer>
-</main>
-</div>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="brand-mark">C.</div>
+        <div>
+          Classroom Hub
+          <span class="brand-sub">YOUR SPACE ON THE WEB</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn" id="addLinkTop">＋ Add link</button>
+        <button class="icon-btn" id="openSettings" title="Settings" aria-label="Open settings">⚙</button>
+      </div>
+    </header>
 
-<dialog id="linkModal"><div class="modalhead"><h2 id="linkModalTitle">Add a link</h2><button class="btn" data-close="linkModal">✕</button></div>
-<form class="modalbody" id="linkForm">
-<label>Link name<input id="linkName" required maxlength="40" placeholder="My website"></label>
-<label>Website URL<input id="linkAddress" required type="url" placeholder="https://example.com"></label>
-<label>Icon or emoji<input id="linkIcon" maxlength="5" placeholder="↗"></label>
-<div class="actions"><button class="btn" type="button" data-close="linkModal">Cancel</button><button class="btn primary">Save link</button></div>
-</form></dialog>
+    <main>
+      <section class="hero">
+        <div class="eyebrow" id="dateLabel">YOUR PERSONAL DASHBOARD</div>
+        <h1 id="greeting">A little more <span>focus.</span></h1>
+        <p>Everything you need, all in one place.</p>
 
-<dialog id="settingsModal"><div class="modalhead"><h2>Settings</h2><button class="btn" data-close="settingsModal">✕</button></div>
-<div class="modalbody">
-<label>Search engine<select id="engine"><option value="https://duckduckgo.com/?q=">DuckDuckGo</option><option value="https://www.google.com/search?q=">Google</option><option value="https://www.bing.com/search?q=">Bing</option></select></label>
-<label>Homepage greeting<input id="greetingInput" maxlength="50" placeholder="Welcome back."></label>
-<label>Accent color<select id="accent"><option value="#8878ff">Purple</option><option value="#42cbb6">Teal</option><option value="#5599ff">Blue</option><option value="#ed719c">Pink</option></select></label>
-<p style="font-size:12px">Some websites block embedded browsing. This page cannot override those restrictions or network policies.</p>
-<div class="actions"><button class="btn" id="resetButton">Reset shortcuts</button><button class="btn primary" id="saveSettings">Save settings</button></div>
-</div></dialog>
-<div id="toast" role="status"></div>
+        <div class="search-wrap">
+          <form class="search-box" id="searchForm">
+            <span class="search-icon" aria-hidden="true">⌕</span>
+            <input id="searchInput" type="search"
+              placeholder="Search the web or enter a question..."
+              aria-label="Search the web" autocomplete="off">
+            <select id="searchEngine" aria-label="Search engine">
+              <option value="duckduckgo">DuckDuckGo</option>
+              <option value="google">Google</option>
+              <option value="bing">Bing</option>
+            </select>
+            <button class="btn primary" type="submit">Search</button>
+          </form>
+        </div>
+      </section>
 
-<script>
-const defaults=[
-{name:"YouTube",url:"https://www.youtube.com/",icon:"▶"},
-{name:"DuckDuckGo",url:"https://duckduckgo.com/",icon:"⌕"},
-{name:"Wikipedia",url:"https://www.wikipedia.org/",icon:"W"},
-{name:"Google Drive",url:"https://drive.google.com/",icon:"▤"},
-{name:"Google Docs",url:"https://docs.google.com/",icon:"▧"},
-{name:"Khan Academy",url:"https://www.khanacademy.org/",icon:"✦"},
-{name:"Scratch",url:"https://scratch.mit.edu/",icon:"✳"},
-{name:"Coolmath Games",url:"https://www.coolmathgames.com/",icon:"◈"}
-];
-const categories=[
-{title:"Watch & listen",items:[["YouTube","https://www.youtube.com/"],["Twitch","https://www.twitch.tv/"],["SoundCloud","https://soundcloud.com/"]]},
-{title:"Learn & create",items:[["Khan Academy","https://www.khanacademy.org/"],["Scratch","https://scratch.mit.edu/"],["Wikipedia","https://www.wikipedia.org/"]]},
-{title:"Productivity",items:[["Google Drive","https://drive.google.com/"],["Google Docs","https://docs.google.com/"],["Google Calendar","https://calendar.google.com/"]]}
-];
-const $=id=>document.getElementById(id);
-function read(key,fallback){try{return JSON.parse(localStorage.getItem(key))??fallback}catch{return fallback}}
-function write(key,value){try{localStorage.setItem(key,JSON.stringify(value))}catch{}}
-let links=read("hub-links",defaults.map(x=>({...x})));
-let favorites=read("hub-favorites",[]);
-let settings=read("hub-settings",{engine:"https://duckduckgo.com/?q=",greeting:"Welcome back.",accent:"#8878ff"});
-let editing=null;
-function validUrl(s){try{let u=new URL(s);return ["http:","https:"].includes(u.protocol)?u.href:null}catch{return null}}
-function notify(s){$("toast").textContent=s;$("toast").style.display="block";clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>$("toast").style.display="none",2200)}
-function openSite(url){let u=validUrl(url);if(u)window.open(u,"_blank","noopener,noreferrer");else notify("Enter a valid http or https address.")}
-function makeCard(item){let card=document.createElement("div");card.className="tile";let star=document.createElement("button");star.className="star"+(favorites.includes(item.url)?" on":"");star.textContent=favorites.includes(item.url)?"★":"☆";star.title="Toggle favorite";star.setAttribute("aria-label","Toggle favorite for "+item.name);star.onclick=e=>{e.stopPropagation();favorites=favorites.includes(item.url)?favorites.filter(x=>x!==item.url):[...favorites,item.url];write("hub-favorites",favorites);render();};let symbol=document.createElement("div");symbol.className="symbol";symbol.textContent=item.icon||"↗";let name=document.createElement("strong");name.textContent=item.name;let desc=document.createElement("small");try{desc.textContent=new URL(item.url).hostname}catch{desc.textContent=item.url}card.append(star,symbol,name,desc);card.onclick=()=>openSite(item.url);card.title="Open "+item.name;return card}
-function render(){let grid=$("shortcutGrid");grid.replaceChildren();links.forEach(item=>{let card=makeCard(item);let edit=document.createElement("button");edit.className="btn";edit.textContent="Edit";edit.style.marginTop="10px";edit.onclick=e=>{e.stopPropagation();openEdit(item)};let del=document.createElement("button");del.className="btn";del.textContent="Remove";del.style.margin="10px 0 0 6px";del.onclick=e=>{e.stopPropagation();if(confirm("Remove "+item.name+"?")){links=links.filter(x=>x!==item);favorites=favorites.filter(x=>x!==item.url);saveAll();render()}};card.append(edit,del);grid.append(card)});let fg=$("favoriteGrid");fg.replaceChildren();let favLinks=links.filter(x=>favorites.includes(x.url));if(!favLinks.length){let empty=document.createElement("div");empty.className="empty";empty.textContent="No favorites yet. Click ☆ on any shortcut to save it here.";fg.append(empty)}else favLinks.forEach(x=>fg.append(makeCard(x)));let gg=$("groupGrid");gg.replaceChildren();categories.forEach(cat=>{let box=document.createElement("div");box.className="group";let h=document.createElement("h3");h.textContent=cat.title;box.append(h);cat.items.forEach(([n,u])=>{let a=document.createElement("a");a.href=u;a.target="_blank";a.rel="noopener noreferrer";let l=document.createElement("span");l.textContent=n;let r=document.createElement("span");r.textContent="↗";a.append(l,r);box.append(a)});gg.append(box)})}
-function saveAll(){write("hub-links",links);write("hub-favorites",favorites)}
-function openEdit(item){editing=item||null;$("linkModalTitle").textContent=item?"Edit link":"Add a link";$("linkName").value=item?.name||"";$("linkAddress").value=item?.url||"";$("linkIcon").value=item?.icon||"";$("linkModal").showModal()}
-$("addButton").onclick=()=>openEdit(null);
-$("linkForm").onsubmit=e=>{e.preventDefault();let name=$("linkName").value.trim(),url=validUrl($("linkAddress").value.trim()),icon=$("linkIcon").value.trim()||"↗";if(!url){notify("Please enter a valid website URL.");return}if(editing){let oldUrl=editing.url;Object.assign(editing,{name,url,icon});if(oldUrl!==url)favorites=favorites.map(x=>x===oldUrl?url:x)}else links.push({name,url,icon});saveAll();render();$("linkModal").close();e.target.reset();notify("Link saved.")};
-document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>$(b.dataset.close).close());
-$("settingsButton").onclick=()=>{$("engine").value=settings.engine;$("greetingInput").value=settings.greeting;$("accent").value=settings.accent;$("settingsModal").showModal()};
-$("saveSettings").onclick=()=>{settings={engine:$("engine").value,greeting:$("greetingInput").value.trim()||"Welcome back.",accent:$("accent").value};write("hub-settings",settings);applySettings();$("settingsModal").close();notify("Settings saved.")};
-function applySettings(){document.documentElement.style.setProperty("--accent",settings.accent);$("greeting").textContent=settings.greeting}
-$("resetButton").onclick=()=>{if(confirm("Reset all shortcuts and favorites?")){links=defaults.map(x=>({...x}));favorites=[];saveAll();render();notify("Shortcuts reset.")}};
-$("searchForm").onsubmit=e=>{e.preventDefault();let q=$("query").value.trim();if(q)openSite(settings.engine+encodeURIComponent(q))};
-function showPage(page){["home","favorites","browser"].forEach(p=>$(p+"Page").classList.toggle("hidden",p!==page));document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===page));$("subtitle").textContent=page==="home"?"Your favorite links, all in one place.":page==="favorites"?"Your saved websites.":"Open sites in the browsing panel when supported."}
-document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>showPage(b.dataset.page));
-function goBrowse(raw){let u=validUrl(raw);if(!u){notify("Enter a full address such as https://example.com");return} $("browseUrl").value=u;$("frameHint").textContent="If the page stays blank, the website may block embedding. Try Open tab."; $("frame").src=u}
-$("browseForm").onsubmit=e=>{e.preventDefault();goBrowse($("browseUrl").value)};
-$("openExternal").onclick=()=>openSite($("browseUrl").value);
-$("backButton").onclick=()=>{try{$("frame").contentWindow.history.back()}catch{notify("Browser back is unavailable for this page.")}};
-function clock(){ $("clock").textContent=new Intl.DateTimeFormat(undefined,{weekday:"short",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}).format(new Date())}
-applySettings();render();clock();setInterval(clock,30000);
-</script>
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">Quick access</h2>
+            <div class="section-sub">Your frequently used destinations.</div>
+          </div>
+          <div class="section-actions">
+            <button class="btn" id="showAll">All links</button>
+          </div>
+        </div>
+        <div class="link-grid" id="linkGrid"></div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">Favorites</h2>
+            <div class="section-sub">The links you've starred.</div>
+          </div>
+        </div>
+        <div class="link-grid" id="favoriteGrid"></div>
+      </section>
+
+      <section class="section" id="browserSection">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">Browse</h2>
+            <div class="section-sub">Open a website here when it allows embedding.</div>
+          </div>
+        </div>
+        <div class="browser-panel">
+          <div class="browser-toolbar">
+            <div class="browser-dots" aria-hidden="true">
+              <span></span><span></span><span></span>
+            </div>
+            <input class="browser-address" id="browserAddress"
+              type="text" placeholder="Enter a website address..."
+              aria-label="Website address">
+            <button class="btn primary" id="browseButton">Go</button>
+            <button class="btn" id="openExternal">Open tab ↗</button>
+          </div>
+          <div class="browser-stage" id="browserStage">
+            <div class="browser-welcome">
+              <div class="browser-symbol">↗</div>
+              <h3>Your browsing space</h3>
+              <p>Enter a website above and select Go. Some websites prevent being displayed inside other pages. If that happens, use Open tab.</p>
+              <button class="btn" id="browserExample">Try example.com</button>
+            </div>
+          </div>
+          <iframe class="browser-frame" id="browserFrame"
+            title="Website browsing area"
+            sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-downloads"
+            referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        </div>
+        <div class="browser-note">
+          Note: this is a website embed, not a proxy. Sites that block framing or require special sign-in settings may not load here.
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div><span class="footer-brand">CLASSROOM HUB</span> · Your space, your setup.</div>
+      <div>Made for your everyday web.</div>
+    </footer>
+  </div>
+
+  <!-- Add/edit link dialog -->
+  <div class="overlay" id="linkOverlay" role="dialog" aria-modal="true" aria-labelledby="linkModalTitle">
+    <div class="modal">
+      <div class="modal-head">
+        <h2 id="linkModalTitle">Add a link</h2>
+        <button class="icon-btn close-modal" data-close="linkOverlay" aria-label="Close">×</button>
+      </div>
+      <form id="linkForm">
+        <input type="hidden" id="linkId">
+        <div class="form-group">
+          <label for="linkName">Name</label>
+          <input class="field" id="linkName" maxlength="50" required placeholder="My website">
+        </div>
+        <div class="form-group">
+          <label for="linkUrl">Website URL</label>
+          <input class="field" id="linkUrl" required placeholder="https://example.com">
+        </div>
+        <div class="form-group">
+          <label for="linkIcon">Icon or emoji</label>
+          <input class="field" id="linkIcon" maxlength="8" value="↗" placeholder="🌐">
+        </div>
+        <div class="modal-actions">
+          <button class="btn close-modal" type="button" data-close="linkOverlay">Cancel</button>
+          <button class="btn primary" type="submit">Save link</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Settings dialog -->
+  <div class="overlay" id="settingsOverlay" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="modal">
+      <div class="modal-head">
+        <h2 id="settingsTitle">Personalize your hub</h2>
+        <button class="icon-btn close-modal" data-close="settingsOverlay" aria-label="Close">×</button>
+      </div>
+      <form id="settingsForm">
+        <div class="form-group">
+          <label for="greetingName">Greeting text</label>
+          <input class="field" id="greetingName" maxlength="45" placeholder="A little more focus.">
+        </div>
+        <div class="form-group">
+          <label for="accentColor">Accent color</label>
+          <div class="color-row">
+            <input id="accentColor" type="color" value="#c9c9c9">
+            <span id="accentLabel">#c9c9c9</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="defaultEngine">Default search engine</label>
+          <select class="select" id="defaultEngine">
+            <option value="duckduckgo">DuckDuckGo</option>
+            <option value="google">Google</option>
+            <option value="bing">Bing</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button class="btn" type="button" id="resetSettings">Reset settings</button>
+          <button class="btn primary" type="submit">Save settings</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const STORAGE_KEY = "classroomHubPremiumV1";
+
+      const defaultLinks = [
+        { id: "google", name: "Google", url: "https://www.google.com/", icon: "G", favorite: true },
+        { id: "youtube", name: "YouTube", url: "https://www.youtube.com/", icon: "▶", favorite: true },
+        { id: "wikipedia", name: "Wikipedia", url: "https://www.wikipedia.org/", icon: "W", favorite: false },
+        { id: "github", name: "GitHub", url: "https://github.com/", icon: "⌘", favorite: false }
+      ];
+
+      const defaultSettings = {
+        greeting: "A little more focus.",
+        accent: "#c9c9c9",
+        engine: "duckduckgo"
+      };
+
+      let state = loadState();
+      let showAllLinks = false;
+      let toastTimeout;
+
+      const $ = id => document.getElementById(id);
+
+      function loadState() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+          if (saved && typeof saved === "object") {
+            return {
+              links: Array.isArray(saved.links)
+                ? saved.links.filter(isValidSavedLink)
+                : defaultLinks.map(link => ({ ...link })),
+              settings: {
+                ...defaultSettings,
+                ...(saved.settings && typeof saved.settings === "object"
+                  ? saved.settings : {})
+              }
+            };
+          }
+        } catch (error) {
+          console.warn("Could not load saved settings.", error);
+        }
+
+        return {
+          links: defaultLinks.map(link => ({ ...link })),
+          settings: { ...defaultSettings }
+        };
+      }
+
+      function isValidSavedLink(link) {
+        if (!link || typeof link !== "object" ||
+            typeof link.name !== "string" ||
+            typeof link.url !== "string" ||
+            typeof link.id !== "string") return false;
+
+        try {
+          const url = new URL(link.url);
+          return url.protocol === "https:" || url.protocol === "http:";
+        } catch {
+          return false;
+        }
+      }
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (error) {
+          showToast("Couldn't save locally in this browser.");
+        }
+      }
+
+      function safeUrl(value) {
+        try {
+          const url = new URL(value.trim());
+          if (url.protocol === "https:" || url.protocol === "http:") {
+            return url.href;
+          }
+        } catch {
+          // Try adding HTTPS below.
+        }
+
+        try {
+          const url = new URL("https://" + value.trim());
+          if (url.hostname.includes(".") && !url.hostname.includes(" ")) {
+            return url.href;
+          }
+        } catch {
+          // Invalid URL.
+        }
+        return null;
+      }
+
+      function hostLabel(value) {
+        try {
+          return new URL(value).hostname.replace(/^www\./, "");
+        } catch {
+          return value;
+        }
+      }
+
+      function makeId() {
+        return "link-" + Date.now().toString(36) +
+          Math.random().toString(36).slice(2, 7);
+      }
+
+      function escapeText(value) {
+        return String(value).replace(/[&<>"']/g, char => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;"
+        })[char]);
+      }
+
+      function showToast(message) {
+        $("toast").textContent = message;
+        $("toast").classList.add("show");
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+          $("toast").classList.remove("show");
+        }, 2400);
+      }
+
+      function renderLinks() {
+        const allGrid = $("linkGrid");
+        const favGrid = $("favoriteGrid");
+
+        const visibleLinks = showAllLinks
+          ? state.links
+          : state.links.slice(0, 8);
+
+        allGrid.innerHTML = visibleLinks.length
+          ? visibleLinks.map(link => linkCard(link)).join("")
+          : '<div class="empty">No links yet. Select “Add link” to create your first shortcut.</div>';
+
+        const favorites = state.links.filter(link => link.favorite);
+
+        favGrid.innerHTML = favorites.length
+          ? favorites.map(link => linkCard(link)).join("")
+          : '<div class="empty">No favorites yet. Star a link to keep it here.</div>';
+
+        $("showAll").textContent = showAllLinks ? "Show less" : "All links";
+      }
+
+      function linkCard(link) {
+        const id = escapeText(link.id);
+        const name = escapeText(link.name);
+        const url = escapeText(link.url);
+        const icon = escapeText(link.icon || "↗");
+        const host = escapeText(hostLabel(link.url));
+
+        return `
+          <div class="link-card" data-card-id="${id}">
+            <a href="${url}" target="_blank" rel="noopener noreferrer"
+               style="display:flex;align-items:center;gap:13px;min-width:0;flex:1;color:inherit;text-decoration:none">
+              <div class="link-icon">${icon}</div>
+              <div class="link-info">
+                <div class="link-name">${name}</div>
+                <div class="link-url">${host}</div>
+              </div>
+            </a>
+            <button class="favorite ${link.favorite ? "active" : ""}"
+              data-action="favorite" data-id="${id}"
+              aria-label="${link.favorite ? "Remove from" : "Add to"} favorites"
+              title="Toggle favorite">${link.favorite ? "★" : "☆"}</button>
+            <button class="favorite" style="top:auto;bottom:7px;right:10px;font-size:12px"
+              data-action="edit" data-id="${id}" aria-label="Edit ${name}" title="Edit link">✎</button>
+          </div>`;
+      }
+
+      function renderSettings() {
+        const settings = state.settings;
+        const accent = /^#[0-9a-f]{6}$/i.test(settings.accent)
+          ? settings.accent : defaultSettings.accent;
+
+        document.documentElement.style.setProperty("--accent", accent);
+        $("greeting").innerHTML =
+          `${escapeText(settings.greeting || defaultSettings.greeting)} <span></span>`;
+        $("greetingName").value = settings.greeting || defaultSettings.greeting;
+        $("accentColor").value = accent;
+        $("accentLabel").textContent = accent;
+        $("searchEngine").value = settings.engine || "duckduckgo";
+        $("defaultEngine").value = settings.engine || "duckduckgo";
+      }
+
+      function openOverlay(id) {
+        $(id).classList.add("open");
+      }
+
+      function closeOverlay(id) {
+        $(id).classList.remove("open");
+      }
+
+      function openLinkForm(link) {
+        $("linkForm").reset();
+        $("linkId").value = link ? link.id : "";
+        $("linkModalTitle").textContent = link ? "Edit link" : "Add a link";
+        $("linkName").value = link ? link.name : "";
+        $("linkUrl").value = link ? link.url : "";
+        $("linkIcon").value = link ? link.icon : "↗";
+        openOverlay("linkOverlay");
+        setTimeout(() => $("linkName").focus(), 50);
+      }
+
+      function editLink(id) {
+        const link = state.links.find(item => item.id === id);
+        if (link) openLinkForm(link);
+      }
+
+      function searchWeb(query) {
+        const term = query.trim();
+        if (!term) {
+          $("searchInput").focus();
+          return;
+        }
+
+        const engines = {
+          google: "https://www.google.com/search?q=",
+          duckduckgo: "https://duckduckgo.com/?q=",
+          bing: "https://www.bing.com/search?q="
+        };
+
+        const engine = engines[$("searchEngine").value] ? $("searchEngine").value : "duckduckgo";
+        window.open(engines[engine] + encodeURIComponent(term), "_blank", "noopener,noreferrer");
+      }
+
+      function getBrowserUrl() {
+        const url = safeUrl($("browserAddress").value);
+        if (!url) {
+          showToast("Enter a valid website address first.");
+          $("browserAddress").focus();
+          return null;
+        }
+        $("browserAddress").value = url;
+        return url;
+      }
+
+      function browseHere() {
+        const url = getBrowserUrl();
+        if (!url) return;
+
+        $("browserStage").style.display = "none";
+        $("browserFrame").style.display = "block";
+        $("browserFrame").src = url;
+        $("browserSection").scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      function browseExternal() {
+        const url = getBrowserUrl();
+        if (!url) return;
+        window.open(url, "_blank", "noopener,noreferrer");
+      }
+
+      $("searchForm").addEventListener("submit", event => {
+        event.preventDefault();
+        searchWeb($("searchInput").value);
+      });
+
+      $("searchEngine").addEventListener("change", () => {
+        state.settings.engine = $("searchEngine").value;
+        saveState();
+      });
+
+      $("addLinkTop").addEventListener("click", () => openLinkForm());
+      $("openSettings").addEventListener("click", () => {
+        renderSettings();
+        openOverlay("settingsOverlay");
+      });
+
+      $("showAll").addEventListener("click", () => {
+        showAllLinks = !showAllLinks;
+        renderLinks();
+      });
+
+      document.addEventListener("click", event => {
+        const button = event.target.closest("[data-action]");
+        if (button) {
+          const id = button.dataset.id;
+          const action = button.dataset.action;
+          const link = state.links.find(item => item.id === id);
+          if (!link) return;
+
+          if (action === "favorite") {
+            link.favorite = !link.favorite;
+            saveState();
+            renderLinks();
+          } else if (action === "edit") {
+            editLink(id);
+          }
+          return;
+        }
+
+        const closeButton = event.target.closest("[data-close]");
+        if (closeButton) closeOverlay(closeButton.dataset.close);
+      });
+
+      $("linkForm").addEventListener("submit", event => {
+        event.preventDefault();
+
+        const name = $("linkName").value.trim();
+        const url = safeUrl($("linkUrl").value);
+        const icon = $("linkIcon").value.trim() || "↗";
+        const id = $("linkId").value;
+
+        if (!url) {
+          showToast("Please enter a valid HTTP or HTTPS website.");
+          return;
+        }
+
+        if (!name) {
+          showToast("Please enter a name.");
+          return;
+        }
+
+        if (id) {
+          const link = state.links.find(item => item.id === id);
+          if (link) Object.assign(link, { name, url, icon });
+        } else {
+          state.links.push({ id: makeId(), name, url, icon, favorite: false });
+        }
+
+        saveState();
+        renderLinks();
+        closeOverlay("linkOverlay");
+        showToast(id ? "Link updated." : "Link added.");
+      });
+
+      $("settingsForm").addEventListener("submit", event => {
+        event.preventDefault();
+
+        state.settings.greeting =
+          $("greetingName").value.trim() || defaultSettings.greeting;
+        state.settings.accent = $("accentColor").value;
+        state.settings.engine = $("defaultEngine").value;
+
+        saveState();
+        renderSettings();
+        closeOverlay("settingsOverlay");
+        showToast("Settings saved.");
+      });
+
+      $("accentColor").addEventListener("input", () => {
+        const color = $("accentColor").value;
+        document.documentElement.style.setProperty("--accent", color);
+        $("accentLabel").textContent = color;
+      });
+
+      $("resetSettings").addEventListener("click", () => {
+        state.settings = { ...defaultSettings };
+        saveState();
+        renderSettings();
+        showToast("Settings reset.");
+      });
+
+      $("browseButton").addEventListener("click", browseHere);
+      $("openExternal").addEventListener("click", browseExternal);
+
+      $("browserAddress").addEventListener("keydown", event => {
+        if (event.key === "Enter") browseHere();
+      });
+
+      $("browserExample").addEventListener("click", () => {
+        $("browserAddress").value = "https://example.com/";
+        browseHere();
+      });
+
+      document.querySelectorAll(".overlay").forEach(overlay => {
+        overlay.addEventListener("click", event => {
+          if (event.target === overlay) closeOverlay(overlay.id);
+        });
+      });
+
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+          document.querySelectorAll(".overlay.open").forEach(overlay => {
+            closeOverlay(overlay.id);
+          });
+        }
+      });
+
+      function updateDate() {
+        const now = new Date();
+        $("dateLabel").textContent = now.toLocaleDateString(undefined, {
+          weekday: "long",
+          month: "long",
+          day: "numeric"
+        }).toUpperCase();
+      }
+
+      updateDate();
+      renderSettings();
+      renderLinks();
+    })();
+  </script>
 </body>
 </html>
