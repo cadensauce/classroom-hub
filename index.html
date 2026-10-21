@@ -2,606 +2,110 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#080808">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b0d11">
 <title>Classroom Hub</title>
 <style>
-:root{--bg:#080808;--panel:#101010;--panel2:#151515;--border:#262626;--text:#f5f5f5;--muted:#888;--accent:#c9c9c9;--radius:16px}
-*{box-sizing:border-box}
-[hidden]{display:none!important}
-body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -20%,#202020 0%,transparent 55%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px}
-button,input,select{font:inherit}
-button{color:inherit}
-button:focus-visible,input:focus-visible,select:focus-visible,.link-card:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-.app{width:min(1160px,calc(100% - 36px));margin:auto;padding:28px 0 48px}
-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:24px;border-bottom:1px solid var(--border)}
-.brand{display:flex;align-items:center;gap:12px;font-size:16px;font-weight:750;letter-spacing:-.5px}
-.brand-mark{display:grid;place-items:center;width:38px;height:38px;border:1px solid #414141;border-radius:12px;background:linear-gradient(145deg,#292929,#101010);font-size:18px}
-.brand-sub{display:block;margin-top:3px;color:var(--muted);font-size:11px;font-weight:450;letter-spacing:.3px}
-.header-actions{display:flex;gap:8px}
-.btn,.icon-btn,.select,.field{border:1px solid var(--border);background:var(--panel);border-radius:10px}
-.btn{padding:10px 14px;cursor:pointer;transition:background .18s,border-color .18s,transform .18s;text-decoration:none;display:inline-block}
-.btn:hover,.icon-btn:hover{background:#202020;border-color:#454545}
-.btn:active,.icon-btn:active{transform:scale(.98)}
-.btn.primary{background:var(--accent);color:#080808;border-color:var(--accent);font-weight:750}
-.btn.primary:hover{filter:brightness(.9)}
-.icon-btn{width:38px;height:38px;display:grid;place-items:center;cursor:pointer;font-size:16px;flex-shrink:0}
-.icon-btn:disabled{opacity:.35;cursor:default;pointer-events:none}
-.hero{text-align:center;padding:66px 0 34px}
-.eyebrow{color:var(--muted);text-transform:uppercase;letter-spacing:3px;font-size:10px;font-weight:700}
-h1{margin:14px 0 10px;font-size:clamp(36px,6vw,62px);line-height:1.06;letter-spacing:-3px;font-weight:780}
-h1 span{color:#858585}
-.hero p{color:var(--muted);margin:0;font-size:14px}
-.search-wrap{width:min(700px,100%);margin:30px auto 0}
-.search-box{display:flex;align-items:center;gap:10px;padding:7px;border:1px solid #333;border-radius:15px;background:#111;box-shadow:0 14px 50px #0008;transition:border-color .2s}
-.search-box:focus-within{border-color:#666}
-.search-icon{color:#aaa;padding-left:10px;font-size:18px}
-.search-box input{flex:1;width:0;min-width:0;padding:12px 0;border:0;outline:none;background:transparent;color:var(--text)}
-.search-box select{max-width:145px;padding:10px 8px;border:0;border-left:1px solid var(--border);background:transparent;color:#ccc;outline:none;cursor:pointer}
-option{background:#151515;color:#fff}
-.section{margin-top:42px}
-.section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
-.section-title{margin:0;font-size:15px;font-weight:700;letter-spacing:-.2px}
-.section-sub{color:var(--muted);font-size:12px;margin-top:5px}
-.section-actions{display:flex;gap:8px}
-.link-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-.link-card{position:relative;min-width:0;min-height:105px;display:flex;align-items:center;gap:13px;padding:17px;border:1px solid var(--border);border-radius:var(--radius);background:linear-gradient(145deg,#141414,#0e0e0e);color:var(--text);cursor:pointer;transition:transform .2s,border-color .2s,background .2s;animation:appear .35s both}
-.link-card:hover{transform:translateY(-3px);border-color:#555;background:#171717}
-.link-icon{display:grid;place-items:center;width:43px;height:43px;flex-shrink:0;border:1px solid #333;border-radius:13px;background:#202020;font-size:19px}
-.link-info{min-width:0;padding-right:8px}
-.link-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:650;font-size:13px}
-.link-url{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:11px;margin-top:5px}
-.favorite,.mini{position:absolute;padding:3px;border:0;background:transparent;color:#666;cursor:pointer;font-size:17px}
-.favorite{right:9px;top:8px}
-.favorite.active{color:#f0cf83}
-.mini{bottom:6px;font-size:13px}
-.mini.edit{right:30px}
-.mini.del{right:9px}
-.mini:hover{color:#fff}
-.empty{grid-column:1/-1;padding:32px 15px;border:1px dashed #333;border-radius:var(--radius);color:var(--muted);text-align:center}
-.browser-panel{overflow:hidden;border:1px solid var(--border);border-radius:var(--radius);background:#0d0d0d}
-.browser-toolbar{display:flex;align-items:center;gap:8px;padding:12px;border-bottom:1px solid var(--border);background:#121212}
-.browser-address{flex:1;min-width:0;padding:10px 12px;border:1px solid #303030;border-radius:9px;background:#090909;color:#fff;outline:none}
-.browser-address:focus{border-color:#666}
-.browser-engine{max-width:130px;padding:10px 8px;border:1px solid #303030;border-radius:9px;background:#090909;color:#ccc;outline:none;cursor:pointer}
-.browser-status{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 14px;border-bottom:1px solid var(--border);background:#0f0f0f;color:var(--muted);font-size:11px;line-height:1.5}
-.link-btn{border:0;background:transparent;color:var(--accent);cursor:pointer;text-decoration:underline;font-size:11px;white-space:nowrap;padding:0}
-.browser-stage{min-height:300px;display:grid;place-items:center;padding:28px;text-align:center;background:radial-gradient(ellipse at center,#171717 0%,#0a0a0a 72%)}
-.browser-welcome{max-width:460px}
-.browser-symbol{width:58px;height:58px;margin:0 auto 18px;display:grid;place-items:center;border:1px solid #373737;border-radius:18px;background:#171717;font-size:24px}
-.browser-welcome h3{margin:0 0 9px;font-size:19px}
-.browser-welcome p{color:var(--muted);line-height:1.65;margin:0 0 18px}
-.browser-welcome ul{color:var(--muted);line-height:1.65;text-align:left;margin:0 0 18px;padding-left:20px;font-size:13px}
-.notice-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
-.browser-frame{display:block;width:100%;height:clamp(420px,72vh,720px);border:0;background:#fff}
-.browser-note{margin-top:12px;color:var(--muted);font-size:11px;line-height:1.6}
-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:48px;padding-top:20px;border-top:1px solid var(--border);color:#777;font-size:11px}
-.footer-brand{color:#bbb;font-weight:700}
-.overlay{position:fixed;inset:0;z-index:10;display:none;align-items:center;justify-content:center;padding:18px;background:#000b;backdrop-filter:blur(8px)}
-.overlay.open{display:flex}
-.modal{width:min(440px,100%);max-height:90vh;overflow-y:auto;padding:24px;border:1px solid #333;border-radius:18px;background:#111;box-shadow:0 25px 100px #000b;animation:appear .2s both}
-.modal-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:22px}
-.modal-head h2{margin:0;font-size:19px}
-.form-group{margin-bottom:17px}
-.form-group label{display:block;margin-bottom:8px;color:#bbb;font-size:12px;font-weight:650}
-.field,.select{width:100%;padding:12px;color:#fff;outline:none}
-.field:focus,.select:focus{border-color:#666}
-.color-row{display:flex;align-items:center;gap:12px}
-input[type=color]{width:45px;height:40px;padding:3px;border:1px solid #333;border-radius:9px;background:#171717;cursor:pointer}
-.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:22px}
-.toast{position:fixed;z-index:20;bottom:24px;left:50%;transform:translate(-50%,15px);padding:12px 17px;border:1px solid #393939;border-radius:12px;background:#181818;color:#fff;opacity:0;pointer-events:none;transition:.2s;box-shadow:0 10px 40px #0008}
-.toast.show{opacity:1;transform:translate(-50%,0)}
-.yt-form{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
-.yt-form .browser-address{min-width:200px}
-.yt-status{color:var(--muted);font-size:12px;min-height:18px;margin:0 0 12px;line-height:1.5}
-.yt-status.err{color:#e6a3a3}
-.yt-player{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:#000;margin-bottom:14px}
-.yt-bar{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#121212;border-bottom:1px solid var(--border)}
-.yt-bar span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:650;font-size:13px}
-.yt-ratio{position:relative;aspect-ratio:16/9;background:#000}
-.yt-ratio iframe,.yt-ratio>div{position:absolute;inset:0;width:100%;height:100%;border:0}
-@media(max-width:520px){.yt-bar .link-btn{display:none}}
-@keyframes appear{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
-@media(max-width:850px){.link-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{padding-top:48px}}
-@media(max-width:520px){
-.app{width:calc(100% - 24px);padding-top:16px}
-.brand{font-size:14px}.brand-mark{width:34px;height:34px}
-.header-actions .btn{padding:9px 10px}
-h1{letter-spacing:-1.8px}
-.hero{padding:44px 0 20px}
-.search-box{gap:5px}.search-box select{max-width:112px;font-size:11px}
-.link-grid{gap:8px}
-.link-card{padding:12px;gap:9px;min-height:90px}
-.link-icon{width:36px;height:36px;font-size:16px}
-.section{margin-top:32px}
-.browser-toolbar{flex-wrap:wrap}
-.browser-address{order:1;flex-basis:100%}
-.browser-engine{order:2;flex:1;max-width:none}
-.browser-toolbar .go{order:3}
-.browser-stage{padding:20px 14px}
-footer{align-items:flex-start;flex-direction:column}}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+:root{color-scheme:dark;--bg:#0b0d11;--panel:#12151b;--panel2:#171b23;--panel3:#1d222c;--border:#2a303b;--text:#f3f5f8;--muted:#929baa;--accent:#9caeff;--accent-rgb:156,174,255;--radius:16px;--sidebar:232px;--speed:200ms;--content:1320px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 65% -25%,rgba(var(--accent-rgb),.10),transparent 48%),var(--bg);color:var(--text);font:14px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}button,input,select,textarea{font:inherit}button{color:inherit}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:3px}button:disabled{opacity:.4;cursor:not-allowed}a{color:inherit}.app{min-height:100vh}.sidebar{position:fixed;inset:0 auto 0 0;width:var(--sidebar);z-index:30;display:flex;flex-direction:column;padding:20px 14px;background:rgba(14,16,21,.96);border-right:1px solid var(--border);backdrop-filter:blur(18px);transition:width var(--speed),transform var(--speed)}.brand{display:flex;align-items:center;gap:11px;padding:4px 8px 24px;white-space:nowrap}.brand-mark{display:grid;place-items:center;flex:0 0 40px;height:40px;border:1px solid rgba(var(--accent-rgb),.35);border-radius:13px;background:linear-gradient(145deg,rgba(var(--accent-rgb),.23),rgba(var(--accent-rgb),.05));font-weight:850;font-size:18px;color:var(--accent)}.brand-name{font-weight:780;letter-spacing:-.3px}.brand-sub{display:block;color:var(--muted);font-size:10px;letter-spacing:1.5px;margin-top:1px}.nav-label{padding:10px 12px 7px;color:#6f7785;font-size:10px;font-weight:750;letter-spacing:1.6px;text-transform:uppercase}.nav{display:grid;gap:5px}.nav-btn{display:flex;align-items:center;gap:12px;width:100%;padding:11px 12px;border:1px solid transparent;border-radius:12px;background:transparent;text-align:left;color:#aab1be;cursor:pointer;transition:background var(--speed),color var(--speed),border-color var(--speed),transform var(--speed)}.nav-btn:hover{background:var(--panel2);color:var(--text);transform:translateX(2px)}.nav-btn.active{background:rgba(var(--accent-rgb),.12);border-color:rgba(var(--accent-rgb),.22);color:var(--text)}.nav-icon{width:20px;text-align:center;font-size:17px;color:var(--accent)}.sidebar-bottom{margin-top:auto;display:grid;gap:10px}.sidebar-note{padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--panel);color:var(--muted);font-size:11px}.sidebar-note strong{display:block;color:var(--text);font-size:12px;margin-bottom:3px}.collapse-btn{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:transparent;color:var(--muted);cursor:pointer}.main{margin-left:var(--sidebar);min-width:0;padding:26px clamp(16px,3.3vw,46px) 38px;transition:margin-left var(--speed)}.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;max-width:var(--content);margin:0 auto 24px}.topbar-left{display:flex;align-items:center;gap:12px}.mobile-menu{display:none}.page-label{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:1.8px;font-weight:750}.top-actions{display:flex;gap:8px;align-items:center}.btn,.icon-btn,.field,.select{border:1px solid var(--border);border-radius:11px;background:var(--panel);color:var(--text)}.btn{padding:10px 14px;cursor:pointer;transition:transform var(--speed),background var(--speed),border-color var(--speed)}.btn:hover,.icon-btn:hover{background:var(--panel3);border-color:#414958}.btn:active,.icon-btn:active{transform:scale(.97)}.btn.primary{background:var(--accent);border-color:var(--accent);color:#10131a;font-weight:750}.btn.danger{color:#ff9e9e}.icon-btn{width:39px;height:39px;display:grid;place-items:center;cursor:pointer;font-size:16px}.content{max-width:var(--content);margin:0 auto}.view{display:none;animation:pageIn .25s ease both}.view.active{display:block}.hero{padding:clamp(18px,3.7vw,42px) 0 26px}.hero-top{display:flex;align-items:flex-end;justify-content:space-between;gap:20px}.eyebrow{font-size:10px;color:var(--muted);font-weight:750;letter-spacing:2.4px;text-transform:uppercase}h1{font-size:clamp(32px,4.7vw,52px);letter-spacing:-2.5px;line-height:1.1;margin:12px 0 10px;font-weight:790}h1 .accent-text{color:var(--accent)}.subtitle{color:var(--muted);margin:0;font-size:14px}.clock-box{text-align:right;color:var(--muted);white-space:nowrap}.clock{font-size:24px;letter-spacing:-.7px;color:var(--text);font-weight:700}.date{font-size:12px}.search-wrap{max-width:850px;margin:25px 0 0}.search-box{display:flex;align-items:center;gap:10px;padding:7px;border:1px solid var(--border);border-radius:15px;background:var(--panel);box-shadow:0 12px 35px #0002;transition:border-color var(--speed),box-shadow var(--speed)}.search-box:focus-within{border-color:rgba(var(--accent-rgb),.65);box-shadow:0 0 0 4px rgba(var(--accent-rgb),.08)}.search-icon{padding-left:10px;color:var(--muted);font-size:18px}.search-box input{min-width:0;flex:1;padding:12px 0;border:0;outline:0;background:transparent;color:var(--text)}.search-box select{max-width:150px;padding:10px 8px;border:0;border-left:1px solid var(--border);background:transparent;color:var(--muted);outline:0}.section{margin-top:30px}.section-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px}.section-title{margin:0;font-size:16px;font-weight:740;letter-spacing:-.3px}.section-sub{margin-top:4px;color:var(--muted);font-size:12px}.section-actions{display:flex;gap:8px;align-items:center}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.card{min-width:0;position:relative;display:flex;align-items:center;gap:13px;padding:16px;border:1px solid var(--border);border-radius:var(--radius);background:linear-gradient(145deg,var(--panel),rgba(16,18,23,.92));text-decoration:none;transition:transform var(--speed),border-color var(--speed),background var(--speed),box-shadow var(--speed);animation:cardIn .3s ease both}.card:hover{transform:translateY(-3px);border-color:rgba(var(--accent-rgb),.42);box-shadow:0 12px 28px #0002;background:var(--panel2)}.card-icon{display:grid;place-items:center;flex:0 0 43px;height:43px;border:1px solid var(--border);border-radius:13px;background:var(--panel3);font-size:18px;color:var(--accent)}.card-info{min-width:0;flex:1;padding-right:38px}.card-name{font-weight:680;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.card-url{color:var(--muted);font-size:11px;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.card-actions{position:absolute;right:8px;top:8px;display:flex;gap:2px;opacity:0;transition:opacity var(--speed)}.card:hover .card-actions,.card:focus-within .card-actions{opacity:1}.mini-btn{width:28px;height:28px;display:grid;place-items:center;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--muted);cursor:pointer}.mini-btn:hover{background:var(--panel3);border-color:var(--border);color:var(--text)}.mini-btn.star.active{color:#f4cf7a}.empty{grid-column:1/-1;padding:32px 18px;border:1px dashed var(--border);border-radius:var(--radius);text-align:center;color:var(--muted)}.empty strong{display:block;color:var(--text);margin-bottom:4px}.panel{border:1px solid var(--border);border-radius:var(--radius);background:var(--panel);overflow:hidden}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 17px;border-bottom:1px solid var(--border)}.panel-title{font-size:13px;font-weight:720}.panel-body{padding:17px}.browser-toolbar{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:12px;border-bottom:1px solid var(--border);background:#0e1015}.browser-address{flex:1;min-width:180px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:#090b0f;color:var(--text)}.browser-stage{min-height:350px;display:grid;place-items:center;padding:25px;text-align:center;background:radial-gradient(ellipse at center,rgba(var(--accent-rgb),.05),transparent 70%)}.browser-welcome{max-width:510px}.browser-symbol{display:grid;place-items:center;width:58px;height:58px;margin:0 auto 15px;border:1px solid var(--border);border-radius:18px;background:var(--panel2);color:var(--accent);font-size:25px}.browser-welcome h3{font-size:20px;margin:0 0 8px}.browser-welcome p{color:var(--muted);line-height:1.7;margin:0 0 16px}.browser-frame{display:none;width:100%;height:min(70vh,740px);border:0;background:#fff}.browser-frame.visible{display:block}.note{font-size:11px;color:var(--muted);line-height:1.65;margin:10px 2px 0}.yt-search{display:flex;gap:9px}.yt-search input{flex:1;min-width:0}.yt-result-shell{margin-top:16px}.yt-result-frame{display:block;width:100%;height:560px;border:0;background:#fff}.yt-player{margin-top:16px}.yt-player[hidden]{display:none}.video-frame{display:block;width:100%;aspect-ratio:16/9;max-height:70vh;border:0;background:#000}.yt-status{font-size:12px;color:var(--muted);margin-top:10px}.recent-row{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-top:10px}.recent-label{font-size:11px;color:var(--muted);margin-right:2px}.recent-chip{padding:6px 10px;border:1px solid var(--border);border-radius:999px;background:var(--panel);color:var(--muted);font-size:11px;cursor:pointer;max-width:230px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.recent-chip:hover{border-color:rgba(var(--accent-rgb),.5);color:var(--text);background:var(--panel2)}.browser-toolbar .browser-home{font-size:12px}.status-line{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.yt-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.setting-card{padding:18px;border:1px solid var(--border);border-radius:var(--radius);background:var(--panel)}.setting-card h3{font-size:14px;margin:0 0 5px}.setting-card p{font-size:12px;color:var(--muted);margin:0 0 15px}.form-group{margin:14px 0}.form-group label{display:block;margin-bottom:7px;color:var(--muted);font-size:12px;font-weight:650}.field,.select{width:100%;padding:11px 12px}.field:focus,.select:focus{border-color:var(--accent);outline:0}.color-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}input[type=color]{width:44px;height:40px;padding:3px;border:1px solid var(--border);border-radius:9px;background:var(--panel2);cursor:pointer}.swatches{display:flex;gap:8px;flex-wrap:wrap}.swatch{width:27px;height:27px;border:2px solid transparent;border-radius:50%;cursor:pointer}.swatch.selected{outline:2px solid var(--text);outline-offset:2px}.toggle-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px solid var(--border)}.toggle-row:last-child{border-bottom:0}.toggle-label strong{display:block;font-size:13px}.toggle-label span{display:block;color:var(--muted);font-size:11px;margin-top:2px}.switch{appearance:none;width:42px;height:24px;flex:0 0 42px;border:1px solid #444b58;border-radius:99px;background:#2a2e36;cursor:pointer;position:relative;transition:background var(--speed),border-color var(--speed)}.switch:before{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#c8cbd2;transition:transform var(--speed)}.switch:checked{background:var(--accent);border-color:var(--accent)}.switch:checked:before{transform:translateX(18px);background:#12151b}.todo-list{display:grid;gap:8px}.todo-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:11px;background:var(--panel2)}.todo-row input[type=checkbox]{accent-color:var(--accent)}.todo-text{flex:1;min-width:0;overflow-wrap:anywhere}.todo-row.done .todo-text{text-decoration:line-through;color:var(--muted)}.todo-add{display:flex;gap:8px;margin-bottom:12px}.todo-add input{min-width:0}.overlay{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:18px;background:#000b;backdrop-filter:blur(8px)}.overlay.open{display:flex}.modal{width:min(460px,100%);max-height:90vh;overflow:auto;padding:23px;border:1px solid var(--border);border-radius:18px;background:var(--panel);box-shadow:0 25px 90px #0009;animation:modalIn .2s ease both}.modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:18px}.modal-head h2{font-size:18px;margin:0}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}.toast{position:fixed;z-index:80;bottom:22px;left:50%;max-width:calc(100% - 28px);padding:11px 16px;border:1px solid var(--border);border-radius:12px;background:var(--panel2);color:var(--text);box-shadow:0 10px 30px #0006;transform:translate(-50%,20px);opacity:0;pointer-events:none;transition:opacity var(--speed),transform var(--speed)}.toast.show{opacity:1;transform:translate(-50%,0)}.footer{margin-top:36px;padding-top:17px;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:11px}.compact .card{padding:11px}.compact .section{margin-top:23px}.wide .content,.wide .topbar{max-width:1600px}.collapsed .sidebar{width:76px}.collapsed .brand-name,.collapsed .nav-label,.collapsed .nav-btn .nav-text,.collapsed .sidebar-note,.collapsed .collapse-text{display:none}.collapsed .brand{padding-left:3px}.collapsed .nav-btn,.collapsed .collapse-btn{justify-content:center;padding-inline:8px}.collapsed .main{margin-left:76px}.no-motion *, .no-motion *:before,.no-motion *:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.hide-clock .clock-box{display:none!important}.hide-greeting .hero{padding-top:10px}.hide-greeting .hero h1,.hide-greeting .hero .subtitle,.hide-greeting .hero .eyebrow{display:none}.hide-dashboard-links #dashboardLinksSection{display:none!important}.hide-todo #todoSection{display:none!important}.light{color-scheme:light;--bg:#f3f5f9;--panel:#fff;--panel2:#f0f2f7;--panel3:#e8ebf3;--border:#dce0e9;--text:#171b25;--muted:#626b7b}.light .sidebar{background:rgba(250,251,254,.96)}.light .browser-address{background:#fff;color:#151821}.light .search-box select{color:var(--muted)}
+@keyframes pageIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}@keyframes cardIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}@keyframes modalIn{from{opacity:0;transform:scale(.98) translateY(6px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@media(max-width:1000px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.clock-box{display:none}}
+@media(max-width:760px){.sidebar{transform:translateX(-100%);width:250px;box-shadow:15px 0 40px #0005}.mobile-open .sidebar{transform:translateX(0)}.main,.collapsed .main{margin-left:0;padding:17px 15px 28px}.mobile-menu{display:grid}.topbar{margin-bottom:14px}.hero{padding-top:20px}.hero-top{align-items:flex-start}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.card{padding:12px;gap:9px}.card-icon{flex-basis:36px;height:36px}.card-info{padding-right:22px}.card-actions{opacity:1;right:4px;top:4px}.card-actions .mini-btn{width:24px;height:24px}.settings-grid{grid-template-columns:1fr}.browser-toolbar .btn{padding:9px 10px}.browser-address{min-width:100%;order:-1}.search-box select{max-width:112px}.yt-result-frame{height:440px}}
+@media(max-width:430px){.grid{grid-template-columns:1fr}.hero-top{display:block}h1{font-size:36px;letter-spacing:-1.8px}.search-box{gap:6px}.search-box select{max-width:100px;font-size:11px}.top-actions .btn{padding:9px 10px}.section-head{align-items:flex-start}.footer{flex-direction:column}.yt-search{flex-wrap:wrap}.yt-search .field{flex-basis:100%}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<div class="app">
-  <header>
-    <div class="brand"><div class="brand-mark">C.</div><div>Classroom Hub<span class="brand-sub">YOUR SPACE ON THE WEB</span></div></div>
-    <div class="header-actions">
-      <button class="btn" id="addLinkTop">＋ Add link</button>
-      <button class="icon-btn" id="openSettings" title="Settings" aria-label="Open settings">⚙</button>
-    </div>
-  </header>
-
-  <main>
-    <section class="hero">
-      <div class="eyebrow" id="dateLabel">YOUR PERSONAL DASHBOARD</div>
-      <h1 id="greeting">A little more <span>focus.</span></h1>
-      <p>Everything you need, all in one place.</p>
-      <div class="search-wrap">
-        <form class="search-box" id="searchForm">
-          <span class="search-icon" aria-hidden="true">⌕</span>
-          <input id="searchInput" type="search" placeholder="Search the web or enter a question..." aria-label="Search the web" autocomplete="off">
-          <select id="searchEngine" aria-label="Search engine">
-            <option value="duckduckgo">DuckDuckGo</option><option value="google">Google</option><option value="bing">Bing</option>
-          </select>
-          <button class="btn primary" type="submit">Search</button>
-        </form>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="section-head">
-        <div><h2 class="section-title">Quick access</h2><div class="section-sub">Your frequently used destinations.</div></div>
-        <div class="section-actions"><button class="btn" id="showAll">All links</button></div>
-      </div>
-      <div class="link-grid" id="linkGrid"></div>
-    </section>
-
-    <section class="section">
-      <div class="section-head">
-        <div><h2 class="section-title">Favorites</h2><div class="section-sub">The links you've starred.</div></div>
-      </div>
-      <div class="link-grid" id="favoriteGrid"></div>
-    </section>
-
-    <section class="section" id="browserSection">
-      <div class="section-head">
-        <div><h2 class="section-title">Browse</h2><div class="section-sub">Pages open right here and stay inside Classroom Hub.</div></div>
-      </div>
-      <div class="browser-panel">
-        <form class="browser-toolbar" id="browserForm">
-          <button class="icon-btn" type="button" id="navBack" title="Back" aria-label="Back" disabled>←</button>
-          <button class="icon-btn" type="button" id="navForward" title="Forward" aria-label="Forward" disabled>→</button>
-          <button class="icon-btn" type="button" id="navReload" title="Reload" aria-label="Reload">⟳</button>
-          <button class="icon-btn" type="button" id="navHome" title="Home" aria-label="Home">⌂</button>
-          <input class="browser-address" id="browserAddress" type="text" placeholder="Enter a web address or search..." aria-label="Website address or search" autocomplete="off" autocapitalize="off" spellcheck="false">
-          <select class="browser-engine" id="browserEngine" aria-label="Search engine">
-            <option value="duckduckgo">DuckDuckGo</option><option value="google">Google</option><option value="bing">Bing</option>
-          </select>
-          <button class="btn primary go" type="submit">Go</button>
-        </form>
-        <div class="browser-status"><span id="statusText">Ready.</span><button class="link-btn" type="button" id="whyBtn" hidden>Page blank? See why</button></div>
-        <div class="browser-stage" id="browserStage">
-          <div class="browser-welcome" id="viewHome">
-            <div class="browser-symbol">↗</div>
-            <h3>Your browsing space</h3>
-            <p>Type an address or a search above. Pages open inside Classroom Hub whenever the site allows being embedded.</p>
-            <div class="notice-actions">
-              <button class="btn" type="button" data-go="https://en.wikipedia.org/">Wikipedia</button>
-              <button class="btn" type="button" data-go="https://example.com/">example.com</button>
-            </div>
-          </div>
-          <div class="browser-welcome" id="viewNotice" hidden></div>
-        </div>
-        <div id="frameHold" hidden></div>
-      </div>
-      <div class="browser-note">
-        This is an embedded view, not a proxy. Sites can forbid embedding (X-Frame-Options or CSP frame-ancestors), and Classroom Hub can't read or change what's inside another site's page. Back/Forward track pages you open from this address bar; link clicks inside a site aren't visible to Classroom Hub.
-      </div>
-    </section>
-  <section class="section" id="ytSection">
-      <div class="section-head">
-        <div><h2 class="section-title">YouTube</h2><div class="section-sub">Search YouTube, or paste a video link to watch it here.</div></div>
-      </div>
-      <form class="yt-form" id="ytForm">
-        <input class="browser-address" id="ytInput" type="search" placeholder="Search YouTube or paste a link..." aria-label="Search YouTube or paste a video link" autocomplete="off">
-        <button class="btn primary" type="submit">Search</button>
-        <button class="btn" type="button" id="ytHome">YouTube home ↗</button>
-      </form>
-      <div class="yt-status" id="ytStatus" role="status" aria-live="polite">Search opens YouTube's own results in a new tab. Paste a YouTube link (watch, youtu.be or Shorts) to play it here.</div>
-      <div class="yt-player" id="ytPlayerBox" hidden>
-        <div class="yt-bar">
-          <button class="btn" type="button" id="ytBack">✕ Close</button>
-          <span id="ytNowTitle"></span>
-          <a class="link-btn" id="ytOpen" href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer">Optional: watch on YouTube ↗</a>
-        </div>
-        <div class="yt-ratio"><div id="ytMount"></div></div>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <div><span class="footer-brand">CLASSROOM HUB</span> · Your space, your setup.</div>
-    <div>Made for your everyday web.</div>
-  </footer>
-</div>
-
-<div class="overlay" id="linkOverlay" role="dialog" aria-modal="true" aria-labelledby="linkModalTitle">
-  <div class="modal">
-    <div class="modal-head"><h2 id="linkModalTitle">Add a link</h2><button class="icon-btn" data-close="linkOverlay" aria-label="Close">×</button></div>
-    <form id="linkForm">
-      <input type="hidden" id="linkId">
-      <div class="form-group"><label for="linkName">Name</label><input class="field" id="linkName" maxlength="50" required placeholder="My website"></div>
-      <div class="form-group"><label for="linkUrl">Website URL</label><input class="field" id="linkUrl" required placeholder="https://example.com"></div>
-      <div class="form-group"><label for="linkIcon">Icon or emoji</label><input class="field" id="linkIcon" maxlength="8" value="↗" placeholder="🌐"></div>
-      <div class="modal-actions"><button class="btn" type="button" data-close="linkOverlay">Cancel</button><button class="btn primary" type="submit">Save link</button></div>
-    </form>
-  </div>
-</div>
-
-<div class="overlay" id="settingsOverlay" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
-  <div class="modal">
-    <div class="modal-head"><h2 id="settingsTitle">Personalize your hub</h2><button class="icon-btn" data-close="settingsOverlay" aria-label="Close">×</button></div>
-    <form id="settingsForm">
-      <div class="form-group"><label for="greetingName">Greeting text</label><input class="field" id="greetingName" maxlength="45" placeholder="A little more focus."></div>
-      <div class="form-group"><label for="accentColor">Accent color</label><div class="color-row"><input id="accentColor" type="color" value="#c9c9c9"><span id="accentLabel">#c9c9c9</span></div></div>
-      <div class="form-group"><label for="defaultEngine">Default search engine</label>
-        <select class="select" id="defaultEngine"><option value="duckduckgo">DuckDuckGo</option><option value="google">Google</option><option value="bing">Bing</option></select></div>
-      <div class="modal-actions"><button class="btn" type="button" id="resetSettings">Reset settings</button><button class="btn primary" type="submit">Save settings</button></div>
-    </form>
-  </div>
-</div>
-
+<div class="app" id="app">
+<aside class="sidebar" id="sidebar">
+ <div class="brand"><div class="brand-mark">C</div><div class="brand-name">Classroom Hub<span class="brand-sub">YOUR SPACE, YOUR FLOW</span></div></div>
+ <div class="nav-label">Workspace</div><nav class="nav" aria-label="Main navigation">
+  <button class="nav-btn active" data-view="dashboard"><span class="nav-icon">⌂</span><span class="nav-text">Home</span></button>
+  <button class="nav-btn" data-view="quick"><span class="nav-icon">▦</span><span class="nav-text">Quick Access</span></button>
+  <button class="nav-btn" data-view="browser"><span class="nav-icon">◎</span><span class="nav-text">Browser</span></button>
+  <button class="nav-btn" data-view="youtube"><span class="nav-icon">▷</span><span class="nav-text">YouTube</span></button>
+  <button class="nav-btn" data-view="favorites"><span class="nav-icon">☆</span><span class="nav-text">Favorites</span></button>
+ </nav>
+ <div class="nav-label" style="margin-top:16px">Personal</div><nav class="nav"><button class="nav-btn" data-view="settings"><span class="nav-icon">⚙</span><span class="nav-text">Settings</span></button></nav>
+ <div class="sidebar-bottom"><div class="sidebar-note"><strong>Your hub, your way.</strong>Links and preferences are saved in this browser on this device.</div><button class="collapse-btn" id="collapseBtn"><span>⇤</span><span class="collapse-text">Collapse sidebar</span></button></div>
+</aside>
+<main class="main">
+ <header class="topbar"><div class="topbar-left"><button class="icon-btn mobile-menu" id="mobileMenu" aria-label="Open navigation">☰</button><div class="page-label" id="pageLabel">HOME / OVERVIEW</div></div><div class="top-actions"><button class="btn" id="topAdd">＋ Add link</button><button class="icon-btn" id="topSettings" aria-label="Open settings">⚙</button></div></header>
+ <div class="content">
+  <section class="view active" id="view-dashboard">
+   <div class="hero"><div class="hero-top"><div><div class="eyebrow">YOUR PERSONAL START PAGE</div><h1 id="greeting">Good day. <span class="accent-text">Ready when you are.</span></h1><p class="subtitle">A calmer place to start your next thing.</p></div><div class="clock-box"><div class="clock" id="clock">--:--</div><div class="date" id="dateText">Loading date…</div></div></div>
+    <div class="search-wrap"><form class="search-box" id="globalSearch"><span class="search-icon">⌕</span><input id="globalSearchInput" autocomplete="off" placeholder="Search the web or enter a website…" aria-label="Search the web or enter a website"><select id="globalEngine" aria-label="Search engine"><option value="duckduckgo">DuckDuckGo</option><option value="google">Google</option><option value="bing">Bing</option></select><button class="btn primary" type="submit">Search ↗</button></form><div class="note">Searches open in the Browser tab, not a new tab. Tip: press Ctrl/⌘ + K to search, Ctrl/⌘ + L to focus the browser, or Ctrl/⌘ + Shift + Y for YouTube.</div><div class="recent-row" id="recentSearchRow" aria-label="Recent searches"></div></div>
+   </div>
+   <section class="section" id="dashboardLinksSection"><div class="section-head"><div><h2 class="section-title">Quick Access</h2><div class="section-sub">Your most-used places, one click away.</div></div><div class="section-actions"><button class="btn" id="manageLinks">Manage links</button><button class="btn primary" id="addLinkDash">＋ Add</button></div></div><div class="grid" id="dashboardLinks"></div></section>
+   <section class="section" id="todoSection"><div class="section-head"><div><h2 class="section-title">To-do list</h2><div class="section-sub">A small plan for what comes next.</div></div><button class="btn" id="hideTodo">Hide widget</button></div><div class="panel"><div class="panel-body"><form class="todo-add" id="todoForm"><input class="field" id="todoInput" placeholder="Add a task…" maxlength="180" aria-label="New task"><button class="btn primary" type="submit">Add task</button></form><div class="todo-list" id="todoList"></div><div class="note" id="todoEmpty">No tasks yet. Add one small thing to get started.</div><div style="margin-top:12px"><button class="btn" id="clearTasks">Clear completed</button></div></div></div></section>
+  </section>
+  <section class="view" id="view-quick"><div class="section-head"><div><h1 style="font-size:34px;margin:0 0 5px;letter-spacing:-1.3px">Quick Access</h1><div class="section-sub">Add, edit, star, and organize your shortcuts.</div></div><button class="btn primary" id="addLinkQuick">＋ Add link</button></div><div class="search-wrap" style="margin-top:15px;max-width:100%"><div class="search-box"><span class="search-icon">⌕</span><input id="linkFilter" placeholder="Filter your links…" aria-label="Filter links"></div></div><div class="section"><div class="grid" id="allLinks"></div></div></section>
+  <section class="view" id="view-browser"><div class="section-head"><div><h1 style="font-size:34px;margin:0 0 5px;letter-spacing:-1.3px">Browser</h1><div class="section-sub">Search or enter a website address below.</div></div></div><div class="panel"><form class="browser-toolbar" id="browserForm"><button class="icon-btn" type="button" id="browserBack" title="Back" aria-label="Back">←</button><button class="icon-btn" type="button" id="browserForward" title="Forward" aria-label="Forward">→</button><button class="icon-btn" type="button" id="browserRefresh" title="Reload current page" aria-label="Reload current page">↻</button><button class="btn browser-home" type="button" id="browserHome" title="Return to the browser start screen">Home</button><select class="select browser-engine" id="browserEngine" aria-label="Browser search engine" title="Choose search engine" style="width:auto;padding:9px 8px"><option value="duckduckgo">DuckDuckGo</option><option value="google">Google</option><option value="bing">Bing</option></select><input class="browser-address" id="browserAddress" placeholder="Search the web or enter a website address…" aria-label="Browser address"><button class="btn primary" type="submit">Go</button></form><div class="browser-stage" id="browserStage"><div class="browser-welcome"><div class="browser-symbol">◎</div><h3>Your browser space</h3><p>Type a search phrase or a website address above. Results will load here when the site allows itself to be embedded.</p><button class="btn" type="button" id="browserSearchExample">Try a web search</button></div></div><iframe class="browser-frame" id="browserFrame" title="Embedded browser" referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-downloads" allow="clipboard-read; clipboard-write; fullscreen"></iframe></div><div class="note">Some websites and search engines block embedded views. If a page is blank, try another search engine or use a shortcut that supports embedding. Classroom Hub will not automatically open a new tab or bypass a site’s security restrictions.</div></section>
+  <section class="view" id="view-youtube"><div class="section-head"><div><h1 style="font-size:34px;margin:0 0 5px;letter-spacing:-1.3px">YouTube</h1><div class="section-sub">Search videos or paste a YouTube video link to play it here.</div></div></div><div class="panel"><div class="panel-body"><form class="yt-search" id="youtubeSearchForm"><input class="field" id="youtubeQuery" placeholder="Search videos, channels, or topics…" aria-label="Search YouTube"><button class="btn primary" type="submit">Search videos</button></form><div class="yt-actions"><button class="btn" type="button" id="youtubeOpenResults">Open official YouTube results</button></div><div class="recent-row" id="recentYoutubeRow" aria-label="Recent YouTube searches"></div><div class="note">Search results are requested from YouTube directly. YouTube may block its results page from appearing inside another site; if it does, the button below loads those official results in the same Classroom Hub browser area. Video links can still play here when embedding is allowed.</div><div class="yt-result-shell" id="ytResultShell" hidden><iframe class="yt-result-frame" id="youtubeResultsFrame" title="YouTube search results" referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-forms"></iframe></div><div class="form-group" style="margin-top:22px"><label for="youtubeVideoInput">Or paste a YouTube video link</label><div class="yt-search"><input class="field" id="youtubeVideoInput" placeholder="https://www.youtube.com/watch?v=…"><button class="btn" type="button" id="playYoutubeVideo">Play here</button></div></div><div class="yt-player" id="ytPlayer" hidden><iframe class="video-frame" id="youtubePlayerFrame" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div><div class="yt-status" id="youtubeStatus" role="status" aria-live="polite"></div></div></div></section>
+  <section class="view" id="view-favorites"><div class="section-head"><div><h1 style="font-size:34px;margin:0 0 5px;letter-spacing:-1.3px">Favorites</h1><div class="section-sub">Your starred shortcuts.</div></div><button class="btn" id="manageFavorites">Manage links</button></div><div class="section"><div class="grid" id="favoriteLinks"></div></div></section>
+  <section class="view" id="view-settings"><div class="section-head"><div><h1 style="font-size:34px;margin:0 0 5px;letter-spacing:-1.3px">Settings</h1><div class="section-sub">Make the hub feel like yours. Changes save automatically.</div></div></div><div class="settings-grid">
+   <div class="setting-card"><h3>Appearance</h3><p>Choose the color and overall feel.</p><div class="form-group"><label for="accentColor">Accent color</label><div class="color-row"><input type="color" id="accentColor" value="#9caeff"><div class="swatches" id="swatches"></div></div></div><div class="form-group"><label for="themeSelect">Theme</label><select class="select" id="themeSelect"><option value="dark">Dark</option><option value="light">Light</option></select></div><div class="form-group"><label for="densitySelect">Card spacing</label><select class="select" id="densitySelect"><option value="comfortable">Comfortable</option><option value="compact">Compact</option></select></div><div class="form-group"><label for="widthSelect">Content width</label><select class="select" id="widthSelect"><option value="normal">Normal</option><option value="wide">Wide</option></select></div></div>
+   <div class="setting-card"><h3>Personal touch</h3><p>Customize the greeting and search behavior.</p><div class="form-group"><label for="greetingInput">Custom greeting</label><input class="field" id="greetingInput" maxlength="70" placeholder="Leave blank for time-based greeting"></div><div class="form-group"><label for="settingsEngine">Default search engine</label><select class="select" id="settingsEngine"><option value="duckduckgo">DuckDuckGo</option><option value="google">Google</option><option value="bing">Bing</option></select></div><div class="form-group"><label for="startPage">Startup page</label><select class="select" id="startPage"><option value="dashboard">Home</option><option value="quick">Quick Access</option><option value="browser">Browser</option><option value="youtube">YouTube</option></select></div></div>
+   <div class="setting-card"><h3>Layout & widgets</h3><p>Show only the things you actually use.</p><div class="toggle-row"><div class="toggle-label"><strong>Show clock and date</strong><span>Display local time on the home screen.</span></div><input class="switch" type="checkbox" id="showClock" checked></div><div class="toggle-row"><div class="toggle-label"><strong>Show greeting</strong><span>Keep the welcome message visible.</span></div><input class="switch" type="checkbox" id="showGreeting" checked></div><div class="toggle-row"><div class="toggle-label"><strong>Show Quick Access on home</strong><span>Display shortcut cards on the dashboard.</span></div><input class="switch" type="checkbox" id="showDashboardLinks" checked></div><div class="toggle-row"><div class="toggle-label"><strong>Show to-do widget</strong><span>Keep your task list on the home screen.</span></div><input class="switch" type="checkbox" id="showTodo" checked></div><div class="toggle-row"><div class="toggle-label"><strong>Reduced motion</strong><span>Turn off most animations.</span></div><input class="switch" type="checkbox" id="reducedMotion"></div><div class="toggle-row"><div class="toggle-label"><strong>Start with collapsed sidebar</strong><span>Save more horizontal space.</span></div><input class="switch" type="checkbox" id="sidebarCollapsed"></div></div>
+   <div class="setting-card"><h3>Data & reset</h3><p>Your links, tasks, and preferences are saved in this browser's local storage.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="exportData">Export backup</button><button class="btn" id="importDataBtn">Import backup</button><input type="file" id="importDataFile" accept="application/json,.json" hidden><button class="btn" id="resetSettings">Reset settings</button></div><div class="note">Export a backup before clearing browser data or moving to another device. This website does not sync data automatically across devices.</div></div>
+  </div><div style="margin-top:16px;display:flex;justify-content:flex-end"><button class="btn primary" id="saveSettings">Save settings</button></div></section>
+  <div class="footer"><span>Classroom Hub · A simple space for your day</span><span>Saved locally on this device</span></div>
+ </div>
+</main></div>
+<div class="overlay" id="linkModal" role="dialog" aria-modal="true" aria-labelledby="linkModalTitle"><form class="modal" id="linkForm"><div class="modal-head"><h2 id="linkModalTitle">Add a shortcut</h2><button type="button" class="icon-btn" id="closeLinkModal" aria-label="Close">×</button></div><input type="hidden" id="linkId"><div class="form-group"><label for="linkName">Name</label><input class="field" id="linkName" maxlength="50" required placeholder="Example: School portal"></div><div class="form-group"><label for="linkUrl">Website address</label><input class="field" id="linkUrl" required placeholder="https://example.com"></div><div class="form-group"><label for="linkIcon">Icon or emoji</label><input class="field" id="linkIcon" maxlength="6" placeholder="🌐" value="🌐"></div><div class="toggle-row"><div class="toggle-label"><strong>Star this shortcut</strong><span>Show it in Favorites.</span></div><input class="switch" id="linkStar" type="checkbox"></div><div class="modal-actions"><button type="button" class="btn" id="cancelLink">Cancel</button><button type="submit" class="btn primary">Save shortcut</button></div></form></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
 <script>
-(() => {
-"use strict";
-
-/* ===== Shared helpers ===== */
-const KEY = "classroomHubPremiumV1";
-const $ = id => document.getElementById(id);
-const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-let toastTimer;
-function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove("show"),2400);}
-
-/* ===== Search engines (edit here to add more) ===== */
-const ENGINES = {
-  duckduckgo:{name:"DuckDuckGo",url:q=>"https://html.duckduckgo.com/html/?q="+encodeURIComponent(q)},
-  google:{name:"Google",url:q=>"https://www.google.com/search?q="+encodeURIComponent(q)},
-  bing:{name:"Bing",url:q=>"https://www.bing.com/search?q="+encodeURIComponent(q)}
-};
-
-/* ===== Dashboard state (same storage key and shape as before) ===== */
-const defaultLinks = [
-  {id:"google",name:"Google",url:"https://www.google.com/",icon:"G",favorite:true},
-  {id:"youtube",name:"YouTube",url:"https://www.youtube.com/",icon:"▶",favorite:true},
-  {id:"wikipedia",name:"Wikipedia",url:"https://www.wikipedia.org/",icon:"W",favorite:false},
-  {id:"github",name:"GitHub",url:"https://github.com/",icon:"⌘",favorite:false}
-];
-const defaultSettings = {greeting:"A little more focus.",accent:"#c9c9c9",engine:"duckduckgo"};
-const isValidSavedLink = l => l && typeof l==="object" && typeof l.id==="string" && typeof l.name==="string" && typeof l.url==="string";
-
-function loadState(){
-  try{
-    const s = JSON.parse(localStorage.getItem(KEY));
-    if(s && typeof s==="object"){
-      const settings = {...defaultSettings,...(s.settings&&typeof s.settings==="object"?s.settings:{})};
-      if(!ENGINES[settings.engine]) settings.engine = defaultSettings.engine;
-      return {links:Array.isArray(s.links)?s.links.filter(isValidSavedLink):defaultLinks.map(l=>({...l})),settings};
-    }
-  }catch(e){}
-  return {links:defaultLinks.map(l=>({...l})),settings:{...defaultSettings}};
-}
-let state = loadState();
-function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){toast("Couldn't save (storage unavailable).");}}
-
-/* ===== Browser module: address parsing ===== */
-const FRAME_BLOCKED = ["google.com","bing.com","facebook.com","instagram.com","x.com","twitter.com","github.com","linkedin.com","netflix.com","reddit.com","youtube.com","tiktok.com"];
-// Convenience list of sites known to refuse framing. Not a guarantee either way.
-const hostBlocked = h => FRAME_BLOCKED.some(d => h===d || h.endsWith("."+d));
-
-function ytEmbed(u){
-  const h = u.hostname.replace(/^(www|m)\./,"");
-  let id = null;
-  if(h==="youtu.be") id = u.pathname.slice(1);
-  else if(h==="youtube.com"){
-    if(u.pathname==="/watch") id = u.searchParams.get("v");
-    else {const m=u.pathname.match(/^\/(shorts|embed)\/([\w-]{6,})/); if(m) id=m[2];}
-  }
-  return id && /^[\w-]{6,}$/.test(id) ? "https://www.youtube-nocookie.com/embed/"+id : null;
-}
-
-function makePage(raw){
-  let u; try{u=new URL(raw);}catch(e){return {error:"invalid"};}
-  if(u.protocol==="http:") u.protocol="https:"; // https page can't embed http content
-  if(u.protocol!=="https:") return {error:"scheme"};
-  const e = {kind:"page",url:u.href,src:u.href,host:u.hostname.toLowerCase()};
-  const yt = ytEmbed(u);
-  if(yt){e.src=yt;e.note="Using YouTube's official embedded player.";e.embed=true;}
-  return e;
-}
-function makeSearch(q,engineKey){
-  const eng = ENGINES[engineKey]||ENGINES.duckduckgo, url = eng.url(q);
-  const e = makePage(url); e.kind="search"; e.query=q; e.engine=eng.name; return e;
-}
-function resolve(input,engineKey){
-  const raw = input.trim(); if(!raw) return null;
-  const hasScheme = /^[a-z][a-z0-9+.-]*:/i.test(raw) && !/^[a-z0-9.-]+:\d+/i.test(raw);
-  if(hasScheme) return /^https?:\/\//i.test(raw) ? makePage(raw) : {error:"scheme"};
-  if(!/\s/.test(raw) && /^[\w-]+(\.[\w-]+)+(:\d+)?([/?#].*)?$/.test(raw)) return makePage("https://"+raw);
-  return makeSearch(raw,engineKey);
-}
-
-/* ===== Browser module: history + view ===== */
-const Browser = (() => {
-  const addr=$("browserAddress"), stage=$("browserStage"), vHome=$("viewHome"), vNotice=$("viewNotice"), hold=$("frameHold");
-  const statusEl=$("statusText"), whyBtn=$("whyBtn");
-  const back=$("navBack"), fwd=$("navForward");
-  const HOME = {url:"about:home",kind:"home"};
-  let hist=[HOME], idx=0, timer=0, current=null;
-
-  const status = (t,why) => {statusEl.textContent=t; whyBtn.hidden=!why;};
-  const view = v => {vHome.hidden=v!=="home"; vNotice.hidden=v!=="notice"; stage.hidden=v==="frame"; hold.hidden=v!=="frame";};
-  const syncButtons = () => {back.disabled=idx<=0; fwd.disabled=idx>=hist.length-1;};
-
-  function clearFrame(){clearTimeout(timer);hold.replaceChildren();}
-
-  function mount(entry){
-    clearFrame();
-    const f = document.createElement("iframe");
-    f.className="browser-frame";
-    f.title="Website browsing area";
-    f.setAttribute("sandbox","allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-downloads");
-    f.referrerPolicy="strict-origin-when-cross-origin";
-    f.setAttribute("allow","fullscreen; encrypted-media; picture-in-picture");
-    f.setAttribute("allowfullscreen","");
-    f.addEventListener("load",()=>{
-      clearTimeout(timer);
-      status("Page responded. Classroom Hub can't see inside other sites, so it can't confirm the content actually displayed."+(entry.note?" "+entry.note:""),true);
-    });
-    status("Loading "+entry.url+" …",false);
-    timer=setTimeout(()=>status("Still waiting on this page. The site may be slow, blocked on this network, or refusing to be embedded.",true),15000);
-    view("frame"); hold.appendChild(f); f.src=entry.src;
-  }
-
-  function notice(kind,entry){
-    clearFrame(); view("notice");
-    const q=entry&&entry.query, host=entry&&entry.host||"";
-    const alts=[];
-    if(q){
-      if(!/duckduckgo/.test(entry.url)) alts.push(['Search "'+q+'" on DuckDuckGo here',ENGINES.duckduckgo.url(q)]);
-      alts.push(['Search Wikipedia for "'+q+'"',"https://en.wikipedia.org/w/index.php?search="+encodeURIComponent(q)]);
-    } else {
-      alts.push(["Search with DuckDuckGo here","https://html.duckduckgo.com/html/"]);
-      alts.push(["Browse Wikipedia here","https://en.wikipedia.org/"]);
-    }
-    let title,body;
-    if(/(^|\.)youtube\.com$/.test(host)) alts.unshift(["Use YouTube search in Classroom Hub","yt:"]);
-    if(kind==="invalid"){title="That address can't be opened";body="Classroom Hub can only open http and https web addresses. Check for typos, or type words to search instead.";alts.length=0;}
-    else if(kind==="blocked"){title="This site doesn't allow embedding";body="<b>"+esc(host)+"</b> tells browsers not to display it inside other pages (using the X-Frame-Options header or a CSP <code>frame-ancestors</code> rule). Your browser enforces this, and no code on a static site can override it, so Classroom Hub didn't pretend to load it.";}
-    else {title="Why a page may not show";body="If the area is blank or shows a refused/error message, common causes are: the site forbids embedding (X-Frame-Options / CSP frame-ancestors); the site is down or slow; or this network or device filter blocks it. Classroom Hub can't read the reason from inside another site, and it doesn't try to get around network rules.";}
-    vNotice.innerHTML='<div class="browser-symbol">!</div><h3>'+title+'</h3><p>'+body+'</p>'+
-      '<div class="notice-actions">'+alts.map(a=>'<button class="btn primary" type="button" data-go="'+esc(a[1])+'">'+esc(a[0])+'</button>').join("")+
-      '<button class="btn" type="button" data-home="1">Back to Home</button></div>'+
-      (kind!=="invalid"&&entry&&/^https:/.test(entry.url)?'<p style="margin:16px 0 0;font-size:12px">Optional, your choice: <a class="link-btn" href="'+esc(entry.url)+'" target="_blank" rel="noopener noreferrer">open this site outside Classroom Hub ↗</a></p>':'');
-    status(kind==="explain"?"Explanation shown.":"Not loaded: "+(kind==="blocked"?"embedding refused by site.":"invalid address."),false);
-  }
-
-  function show(entry){
-    current=entry; addr.value=entry.url==="about:home"?"":entry.url; syncButtons();
-    if(entry.kind==="home"){clearFrame();view("home");status("Home.",false);return;}
-    if(entry.error){notice("invalid");return;}
-    if(!entry.embed && hostBlocked(entry.host)){notice("blocked",entry);return;}
-    mount(entry);
-  }
-
-  function go(input,engineKey){
-    const r = resolve(input,engineKey);
-    if(!r) return;
-    if(r.error){current=null;notice("invalid");return;}
-    hist=hist.slice(0,idx+1); hist.push(r); idx=hist.length-1; show(r);
-  }
-  return {
-    go,
-    home(){hist=hist.slice(0,idx+1);hist.push(HOME);idx=hist.length-1;show(HOME);},
-    back(){if(idx>0){idx--;show(hist[idx]);}},
-    forward(){if(idx<hist.length-1){idx++;show(hist[idx]);}},
-    reload(){if(current&&current.kind!=="home"&&!current.error)show(current);},
-    explain(){notice("explain",current&&current.kind!=="home"?current:null);},
-    focus(){$("browserSection").scrollIntoView({behavior:"smooth",block:"start"});}
-  };
-})();
-
-/* ===== Wire up the browser ===== */
-const engineNow = () => state.settings.engine;
-$("browserForm").addEventListener("submit",e=>{e.preventDefault();Browser.go($("browserAddress").value,$("browserEngine").value);});
-$("navBack").onclick=Browser.back; $("navForward").onclick=Browser.forward;
-$("navReload").onclick=Browser.reload; $("navHome").onclick=Browser.home; $("whyBtn").onclick=Browser.explain;
-$("browserStage").addEventListener("click",e=>{
-  const g=e.target.closest("[data-go]"); if(g){if(g.dataset.go==="yt:"){Tube.focus();return;}Browser.go(g.dataset.go,engineNow());return;}
-  if(e.target.closest("[data-home]")) Browser.home();
-});
-$("browserEngine").addEventListener("change",e=>setEngine(e.target.value));
-$("searchEngine").addEventListener("change",e=>setEngine(e.target.value));
-function setEngine(v){if(!ENGINES[v])return;state.settings.engine=v;save();applySettings();}
-$("searchForm").addEventListener("submit",e=>{
-  e.preventDefault();
-  const v=$("searchInput").value; if(!v.trim())return;
-  Browser.go(v,$("searchEngine").value); Browser.focus();
-});
-
-/* ===== Dashboard: settings ===== */
-function applySettings(){
-  const s=state.settings;
-  document.documentElement.style.setProperty("--accent",s.accent);
-  const g=s.greeting.trim()||defaultSettings.greeting, i=g.lastIndexOf(" ");
-  $("greeting").innerHTML = i>0 ? esc(g.slice(0,i))+" <span>"+esc(g.slice(i+1))+"</span>" : "<span>"+esc(g)+"</span>";
-  $("searchEngine").value=s.engine; $("browserEngine").value=s.engine;
-}
-$("dateLabel").textContent=new Date().toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"}).toUpperCase();
-
-/* ===== Dashboard: links ===== */
-let showAll=false;
-function cardHtml(l,i){
-  return '<div class="link-card" role="link" tabindex="0" data-id="'+esc(l.id)+'" style="animation-delay:'+(i*40)+'ms">'+
-    '<div class="link-icon">'+esc(l.icon||"↗")+'</div>'+
-    '<div class="link-info"><div class="link-name">'+esc(l.name)+'</div><div class="link-url">'+esc(l.url.replace(/^https?:\/\//,""))+'</div></div>'+
-    '<button class="favorite'+(l.favorite?" active":"")+'" data-act="fav" aria-label="Toggle favorite" aria-pressed="'+!!l.favorite+'">'+(l.favorite?"★":"☆")+'</button>'+
-    '<button class="mini edit" data-act="edit" aria-label="Edit link">✎</button>'+
-    '<button class="mini del" data-act="del" aria-label="Delete link">🗑</button></div>';
-}
-function renderLinks(){
-  const shown=showAll?state.links:state.links.slice(0,4), favs=state.links.filter(l=>l.favorite);
-  $("linkGrid").innerHTML=shown.length?shown.map(cardHtml).join(""):'<div class="empty">No links yet. Use “＋ Add link” to create one.</div>';
-  $("favoriteGrid").innerHTML=favs.length?favs.map(cardHtml).join(""):'<div class="empty">Star a link to see it here.</div>';
-  $("showAll").textContent=showAll?"Show fewer":"All links";
-  $("showAll").hidden=state.links.length<=4;
-}
-function onGrid(e){
-  const card=e.target.closest(".link-card"); if(!card)return;
-  const l=state.links.find(x=>x.id===card.dataset.id); if(!l)return;
-  const act=e.target.closest("[data-act]");
-  if(act){
-    e.stopPropagation();
-    if(act.dataset.act==="fav"){l.favorite=!l.favorite;save();renderLinks();}
-    else if(act.dataset.act==="edit")openLinkModal(l);
-    else if(act.dataset.act==="del"&&confirm('Delete "'+l.name+'"?')){state.links=state.links.filter(x=>x!==l);save();renderLinks();toast("Link deleted.");}
-    return;
-  }
-  if(!Tube.handle(l.url)){Browser.go(l.url,engineNow()); Browser.focus();}
-}
-["linkGrid","favoriteGrid"].forEach(id=>{
-  $(id).addEventListener("click",onGrid);
-  $(id).addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.classList.contains("link-card")){e.preventDefault();onGrid(e);}});
-});
-$("showAll").onclick=()=>{showAll=!showAll;renderLinks();};
-
-/* ===== Modals ===== */
-const openOv=id=>{$(id).classList.add("open");};
-const closeOv=id=>$(id).classList.remove("open");
-document.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",()=>closeOv(b.dataset.close)));
-document.querySelectorAll(".overlay").forEach(o=>o.addEventListener("click",e=>{if(e.target===o)o.classList.remove("open");}));
-document.addEventListener("keydown",e=>{if(e.key==="Escape")document.querySelectorAll(".overlay.open").forEach(o=>o.classList.remove("open"));});
-
-function openLinkModal(l){
-  $("linkModalTitle").textContent=l?"Edit link":"Add a link";
-  $("linkId").value=l?l.id:""; $("linkName").value=l?l.name:""; $("linkUrl").value=l?l.url:""; $("linkIcon").value=l?l.icon:"↗";
-  openOv("linkOverlay"); $("linkName").focus();
-}
-$("addLinkTop").onclick=()=>openLinkModal(null);
-$("linkForm").addEventListener("submit",e=>{
-  e.preventDefault();
-  const p=makePage(/^https?:\/\//i.test($("linkUrl").value.trim())?$("linkUrl").value.trim():"https://"+$("linkUrl").value.trim());
-  if(p.error){toast("Please enter a valid web address.");return;}
-  const data={name:$("linkName").value.trim(),url:p.url,icon:$("linkIcon").value.trim()||"↗"}, id=$("linkId").value;
-  if(id){const l=state.links.find(x=>x.id===id);if(l)Object.assign(l,data);}
-  else state.links.push({id:"l"+Date.now().toString(36),favorite:false,...data});
-  save();renderLinks();closeOv("linkOverlay");toast("Link saved.");
-});
-
-$("openSettings").onclick=()=>{
-  const s=state.settings;
-  $("greetingName").value=s.greeting; $("accentColor").value=s.accent; $("accentLabel").textContent=s.accent; $("defaultEngine").value=s.engine;
-  openOv("settingsOverlay");
-};
-$("accentColor").addEventListener("input",e=>{$("accentLabel").textContent=e.target.value;});
-$("settingsForm").addEventListener("submit",e=>{
-  e.preventDefault();
-  state.settings={greeting:$("greetingName").value.trim()||defaultSettings.greeting,accent:$("accentColor").value,engine:ENGINES[$("defaultEngine").value]?$("defaultEngine").value:"duckduckgo"};
-  save();applySettings();closeOv("settingsOverlay");toast("Settings saved.");
-});
-$("resetSettings").onclick=()=>{state.settings={...defaultSettings};save();applySettings();closeOv("settingsOverlay");toast("Settings reset.");};
-
-/* ===== YouTube module =====
-   Pasted links play in YouTube's official IFrame Player. Search terms open YouTube's own results page.
-   No API key, server or proxy is involved. */
-const Tube = (() => {
-  const input=$("ytInput"), stat=$("ytStatus"), box=$("ytPlayerBox"), now=$("ytNowTitle"), openLink=$("ytOpen");
-  const HOME="https://www.youtube.com/";
-  const IDLE="Search opens YouTube's own results in a new tab. Paste a YouTube link (watch, youtu.be or Shorts) to play it here.";
-  const HINT=" If nothing opened, allow pop-ups for this site.";
-  let player=null, apiP=null;
-  const say=(t,err)=>{stat.textContent=t;stat.classList.toggle("err",!!err);};
-  const focus=()=>$("ytSection").scrollIntoView({behavior:"smooth",block:"start"});
-
-  function openNew(url){
-    const a=document.createElement("a");
-    a.href=url; a.target="_blank"; a.rel="noopener noreferrer";
-    document.body.appendChild(a); a.click(); a.remove();
-  }
-
-  function idOf(raw){
-    raw=String(raw).trim(); if(!raw||/\s/.test(raw)) return null;
-    let u; try{u=new URL(/^https?:\/\//i.test(raw)?raw:"https://"+raw);}catch(e){return null;}
-    const h=u.hostname.replace(/^(www|m|music)\./,""); let id=null;
-    if(h==="youtu.be") id=u.pathname.slice(1).split("/")[0];
-    else if(h==="youtube.com"||h==="youtube-nocookie.com"){
-      if(u.pathname==="/watch") id=u.searchParams.get("v");
-      else {const m=u.pathname.match(/^\/(shorts|embed|live|v)\/([\w-]{11})/); if(m) id=m[2];}
-    }
-    return id&&/^[\w-]{11}$/.test(id)?id:null;
-  }
-
-  function loadApi(){
-    if(window.YT&&window.YT.Player) return Promise.resolve();
-    if(apiP) return apiP;
-    apiP=new Promise((res,rej)=>{
-      const t=setTimeout(()=>{apiP=null;rej(new Error("timeout"));},12000);
-      window.onYouTubeIframeAPIReady=()=>{clearTimeout(t);res();};
-      const s=document.createElement("script"); s.src="https://www.youtube.com/iframe_api";
-      s.onerror=()=>{clearTimeout(t);apiP=null;rej(new Error("blocked"));};
-      document.head.appendChild(s);
-    });
-    return apiP;
-  }
-  const PLAYER_ERR={2:"That video link looks invalid.",5:"This video can't be played in the embedded player.",100:"That video wasn't found or is private.",101:"The video's owner doesn't allow it to be played outside YouTube.",150:"The video's owner doesn't allow it to be played outside YouTube."};
-
-  async function play(id,title){
-    box.hidden=false; now.textContent=title||"Video";
-    openLink.href="https://www.youtube.com/watch?v="+encodeURIComponent(id);
-    box.scrollIntoView({behavior:"smooth",block:"start"});
-    say("Loading player…");
-    try{
-      await loadApi();
-      if(player&&player.loadVideoById){player.loadVideoById(id);}
-      else player=new window.YT.Player("ytMount",{host:"https://www.youtube-nocookie.com",videoId:id,playerVars:{autoplay:1,rel:0,playsinline:1},
-        events:{onReady:()=>say("Player ready."),onError:e=>say(PLAYER_ERR[e.data]||"The player reported an error.",true)}});
-    }catch(e){
-      say("Couldn't load YouTube's player. It may be blocked on this network or by a browser extension.",true);
-    }
-  }
-
-  $("ytForm").addEventListener("submit",e=>{
-    e.preventDefault();
-    const v=input.value.trim(); if(!v) return;
-    const id=idOf(v);
-    if(id){play(id,"YouTube video");return;}
-    openNew("https://www.youtube.com/results?search_query="+encodeURIComponent(v));
-    say('Opened YouTube results for "'+v+'" in a new tab.'+HINT);
-  });
-  $("ytHome").addEventListener("click",()=>{openNew(HOME);say("Opened YouTube's homepage in a new tab."+HINT);});
-  $("ytBack").addEventListener("click",()=>{
-    try{player&&player.pauseVideo&&player.pauseVideo();}catch(e){}
-    box.hidden=true; say(IDLE);
-  });
-
-  return {
-    focus,
-    // Saved link pointing at YouTube: play it here if it's a video, otherwise jump to this section.
-    handle(raw){
-      let u; try{u=new URL(raw);}catch(e){return false;}
-      const h=u.hostname.replace(/^(www|m|music)\./,"");
-      if(h!=="youtube.com"&&h!=="youtu.be") return false;
-      const id=idOf(raw); if(id) play(id,"YouTube video"); else {focus();input.focus();}
-      return true;
-    }
-  };
-})();
-
-/* ===== Start ===== */
-applySettings(); renderLinks();
+(()=>{'use strict';
+const $=id=>document.getElementById(id);
+const STORAGE_KEY='classroomHubPremiumV1';
+const COLORS=['#9caeff','#a7e8bd','#f4c98b','#f3a8c8','#c5a7ff','#80d9e8','#ff9f91','#ffffff'];
+const DEFAULT_SETTINGS={greeting:'',accent:'#9caeff',engine:'duckduckgo',theme:'dark',density:'comfortable',width:'normal',startPage:'dashboard',sidebarCollapsed:false,reducedMotion:false,showClock:true,showGreeting:true,showDashboardLinks:true,showTodo:true};
+const DEFAULT_LINKS=[{id:'youtube',name:'YouTube',url:'https://www.youtube.com/',icon:'▶️',star:true},{id:'google-classroom',name:'Google Classroom',url:'https://classroom.google.com/',icon:'🎓',star:true},{id:'google-drive',name:'Google Drive',url:'https://drive.google.com/',icon:'📁',star:false},{id:'wikipedia',name:'Wikipedia',url:'https://www.wikipedia.org/',icon:'🌐',star:false},{id:'coolmath',name:'Coolmath Games',url:'https://www.coolmathgames.com/',icon:'🎮',star:false},{id:'scratch',name:'Scratch',url:'https://scratch.mit.edu/',icon:'🐱',star:false}];
+function uid(){return 'l'+Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function cleanUrl(raw){let s=String(raw||'').trim();if(!s)return '';if(!/^https?:\/\//i.test(s))s='https://'+s;try{const u=new URL(s);if(!['http:','https:'].includes(u.protocol))return '';return u.href}catch{return ''}}
+function safeText(v,max=180){return String(v??'').slice(0,max)}
+function normalizeLink(x){if(!x||typeof x!=='object')return null;const url=cleanUrl(x.url||x.href||'');if(!url)return null;return{id:String(x.id||uid()),name:safeText(x.name||x.title||new URL(url).hostname,50),url,icon:safeText(x.icon||'🌐',8),star:!!(x.star??x.favorite??x.fav)}}
+function loadState(){let raw;try{raw=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null')}catch{};const s=raw&&typeof raw==='object'?raw:{};let links=Array.isArray(s.links)?s.links.map(normalizeLink).filter(Boolean):Array.isArray(s.quickLinks)?s.quickLinks.map(normalizeLink).filter(Boolean):DEFAULT_LINKS.map(x=>({...x}));const settings={...DEFAULT_SETTINGS,...(s.settings&&typeof s.settings==='object'?s.settings:{})};if(settings.accent&&!/^#[0-9a-f]{6}$/i.test(settings.accent))settings.accent=DEFAULT_SETTINGS.accent;return{links,tasks:Array.isArray(s.tasks)?s.tasks.filter(t=>t&&typeof t.text==='string').map(t=>({id:String(t.id||uid()),text:safeText(t.text,180),done:!!t.done})):Array.isArray(s.todo)?s.todo.filter(t=>t&&typeof t.text==='string').map(t=>({id:String(t.id||uid()),text:safeText(t.text,180),done:!!t.done})):[],recentSearches:Array.isArray(s.recentSearches)?s.recentSearches.filter(x=>typeof x==='string').map(x=>safeText(x,160)).slice(0,6):[],recentYoutubeSearches:Array.isArray(s.recentYoutubeSearches)?s.recentYoutubeSearches.filter(x=>typeof x==='string').map(x=>safeText(x,160)).slice(0,6):[],lastBrowserInput:safeText(s.lastBrowserInput||'',500),settings}}
+let state=loadState(),currentView='dashboard',browserCurrent='',browserHistory=[],historyIndex=-1,toastTimer=null;
+function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}catch{toast('Could not save locally. Browser storage may be full or disabled.')}}
+function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2600)}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function goView(name){if(!$('view-'+name))name='dashboard';currentView=name;document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+name));document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===name));const labels={dashboard:'HOME / OVERVIEW',quick:'WORKSPACE / QUICK ACCESS',browser:'TOOLS / BROWSER',youtube:'MEDIA / YOUTUBE',favorites:'WORKSPACE / FAVORITES',settings:'PERSONAL / SETTINGS'};$('pageLabel').textContent=labels[name]||'CLASSROOM HUB';document.body.classList.remove('mobile-open');if(name==='quick')renderLinks();if(name==='favorites')renderLinks();window.scrollTo({top:0,behavior:state.settings.reducedMotion?'auto':'smooth'})}
+function updateClock(){const now=new Date(),hour=now.getHours();$('clock').textContent=now.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});$('dateText').textContent=now.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'});const greeting=hour<12?'Good morning':hour<17?'Good afternoon':hour<21?'Good evening':'Good night';const message=String(state.settings.greeting||'').trim()||greeting;const end=/[.!?]$/.test(message)?'':'.';$('greeting').innerHTML=esc(message)+end+' <span class="accent-text">Ready when you are.</span>'}
+function applySettings(){const s=state.settings;document.documentElement.style.setProperty('--accent',s.accent);const hex=s.accent.replace('#','');const rgb=[0,2,4].map(i=>parseInt(hex.slice(i,i+2),16)).join(',');document.documentElement.style.setProperty('--accent-rgb',rgb);document.body.classList.toggle('collapsed',!!s.sidebarCollapsed);document.body.classList.toggle('compact',s.density==='compact');document.body.classList.toggle('wide',s.width==='wide');document.body.classList.toggle('no-motion',!!s.reducedMotion);document.body.classList.toggle('hide-clock',!s.showClock);document.body.classList.toggle('hide-greeting',!s.showGreeting);document.body.classList.toggle('hide-dashboard-links',!s.showDashboardLinks);document.body.classList.toggle('hide-todo',!s.showTodo);document.body.classList.toggle('light',s.theme==='light');$('accentColor').value=s.accent;$('themeSelect').value=s.theme;$('densitySelect').value=s.density;$('widthSelect').value=s.width;$('greetingInput').value=s.greeting;$('settingsEngine').value=s.engine;$('globalEngine').value=s.engine;$('browserEngine').value=s.engine;$('startPage').value=s.startPage;['sidebarCollapsed','reducedMotion','showClock','showGreeting','showDashboardLinks','showTodo'].forEach(id=>$(id).checked=!!s[id]);renderSwatches();updateClock()}
+function renderSwatches(){$('swatches').innerHTML=COLORS.map(c=>`<button type="button" class="swatch ${state.settings.accent===c?'selected':''}" data-color="${c}" title="${c}" aria-label="Accent ${c}" style="background:${c}"></button>`).join('')}
+function iconFor(link){return esc(link.icon||'🌐')}
+function linkCard(link){return `<div class="card" data-card-id="${esc(link.id)}"><a href="${esc(link.url)}" class="card-icon" data-open-link="${esc(link.id)}" title="Open ${esc(link.name)}" aria-label="Open ${esc(link.name)}">${iconFor(link)}</a><a href="${esc(link.url)}" class="card-info" data-open-link="${esc(link.id)}" title="Open ${esc(link.name)}" style="text-decoration:none"><div class="card-name">${esc(link.name)}</div><div class="card-url">${esc(new URL(link.url).hostname)}</div></a><div class="card-actions"><button class="mini-btn star ${link.star?'active':''}" data-action="star" data-id="${esc(link.id)}" title="${link.star?'Remove favorite':'Add favorite'}" aria-label="Toggle favorite">${link.star?'★':'☆'}</button><button class="mini-btn" data-action="edit" data-id="${esc(link.id)}" title="Edit link" aria-label="Edit link">✎</button><button class="mini-btn" data-action="delete" data-id="${esc(link.id)}" title="Remove link" aria-label="Remove link">×</button></div></div>`}
+function renderGrid(id,items,emptyTitle,emptyText){const el=$(id);if(!items.length){el.innerHTML=`<div class="empty"><strong>${esc(emptyTitle)}</strong>${esc(emptyText)}</div>`;return}el.innerHTML=items.map(linkCard).join('')}
+function renderLinks(){const filter=($('linkFilter')?.value||'').trim().toLowerCase();const filtered=state.links.filter(l=>(l.name+' '+l.url).toLowerCase().includes(filter));renderGrid('dashboardLinks',state.links.slice(0,6),'No shortcuts yet','Add a link to start building your hub.');renderGrid('allLinks',filtered,'No matching links','Try a different search or add a new shortcut.');renderGrid('favoriteLinks',state.links.filter(l=>l.star),'No favorites yet','Star a shortcut with ☆ to see it here.')}
+function searchUrl(raw,engine=state.settings.engine){const value=String(raw||'').trim();if(!value)return '';const isUrl=/^(https?:\/\/|ftp:\/\/|localhost(?::\d+)?(?:\/|$)|(?:[\w-]+\.)+[a-z]{2,}(?::\d+)?(?:[/?#]|$))/i.test(value);if(isUrl)return cleanUrl(value);const engines={google:'https://www.google.com/search?q=',bing:'https://www.bing.com/search?q=',duckduckgo:'https://duckduckgo.com/?q='};return (engines[engine]||engines.duckduckgo)+encodeURIComponent(value)}
+function isSearchPhrase(raw){const value=String(raw||'').trim();return !!value&&!/^(https?:\/\/|ftp:\/\/|localhost(?::\d+)?(?:\/|$)|(?:[\w-]+\.)+[a-z]{2,}(?::\d+)?(?:[/?#]|$))/i.test(value)}
+function rememberSearch(raw,kind='web'){const value=String(raw||'').trim();if(!value||!isSearchPhrase(value))return;const key=kind==='youtube'?'recentYoutubeSearches':'recentSearches';state[key]=[value,...(state[key]||[]).filter(x=>x.toLowerCase()!==value.toLowerCase())].slice(0,6);save();renderRecentSearches()}
+function renderRecentSearches(){const web=$('recentSearchRow');if(web){const items=state.recentSearches||[];web.innerHTML=items.length?'<span class="recent-label">Recent:</span>'+items.map(q=>`<button type="button" class="recent-chip" data-recent-web="${esc(q)}" title="Search ${esc(q)}">${esc(q)}</button>`).join('')+'<button type="button" class="mini-btn" id="clearRecentWeb" title="Clear recent searches" aria-label="Clear recent searches">×</button>':'';}const yt=$('recentYoutubeRow');if(yt){const items=state.recentYoutubeSearches||[];yt.innerHTML=items.length?'<span class="recent-label">Recent:</span>'+items.map(q=>`<button type="button" class="recent-chip" data-recent-youtube="${esc(q)}" title="Search YouTube for ${esc(q)}">${esc(q)}</button>`).join('')+'<button type="button" class="mini-btn" id="clearRecentYoutube" title="Clear YouTube search history" aria-label="Clear YouTube search history">×</button>':'';}}
+function loadBrowser(raw,push=true){const input=String(raw||'').trim();state.settings.engine=$('browserEngine').value||state.settings.engine;const url=searchUrl(input);if(!url){toast('Type a search or website address first.');return}browserCurrent=url;state.lastBrowserInput=input;save();if(isSearchPhrase(input))rememberSearch(input,'web');$('browserAddress').value=input||url;$('browserStage').style.display='none';$('browserFrame').classList.add('visible');$('browserFrame').src=url;if(push){browserHistory=browserHistory.slice(0,historyIndex+1);browserHistory.push(url);historyIndex=browserHistory.length-1}updateBrowserButtons();goView('browser')}
+function loadExactBrowserUrl(url,push=true){const safe=cleanUrl(url);if(!safe)return;browserCurrent=safe;$('browserAddress').value=safe;$('browserStage').style.display='none';$('browserFrame').classList.add('visible');$('browserFrame').src=safe;if(push){browserHistory=browserHistory.slice(0,historyIndex+1);browserHistory.push(safe);historyIndex=browserHistory.length-1}updateBrowserButtons()}
+function updateBrowserButtons(){$('browserBack').disabled=historyIndex<=0;$('browserForward').disabled=historyIndex<0||historyIndex>=browserHistory.length-1}
+function videoId(raw){let s=String(raw||'').trim();if(/^[a-zA-Z0-9_-]{11}$/.test(s))return s;try{const u=new URL(s);if(u.hostname==='youtu.be'||u.hostname.endsWith('.youtu.be'))return u.pathname.split('/').filter(Boolean)[0]||'';if(u.hostname.includes('youtube.com')||u.hostname.includes('youtube-nocookie.com')){if(u.pathname==='/watch')return u.searchParams.get('v')||'';const parts=u.pathname.split('/').filter(Boolean);if(['embed','shorts','live','v'].includes(parts[0]))return parts[1]||''}}catch{}return ''}
+let lastYtQuery='';function searchYoutube(q){q=String(q||'').trim();if(!q){toast('Enter a video or topic to search.');return}lastYtQuery=q;rememberSearch(q,'youtube');$('youtubeQuery').value=q;const url='https://www.youtube.com/results?search_query='+encodeURIComponent(q);$('ytResultShell').hidden=false;$('youtubeResultsFrame').src=url;$('youtubeStatus').textContent='Trying to load official YouTube search results. If the area below is blank or blocked, use “Open official YouTube results.”';goView('youtube')}
+function playYoutube(raw){const id=videoId(raw);if(!id){$('youtubeStatus').textContent='That does not look like a supported YouTube video link. Paste a video, Shorts, or youtu.be link.';toast('Could not find a YouTube video ID.');return}$('ytPlayer').hidden=false;$('youtubePlayerFrame').src='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(id);$('youtubeStatus').textContent='Video loaded. If playback is unavailable, the video owner or network may restrict embedding.';$('ytPlayer').scrollIntoView({behavior:state.settings.reducedMotion?'auto':'smooth',block:'nearest'})}
+function openModal(link=null){$('linkModalTitle').textContent=link?'Edit shortcut':'Add a shortcut';$('linkId').value=link?.id||'';$('linkName').value=link?.name||'';$('linkUrl').value=link?.url||'';$('linkIcon').value=link?.icon||'🌐';$('linkStar').checked=!!link?.star;$('linkModal').classList.add('open');setTimeout(()=>$('linkName').focus(),50)}function closeModal(){$('linkModal').classList.remove('open')}
+function handleLinkAction(action,id){const link=state.links.find(l=>l.id===id);if(!link)return;if(action==='star'){link.star=!link.star;save();renderLinks();toast(link.star?'Added to Favorites.':'Removed from Favorites.')}if(action==='edit')openModal(link);if(action==='delete'){if(!confirm(`Remove “${link.name}” from Quick Access?`))return;state.links=state.links.filter(l=>l.id!==id);save();renderLinks();toast('Shortcut removed.')}}
+function saveSettingsFromUI(){const oldEngine=state.settings.engine;state.settings={...state.settings,accent:$('accentColor').value,theme:$('themeSelect').value,density:$('densitySelect').value,width:$('widthSelect').value,greeting:$('greetingInput').value.trim(),engine:$('settingsEngine').value,startPage:$('startPage').value,sidebarCollapsed:$('sidebarCollapsed').checked,reducedMotion:$('reducedMotion').checked,showClock:$('showClock').checked,showGreeting:$('showGreeting').checked,showDashboardLinks:$('showDashboardLinks').checked,showTodo:$('showTodo').checked};save();applySettings();if(oldEngine!==state.settings.engine)$('globalEngine').value=state.settings.engine;toast('Settings saved.')}
+function renderTasks(){const list=$('todoList');if(!state.tasks.length){list.innerHTML='';$('todoEmpty').style.display='block';return}$('todoEmpty').style.display='none';list.innerHTML=state.tasks.map(t=>`<div class="todo-row ${t.done?'done':''}" data-task-id="${esc(t.id)}"><input type="checkbox" data-task-action="toggle" ${t.done?'checked':''} aria-label="Mark task complete"><span class="todo-text">${esc(t.text)}</span><button class="mini-btn" data-task-action="delete" title="Delete task" aria-label="Delete task">×</button></div>`).join('')}
+function submitSearch(e){e.preventDefault();const raw=$('globalSearchInput').value.trim();if(!raw)return;state.settings.engine=$('globalEngine').value;save();loadBrowser(raw)}
+// Navigation and common actions
+document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>goView(b.dataset.view)));$('topSettings').addEventListener('click',()=>goView('settings'));$('mobileMenu').addEventListener('click',()=>document.body.classList.toggle('mobile-open'));$('collapseBtn').addEventListener('click',()=>{state.settings.sidebarCollapsed=!state.settings.sidebarCollapsed;save();applySettings()});$('topAdd').addEventListener('click',()=>openModal());$('addLinkDash').addEventListener('click',()=>openModal());$('addLinkQuick').addEventListener('click',()=>openModal());$('manageLinks').addEventListener('click',()=>goView('quick'));$('manageFavorites').addEventListener('click',()=>goView('quick'));$('globalSearch').addEventListener('submit',submitSearch);$('globalEngine').addEventListener('change',()=>{state.settings.engine=$('globalEngine').value;$('browserEngine').value=state.settings.engine;$('settingsEngine').value=state.settings.engine;save()});$('browserEngine').addEventListener('change',()=>{state.settings.engine=$('browserEngine').value;$('globalEngine').value=state.settings.engine;$('settingsEngine').value=state.settings.engine;save();});$('browserForm').addEventListener('submit',e=>{e.preventDefault();loadBrowser($('browserAddress').value)});$('browserSearchExample').addEventListener('click',()=>{const q='Minecraft PvP tips';$('browserAddress').value=q;loadBrowser(q)});$('browserRefresh').addEventListener('click',()=>{if(browserCurrent)$('browserFrame').src=browserCurrent});$('browserHome').addEventListener('click',()=>{browserCurrent='';browserHistory=[];historyIndex=-1;$('browserAddress').value='';$('browserFrame').src='about:blank';$('browserFrame').classList.remove('visible');$('browserStage').style.display='grid';updateBrowserButtons();});$('browserBack').addEventListener('click',()=>{if(historyIndex>0){historyIndex--;loadExactBrowserUrl(browserHistory[historyIndex],false);updateBrowserButtons()}});$('browserForward').addEventListener('click',()=>{if(historyIndex<browserHistory.length-1){historyIndex++;loadExactBrowserUrl(browserHistory[historyIndex],false);updateBrowserButtons()}});
+// Link grid event delegation
+document.addEventListener('click',e=>{const action=e.target.closest('[data-action]');if(action){e.preventDefault();e.stopPropagation();handleLinkAction(action.dataset.action,action.dataset.id);return}const open=e.target.closest('[data-open-link]');if(open){e.preventDefault();const l=state.links.find(x=>x.id===open.dataset.openLink);if(l)loadBrowser(l.url)}});$('linkFilter').addEventListener('input',renderLinks);document.addEventListener('click',e=>{const web=e.target.closest('[data-recent-web]');if(web){const q=web.dataset.recentWeb;$('globalSearchInput').value=q;loadBrowser(q);return}const yt=e.target.closest('[data-recent-youtube]');if(yt){searchYoutube(yt.dataset.recentYoutube);return}if(e.target.closest('#clearRecentWeb')){state.recentSearches=[];save();renderRecentSearches();toast('Recent web searches cleared.')}if(e.target.closest('#clearRecentYoutube')){state.recentYoutubeSearches=[];save();renderRecentSearches();toast('Recent YouTube searches cleared.')}});
+$('linkForm').addEventListener('submit',e=>{e.preventDefault();const id=$('linkId').value;const name=$('linkName').value.trim();const url=cleanUrl($('linkUrl').value);if(!url){toast('Enter a valid website address.');return}const duplicate=state.links.find(x=>x.url.replace(/\/$/,'').toLowerCase()===url.replace(/\/$/,'').toLowerCase()&&x.id!==id);if(duplicate){toast('That website is already in Quick Access. Edit the existing shortcut instead.');return}const item={id:id||uid(),name:name||new URL(url).hostname,url,icon:$('linkIcon').value.trim()||'🌐',star:$('linkStar').checked};if(id){const i=state.links.findIndex(x=>x.id===id);if(i>=0)state.links[i]=item}else state.links.push(item);save();renderLinks();closeModal();toast(id?'Shortcut updated.':'Shortcut added.')});$('closeLinkModal').addEventListener('click',closeModal);$('cancelLink').addEventListener('click',closeModal);$('linkModal').addEventListener('click',e=>{if(e.target===$('linkModal'))closeModal()});document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();document.body.classList.remove('mobile-open');return}const tag=(e.target?.tagName||'').toLowerCase();const typing=['input','textarea','select'].includes(tag)||e.target?.isContentEditable;if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();goView('dashboard');$('globalSearchInput').focus();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='l'){e.preventDefault();goView('browser');$('browserAddress').focus();return}if((e.ctrlKey||e.metaKey)&&e.shiftKey&&e.key.toLowerCase()==='y'){e.preventDefault();goView('youtube');$('youtubeQuery').focus();return}if(!typing&&e.key==='/'){e.preventDefault();goView('dashboard');$('globalSearchInput').focus()}});
+// YouTube search + player: embedded results may be blocked by YouTube itself.
+$('youtubeSearchForm').addEventListener('submit',e=>{e.preventDefault();searchYoutube($('youtubeQuery').value)});$('youtubeOpenResults').addEventListener('click',()=>{const q=($('youtubeQuery').value||lastYtQuery).trim();if(!q){toast('Search for a topic first.');return}loadBrowser('https://www.youtube.com/results?search_query='+encodeURIComponent(q))});$('playYoutubeVideo').addEventListener('click',()=>playYoutube($('youtubeVideoInput').value));$('youtubeVideoInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();playYoutube(e.currentTarget.value)}});
+// Tasks
+$('todoForm').addEventListener('submit',e=>{e.preventDefault();const text=$('todoInput').value.trim();if(!text)return;state.tasks.push({id:uid(),text,done:false});$('todoInput').value='';save();renderTasks()});$('todoList').addEventListener('change',e=>{if(e.target.dataset.taskAction!=='toggle')return;const row=e.target.closest('[data-task-id]');const task=state.tasks.find(t=>t.id===row?.dataset.taskId);if(task){task.done=e.target.checked;save();renderTasks()}});$('todoList').addEventListener('click',e=>{const b=e.target.closest('[data-task-action="delete"]');if(!b)return;const row=b.closest('[data-task-id]');state.tasks=state.tasks.filter(t=>t.id!==row.dataset.taskId);save();renderTasks()});$('hideTodo').addEventListener('click',()=>{state.settings.showTodo=false;save();applySettings();toast('To-do widget hidden. You can turn it back on in Settings.')});$('clearTasks').addEventListener('click',()=>{state.tasks=state.tasks.filter(t=>!t.done);save();renderTasks();toast('Completed tasks cleared.')});
+// Settings
+$('accentColor').addEventListener('input',e=>{state.settings.accent=e.target.value;save();applySettings()});$('swatches').addEventListener('click',e=>{const b=e.target.closest('[data-color]');if(!b)return;state.settings.accent=b.dataset.color;save();applySettings()});['themeSelect','densitySelect','widthSelect','settingsEngine','startPage','sidebarCollapsed','reducedMotion','showClock','showGreeting','showDashboardLinks','showTodo'].forEach(id=>$(id).addEventListener('change',saveSettingsFromUI));$('greetingInput').addEventListener('change',saveSettingsFromUI);$('saveSettings').addEventListener('click',saveSettingsFromUI);$('resetSettings').addEventListener('click',()=>{if(!confirm('Reset appearance and dashboard settings? Your links and tasks will be kept.'))return;state.settings={...DEFAULT_SETTINGS};save();applySettings();toast('Settings reset.')});$('exportData').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='classroom-hub-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});$('importDataBtn').addEventListener('click',()=>$('importDataFile').click());$('importDataFile').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const parsed=JSON.parse(await file.text());if(!parsed||typeof parsed!=='object')throw new Error('Invalid backup');if(!confirm('Import this backup? It will replace your current links, tasks, and settings.'))return;state={links:Array.isArray(parsed.links)?parsed.links.map(normalizeLink).filter(Boolean):state.links,tasks:Array.isArray(parsed.tasks)?parsed.tasks:[],settings:{...DEFAULT_SETTINGS,...(parsed.settings||{})}};save();applySettings();renderLinks();renderTasks();toast('Backup imported.')}catch{toast('That backup file could not be read.')}finally{e.target.value=''}});
+function init(){applySettings();renderLinks();renderTasks();renderRecentSearches();updateClock();setInterval(updateClock,30000);$('browserBack').disabled=true;$('browserForward').disabled=true;if(state.lastBrowserInput)$('browserAddress').value=state.lastBrowserInput;goView(state.settings.startPage||'dashboard')}
+init();
 })();
 </script>
 </body>
