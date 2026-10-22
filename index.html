@@ -28,6 +28,9 @@
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27%230b0d11%27/%3E%3Ctext x=%2732%27 y=%2744%27 font-size=%2740%27 font-family=%27sans-serif%27 font-weight=%27700%27 text-anchor=%27middle%27 fill=%27%239caeff%27%3EC%3C/text%3E%3C/svg%3E"
     />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet" />
     <style>
       /* ===== THEME VARIABLES & BASE ===== */
       :root {
@@ -52,6 +55,10 @@
       html {
         scroll-behavior: smooth;
       }
+      body[data-font="comfortaa"] { font-family: "Comfortaa", ui-sans-serif, system-ui, sans-serif; }
+      body[data-font="humanist"] { font-family: Inter, "Segoe UI", sans-serif; }
+      body[data-font="serif"] { font-family: Georgia, "Times New Roman", serif; }
+      body[data-font="mono"] { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
       body {
         margin: 0;
         min-height: 100vh;
@@ -2909,7 +2916,7 @@
     >
     <div class="app" id="app">
       <!-- ===== SIDEBAR (main navigation) ===== -->
-      <aside class="sidebar" id="sidebar">
+      <aside id="sidebar" class="sidebar" id="sidebar">
         <div class="brand">
           <div class="brand-mark">C</div>
           <div class="brand-name">Classroom Hub<span class="brand-sub">YOUR SPACE, YOUR FLOW</span></div>
@@ -2950,7 +2957,7 @@
         <!-- ===== TOP BAR ===== -->
         <header class="topbar">
           <div class="topbar-left">
-            <button class="icon-btn mobile-menu" id="mobileMenu" aria-label="Open navigation">☰</button>
+            <button type="button" class="icon-btn mobile-menu" id="mobileMenu" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">☰</button>
             <div class="page-label" id="pageLabel">HOME</div>
           </div>
           <div class="top-actions">
@@ -3414,6 +3421,7 @@
                   <label for="fontFamilySelect">Font</label
                   ><select class="select" id="fontFamilySelect">
                     <option value="system">System</option>
+                    <option value="comfortaa">Comfortaa</option>
                     <option value="humanist">Humanist</option>
                     <option value="serif">Serif</option>
                     <option value="mono">Monospace</option>
@@ -3681,6 +3689,23 @@
           </button>
         </div>
         <div class="command-empty" id="commandEmpty" hidden>No matching commands.</div>
+        <div class="command-heading">Custom quick launch</div>
+        <div style="display:grid;grid-template-columns:minmax(90px,0.55fr) minmax(150px,1.5fr);gap:8px;padding:10px 14px 14px">
+          <label style="display:grid;gap:5px;font-size:12px;color:var(--muted)">Key
+            <input id="ch-quick-key" class="field" type="text" maxlength="1" autocomplete="off" placeholder="A" aria-label="Custom quick-launch shortcut key" />
+          </label>
+          <label style="display:grid;gap:5px;font-size:12px;color:var(--muted)">Website URL
+            <input id="ch-quick-url" class="field" type="url" placeholder="https://example.com" aria-label="Custom quick-launch website URL" />
+          </label>
+          <label style="grid-column:1/-1;display:flex;align-items:center;gap:8px;font-size:12px">
+            <input id="ch-quick-enabled" type="checkbox" /> Enable key shortcut
+          </label>
+          <div style="grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap">
+            <button type="button" class="btn" id="ch-quick-save">Save quick launch</button>
+            <button type="button" class="btn" id="ch-quick-clear">Clear</button>
+          </div>
+          <p class="section-sub" style="grid-column:1/-1;margin:0">Press the chosen letter or number outside text fields to open the site in a new tab.</p>
+        </div>
         <div class="command-footer"><span>Use ↑ ↓ to navigate · Enter to open</span><span>Ctrl K</span></div>
       </div>
     </div>
@@ -3728,22 +3753,7 @@
       <p class="section-sub">
         Tip: use Settings → Export backup occasionally to keep a copy of your shortcuts and tasks.
       </p>
-      <div class="ch-tools-row" style="align-items:flex-end;flex-wrap:wrap;gap:12px;margin-top:12px">
-        <label style="display:flex;flex-direction:column;gap:6px;min-width:150px">
-          Shortcut key
-          <input id="ch-quick-key" type="text" maxlength="1" autocomplete="off" placeholder="Press a key" aria-label="Custom quick-launch shortcut key" />
-        </label>
-        <label style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:220px">
-          Website URL
-          <input id="ch-quick-url" type="url" placeholder="https://example.com" aria-label="Custom quick-launch website URL" />
-        </label>
-        <label style="display:flex;align-items:center;gap:7px;padding-bottom:10px">
-          <input id="ch-quick-enabled" type="checkbox" /> Enabled
-        </label>
-        <button type="button" class="btn" id="ch-quick-save">Save quick launch</button>
-        <button type="button" class="btn" id="ch-quick-clear">Clear</button>
-      </div>
-      <p class="section-sub">Choose a single key and an http(s) website. When enabled, pressing that key outside text fields opens the site in a new tab. This shortcut is visible and does not hide or close other activity.</p>
+
     </section>
     <script>
       (() => {
@@ -4605,6 +4615,9 @@
           $("mobileMenu").setAttribute("aria-label", isOpen ? "Close navigation" : "Open navigation");
         });
         $("mobileNavBackdrop").addEventListener("click", closeMobileNav);
+        window.addEventListener("resize", () => {
+          if (window.matchMedia("(min-width: 901px)").matches) closeMobileNav();
+        });
         document.querySelectorAll("[data-view]").forEach((button) =>
           button.addEventListener("click", () => closeMobileNav())
         );
