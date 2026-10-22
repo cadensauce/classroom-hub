@@ -56,12 +56,8 @@
         scroll-behavior: smooth;
       }
       body[data-font="comfortaa"] { font-family: "Comfortaa", ui-sans-serif, system-ui, sans-serif; }
-      body { --font-size-adjust: 1; --font-weight-adjust: 600; font-weight: var(--font-weight-adjust); }
-      body[data-font-size-adjust="custom"] { font-size: calc(14px * var(--font-size-adjust)); }
-      body[data-font-size-adjust="custom"] .hero h1 { font-size: calc(clamp(32px, 4.7vw, 52px) * var(--font-size-adjust)); }
-      body[data-font-size-adjust="custom"] .section-title { font-size: calc(20px * var(--font-size-adjust)); }
-      body[data-font-size-adjust="custom"] .nav-btn, body[data-font-size-adjust="custom"] .btn, body[data-font-size-adjust="custom"] input, body[data-font-size-adjust="custom"] select, body[data-font-size-adjust="custom"] textarea { font-size: calc(14px * var(--font-size-adjust)); }
-      body[data-font-weight-adjust="custom"] strong, body[data-font-weight-adjust="custom"] b, body[data-font-weight-adjust="custom"] h1, body[data-font-weight-adjust="custom"] h2, body[data-font-weight-adjust="custom"] h3, body[data-font-weight-adjust="custom"] .brand-name, body[data-font-weight-adjust="custom"] .nav-btn, body[data-font-weight-adjust="custom"] .btn, body[data-font-weight-adjust="custom"] label { font-weight: var(--font-weight-adjust) !important; }
+      body { --font-size-adjust: 1; --font-weight-adjust: 600; zoom: var(--font-size-adjust); }
+      body[data-font-weight-adjust="custom"] * { font-weight: var(--font-weight-adjust) !important; }
       body[data-font="humanist"] { font-family: Inter, "Segoe UI", sans-serif; }
       body[data-font="serif"] { font-family: Georgia, "Times New Roman", serif; }
       body[data-font="mono"] { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
@@ -3706,23 +3702,6 @@
           </button>
         </div>
         <div class="command-empty" id="commandEmpty" hidden>No matching commands.</div>
-        <div class="command-heading">Custom quick launch</div>
-        <div style="display:grid;grid-template-columns:minmax(90px,0.55fr) minmax(150px,1.5fr);gap:8px;padding:10px 14px 14px">
-          <label style="display:grid;gap:5px;font-size:12px;color:var(--muted)">Key
-            <input id="ch-quick-key" class="field" type="text" maxlength="1" autocomplete="off" placeholder="A" aria-label="Custom quick-launch shortcut key" />
-          </label>
-          <label style="display:grid;gap:5px;font-size:12px;color:var(--muted)">Website URL
-            <input id="ch-quick-url" class="field" type="url" placeholder="https://example.com" aria-label="Custom quick-launch website URL" />
-          </label>
-          <label style="grid-column:1/-1;display:flex;align-items:center;gap:8px;font-size:12px">
-            <input id="ch-quick-enabled" type="checkbox" /> Enable key shortcut
-          </label>
-          <div style="grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap">
-            <button type="button" class="btn" id="ch-quick-save">Save quick launch</button>
-            <button type="button" class="btn" id="ch-quick-clear">Clear</button>
-          </div>
-          <p class="section-sub" style="grid-column:1/-1;margin:0">Press the chosen letter or number outside text fields to open the site in a new tab.</p>
-        </div>
         <div class="command-footer"><span>Use ↑ ↓ to navigate · Enter to open</span><span>Ctrl K</span></div>
       </div>
     </div>
@@ -6251,96 +6230,6 @@
           $("ch-widgets-reset").textContent = "Restore default layout";
         })();
 
-        /* ===== CUSTOM QUICK-LAUNCH SHORTCUT ===== */
-        const QUICK_LAUNCH_KEY = "classroomHubQuickLaunchShortcutV1";
-        const quickKeyInput = $("ch-quick-key");
-        const quickUrlInput = $("ch-quick-url");
-        const quickEnabledInput = $("ch-quick-enabled");
-        const quickSaveButton = $("ch-quick-save");
-        const quickClearButton = $("ch-quick-clear");
-
-        function readQuickLaunchSettings() {
-          try {
-            const value = JSON.parse(localStorage.getItem(QUICK_LAUNCH_KEY) || "{}");
-            return {
-              key: typeof value.key === "string" ? value.key : "",
-              url: typeof value.url === "string" ? value.url : "",
-              enabled: value.enabled === true
-            };
-          } catch (_) {
-            return { key: "", url: "", enabled: false };
-          }
-        }
-
-        function loadQuickLaunchSettings() {
-          const settings = readQuickLaunchSettings();
-          if (quickKeyInput) quickKeyInput.value = settings.key;
-          if (quickUrlInput) quickUrlInput.value = settings.url;
-          if (quickEnabledInput) quickEnabledInput.checked = settings.enabled;
-        }
-
-        quickKeyInput?.addEventListener("keydown", (event) => {
-          if (event.ctrlKey || event.altKey || event.metaKey || event.key.length !== 1) return;
-          event.preventDefault();
-          event.stopPropagation();
-          quickKeyInput.value = event.key.toUpperCase();
-          quickKeyInput.dispatchEvent(new Event("input", { bubbles: true }));
-        });
-        quickKeyInput?.addEventListener("input", () => {
-          quickKeyInput.value = quickKeyInput.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 1);
-        });
-
-        quickSaveButton?.addEventListener("click", () => {
-          const key = (quickKeyInput?.value || "").trim().toUpperCase();
-          const rawUrl = (quickUrlInput?.value || "").trim();
-          let url;
-          try {
-            url = new URL(rawUrl);
-          } catch (_) {
-            toast("Enter a valid website URL starting with https:// or http://.");
-            return;
-          }
-          if (!key || key.length !== 1 || !/^[A-Z0-9]$/.test(key)) {
-            toast("Choose one letter or number as the shortcut key.");
-            return;
-          }
-          if (url.protocol !== "https:" && url.protocol !== "http:") {
-            toast("Only http:// and https:// websites are allowed.");
-            return;
-          }
-          const settings = { key, url: url.href, enabled: !!quickEnabledInput?.checked };
-          try {
-            localStorage.setItem(QUICK_LAUNCH_KEY, JSON.stringify(settings));
-            loadQuickLaunchSettings();
-            toast("Quick-launch shortcut saved.");
-          } catch (_) {
-            toast("Could not save the shortcut in this browser.");
-          }
-        });
-
-        quickClearButton?.addEventListener("click", () => {
-          try { localStorage.removeItem(QUICK_LAUNCH_KEY); } catch (_) {}
-          loadQuickLaunchSettings();
-          toast("Custom quick-launch shortcut cleared.");
-        });
-
-        document.addEventListener("keydown", (event) => {
-          if (event.ctrlKey || event.altKey || event.metaKey || event.repeat) return;
-          const target = event.target;
-          if (target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))) return;
-          const settings = readQuickLaunchSettings();
-          if (!settings.enabled || !settings.key || event.key.toUpperCase() !== settings.key) return;
-          try {
-            const url = new URL(settings.url);
-            if (url.protocol !== "https:" && url.protocol !== "http:") return;
-            event.preventDefault();
-            window.open(url.href, "_blank", "noopener,noreferrer");
-          } catch (_) {
-            toast("Your quick-launch URL is invalid. Update it in Keyboard shortcuts.");
-          }
-        });
-
-        loadQuickLaunchSettings();
       })();
     </script>
   </body>
