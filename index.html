@@ -4971,7 +4971,7 @@
             return [h, m, sec].map((v) => String(v).padStart(2, "0")).join(":");
           };
           const schoolDay = day >= 1 && day <= 5;
-          if (!BELL_SCHEDULE.length || !SCHOOL_START_MINUTES || !SCHOOL_END_MINUTES) {
+          if (!SCHOOL_START_MINUTES || !SCHOOL_END_MINUTES) {
             count.textContent = "--:--:--";
             status.textContent = "Add your school hours and classes in Settings to activate the countdown.";
             fill.style.width = "0%"; label.textContent = "School schedule not set up"; return;
