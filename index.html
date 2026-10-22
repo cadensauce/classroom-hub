@@ -5664,9 +5664,18 @@
         document
           .querySelectorAll("[data-preset]")
           .forEach((b) => b.addEventListener("click", () => applyPreset(b.dataset.preset)));
-        ["fontFamilySelect", "sidebarWidthRange", "surfaceOpacityRange", "fontSizeAdjust", "fontWeightAdjust"].forEach((id) =>
-          $(id).addEventListener(id.endsWith("Range") ? "input" : "change", () => saveSettingsFromUI(false)),
-        );
+        // Save slider adjustments immediately while dragging, and again on release.
+        ["fontFamilySelect", "sidebarWidthRange", "surfaceOpacityRange", "fontSizeAdjust", "fontWeightAdjust"].forEach((id) => {
+          const el = $(id);
+          if (!el) return;
+          const saveAppearance = () => {
+            state.settings.fontSizeAdjust = Number($("fontSizeAdjust").value) || 100;
+            state.settings.fontWeightAdjust = Number($("fontWeightAdjust").value) || 600;
+            saveSettingsFromUI(false);
+          };
+          el.addEventListener(id === "fontSizeAdjust" || id === "fontWeightAdjust" || id.endsWith("Range") ? "input" : "change", saveAppearance);
+          el.addEventListener("change", saveAppearance);
+        });
         $("openCommands").addEventListener("click", openCommandPalette);
         const EXTRA_CMDS = [
           ["layout", "◫", "Customize home screen"],
