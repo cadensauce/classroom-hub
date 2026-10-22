@@ -2711,6 +2711,115 @@
         .clock-box { text-align: left; width: fit-content; max-width: 100%; }
       }
 
+    
+      /* ===== CONSISTENT UI CLEANUP ===== */
+      :root {
+        --radius: 16px;
+        --surface-shadow: 0 8px 26px rgba(0, 0, 0, .12);
+      }
+      html { scroll-behavior: smooth; }
+      body { overflow-x: clip; }
+      button, input, select, textarea { font: inherit; }
+      button { touch-action: manipulation; }
+      :where(button, a, input, select, textarea, summary):focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
+      }
+      .main { min-width: 0; }
+      .content { width: 100%; min-width: 0; }
+      .view { animation: ch-view-in .18s ease-out both; }
+      @keyframes ch-view-in {
+        from { opacity: .75; transform: translateY(3px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .panel, .card, .setting-card, .section-card, .widget, .school-timer,
+      .bell-schedule-panel, #ch-tools-panel {
+        border-color: var(--border);
+        border-radius: var(--radius);
+      }
+      .section { min-width: 0; }
+      .section-head { gap: 12px; }
+      .section-title { line-height: 1.25; letter-spacing: -.3px; }
+      .section-sub { line-height: 1.5; }
+      .btn, .icon-btn, .nav-btn, .collapse-btn, .mini-btn {
+        transition: background-color .16s ease, border-color .16s ease,
+          color .16s ease, transform .16s ease, box-shadow .16s ease;
+      }
+      .btn { border-radius: 11px; }
+      .btn:active, .icon-btn:active, .nav-btn:active { transform: scale(.98); }
+      .btn.primary:hover { filter: brightness(1.05); }
+      .nav-btn { border-radius: 11px; }
+      .nav-btn .nav-icon { flex: 0 0 22px; text-align: center; }
+      .sidebar { scrollbar-width: thin; }
+      .topbar { gap: 14px; }
+      .top-actions { gap: 8px; }
+      .hero { min-width: 0; }
+      .hero-top { gap: 16px; }
+      .hero-top h1 { line-height: 1.12; }
+      .clock-box {
+        min-width: 154px;
+        padding: 12px 14px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--panel);
+        box-shadow: none;
+        text-align: right;
+        white-space: nowrap;
+      }
+      .clock { font-size: clamp(22px, 2vw, 28px); line-height: 1.15; font-variant-numeric: tabular-nums; }
+      .date { margin-top: 5px; font-size: 11px; line-height: 1.4; }
+      .search-box { min-width: 0; }
+      .search-box input { min-width: 0; }
+      .search-box .btn { flex: 0 0 auto; }
+      .school-timer { gap: 22px; }
+      .school-timer-count { font-variant-numeric: tabular-nums; letter-spacing: -.04em; }
+      .school-timer-status, .school-progress-label { line-height: 1.5; }
+      .school-progress-track { overflow: hidden; border-radius: 999px; }
+      .school-progress-fill { border-radius: inherit; transition: width .35s ease; }
+      .bell-schedule-list { min-width: 0; }
+      .ytr-card { border-radius: 13px; }
+      .ytr-card:hover { transform: translateY(-2px); }
+      .ytr-meta { min-width: 0; }
+      .modal, .modal-content, .dialog { box-sizing: border-box; }
+      input, select, textarea { border-radius: 10px; }
+      img, video, iframe, canvas { max-width: 100%; }
+      @media (max-width: 1000px) {
+        .clock-box { display: block; }
+        .main { padding-left: 22px; padding-right: 22px; }
+      }
+      @media (max-width: 760px) {
+        .main { padding: 18px 16px 28px; }
+        .topbar { align-items: center; flex-wrap: wrap; }
+        .top-actions { flex-wrap: wrap; }
+        .hero-top { flex-direction: row; align-items: flex-start; }
+        .hero-top > div:first-child { min-width: 0; flex: 1 1 auto; }
+        .clock-box { min-width: 0; padding: 9px 11px; }
+        .clock { font-size: 21px; }
+        .date { max-width: 145px; white-space: normal; overflow-wrap: anywhere; }
+        .search-box { flex-wrap: wrap; }
+        .search-box input { flex: 1 1 180px; }
+        .search-box select { max-width: 42%; }
+        .search-box .btn { flex: 1 0 auto; }
+        .school-timer { gap: 16px; }
+        .section-head { align-items: flex-start; flex-wrap: wrap; }
+      }
+      @media (max-width: 480px) {
+        .main { padding: 14px 12px 24px; }
+        .top-actions { width: 100%; }
+        .top-actions .btn { flex: 1 1 auto; }
+        .hero-top { flex-direction: column; }
+        .clock-box { width: auto; max-width: 100%; text-align: left; }
+        .date { max-width: none; }
+        .search-box select { max-width: 100%; }
+        .school-timer { padding: 16px; }
+        .ytr-grid { grid-template-columns: minmax(0, 1fr); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .view { animation: none; }
+        *, *::before, *::after { transition-duration: .01ms !important; }
+      }
+
     </style>
   </head>
   <body>
