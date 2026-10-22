@@ -2545,24 +2545,92 @@
 
       /* Classroom Hub add-ons */
       #ch-tools-wrap {
-        margin: 18px 0 0;
+        margin: 22px 0 0;
         display: flex;
         gap: 8px;
         flex-wrap: wrap;
       }
       #ch-tools-wrap .btn {
         font-size: 12px;
+        min-height: 40px;
+        border-radius: 12px;
       }
       #ch-tools-panel {
         display: none;
         margin-top: 12px;
-        padding: 16px;
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        background: var(--panel);
+        padding: clamp(16px, 2.5vw, 24px);
+        border: 1px solid rgba(var(--accent-rgb), .22);
+        border-radius: calc(var(--radius) + 3px);
+        background: linear-gradient(145deg, var(--panel), rgba(var(--accent-rgb), .035));
+        box-shadow: var(--surface-shadow, 0 12px 32px rgba(0,0,0,.16));
       }
       #ch-tools-panel.open {
         display: block;
+        animation: pageIn .2s ease both;
+      }
+      #ch-tools-panel > h3 {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 8px;
+      }
+      #ch-tools-panel > h3:not(:first-child) {
+        padding-top: 2px;
+      }
+      #ch-tools-panel .section-sub {
+        line-height: 1.65;
+      }
+      #ch-tools-panel #ch-style-presets button {
+        flex: 1 1 130px;
+        min-height: 78px;
+        padding: 12px 14px;
+        text-align: left;
+        font-size: 13px;
+        font-weight: 750;
+        border-radius: 13px;
+        transition: transform var(--speed), border-color var(--speed), background var(--speed);
+      }
+      #ch-tools-panel #ch-style-presets button::after {
+        display: block;
+        margin-top: 5px;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 450;
+      }
+      #ch-tools-panel #ch-style-presets [data-dashboard-preset="minimal"]::after { content: "Just the essentials"; }
+      #ch-tools-panel #ch-style-presets [data-dashboard-preset="study"]::after { content: "Focus on your school day"; }
+      #ch-tools-panel #ch-style-presets [data-dashboard-preset="everything"]::after { content: "Show every section"; }
+      #ch-tools-panel #ch-style-presets button:hover,
+      #ch-tools-panel #ch-style-presets button:focus-visible {
+        transform: translateY(-2px);
+        border-color: rgba(var(--accent-rgb), .6);
+        background: rgba(var(--accent-rgb), .09);
+      }
+      #ch-tools-panel #ch-style-presets button[aria-pressed="true"] {
+        border-color: var(--accent);
+        background: rgba(var(--accent-rgb), .13);
+        box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), .15);
+      }
+      #ch-widget-toggles {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+        gap: 8px;
+      }
+      #ch-widget-toggles label {
+        padding: 11px 12px;
+        border: 1px solid var(--border);
+        border-radius: 11px;
+        background: rgba(127, 127, 127, .035);
+        transition: border-color var(--speed), background var(--speed);
+      }
+      #ch-widget-toggles label:has(input:checked) {
+        border-color: rgba(var(--accent-rgb), .35);
+        background: rgba(var(--accent-rgb), .055);
+      }
+      #ch-widget-toggles input {
+        width: 15px;
+        height: 15px;
+        flex: 0 0 auto;
       }
       #ch-tools-panel h3 {
         font-size: 14px;
@@ -6042,7 +6110,19 @@
             study: ["schoolTimerSection", "bellScheduleSection", "todoSection", "dashboardLinksSection"],
             everything: defaults,
           };
+          function updatePresetSelection() {
+            const visible = [...box.querySelectorAll("[data-ch-widget]:checked")].map((input) => input.dataset.chWidget);
+            const ids = currentOrder();
+            let active = "";
+            if (visible.length === defaults.length && defaults.every((id) => visible.includes(id))) active = "everything";
+            else if (visible.length === 1 && visible[0] === "dashboardLinksSection") active = "minimal";
+            else if (visible.length === 4 && ["schoolTimerSection", "bellScheduleSection", "todoSection", "dashboardLinksSection"].every((id) => visible.includes(id))) active = "study";
+            document.querySelectorAll("[data-dashboard-preset]").forEach((button) => {
+              button.setAttribute("aria-pressed", String(button.dataset.dashboardPreset === active));
+            });
+          }
           document.querySelectorAll("[data-dashboard-preset]").forEach((button) => {
+            button.setAttribute("aria-pressed", "false");
             button.addEventListener("click", () => {
               const preset = button.dataset.dashboardPreset;
               const visibleIds = presetLayouts[preset] || defaults;
@@ -6060,9 +6140,12 @@
               try {
                 localStorage.setItem(ORDER_KEY, JSON.stringify(ordered));
               } catch {}
+              updatePresetSelection();
               toast((preset === "minimal" ? "Minimal" : preset === "study" ? "Study mode" : "Everything") + " layout applied.");
             });
           });
+          box.addEventListener("change", updatePresetSelection);
+          updatePresetSelection();
           box.addEventListener("click", (e) => {
             const b = e.target.closest("[data-widget-move]");
             if (!b) return;
