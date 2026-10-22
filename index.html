@@ -1115,6 +1115,17 @@
         .mobile-open .sidebar {
           transform: translateX(0);
         }
+        .mobile-nav-backdrop {
+          display: none;
+        }
+        .mobile-open .mobile-nav-backdrop {
+          display: block;
+          position: fixed;
+          inset: 0;
+          z-index: 29;
+          background: rgba(0, 0, 0, 0.48);
+          backdrop-filter: blur(2px);
+        }
         .main,
         .collapsed .main {
           margin-left: 0;
@@ -2865,6 +2876,7 @@
           </button>
         </div>
       </aside>
+      <button class="mobile-nav-backdrop" id="mobileNavBackdrop" type="button" aria-label="Close navigation"></button>
       <!-- ===== MAIN CONTENT ===== -->
       <main class="main">
         <!-- ===== TOP BAR ===== -->
@@ -4491,7 +4503,27 @@
           .querySelectorAll("[data-view]")
           .forEach((b) => b.addEventListener("click", () => goView(b.dataset.view)));
         $("topSettings").addEventListener("click", () => goView("settings"));
-        $("mobileMenu").addEventListener("click", () => document.body.classList.toggle("mobile-open"));
+        const closeMobileNav = () => {
+          document.body.classList.remove("mobile-open");
+          $("mobileMenu").setAttribute("aria-expanded", "false");
+          $("mobileMenu").setAttribute("aria-label", "Open navigation");
+        };
+        $("mobileMenu").setAttribute("aria-expanded", "false");
+        $("mobileMenu").addEventListener("click", () => {
+          const isOpen = document.body.classList.toggle("mobile-open");
+          $("mobileMenu").setAttribute("aria-expanded", String(isOpen));
+          $("mobileMenu").setAttribute("aria-label", isOpen ? "Close navigation" : "Open navigation");
+        });
+        $("mobileNavBackdrop").addEventListener("click", closeMobileNav);
+        document.querySelectorAll("[data-view]").forEach((button) =>
+          button.addEventListener("click", () => closeMobileNav())
+        );
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") closeMobileNav();
+        });
+        window.addEventListener("resize", () => {
+          if (window.innerWidth > 760) closeMobileNav();
+        });
         $("collapseBtn").addEventListener("click", () => {
           state.settings.sidebarCollapsed = !state.settings.sidebarCollapsed;
           save();
