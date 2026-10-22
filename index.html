@@ -3728,6 +3728,22 @@
       <p class="section-sub">
         Tip: use Settings → Export backup occasionally to keep a copy of your shortcuts and tasks.
       </p>
+      <div class="ch-tools-row" style="align-items:flex-end;flex-wrap:wrap;gap:12px;margin-top:12px">
+        <label style="display:flex;flex-direction:column;gap:6px;min-width:150px">
+          Shortcut key
+          <input id="ch-quick-key" type="text" maxlength="1" autocomplete="off" placeholder="Press a key" aria-label="Custom quick-launch shortcut key" />
+        </label>
+        <label style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:220px">
+          Website URL
+          <input id="ch-quick-url" type="url" placeholder="https://example.com" aria-label="Custom quick-launch website URL" />
+        </label>
+        <label style="display:flex;align-items:center;gap:7px;padding-bottom:10px">
+          <input id="ch-quick-enabled" type="checkbox" /> Enabled
+        </label>
+        <button type="button" class="btn" id="ch-quick-save">Save quick launch</button>
+        <button type="button" class="btn" id="ch-quick-clear">Clear</button>
+      </div>
+      <p class="section-sub">Choose a single key and an http(s) website. When enabled, pressing that key outside text fields opens the site in a new tab. This shortcut is visible and does not hide or close other activity.</p>
     </section>
     <script>
       (() => {
@@ -6173,6 +6189,92 @@
           });
           $("ch-widgets-reset").textContent = "Restore default layout";
         })();
+
+        /* ===== CUSTOM QUICK-LAUNCH SHORTCUT ===== */
+        const QUICK_LAUNCH_KEY = "classroomHubQuickLaunchShortcutV1";
+        const quickKeyInput = $("ch-quick-key");
+        const quickUrlInput = $("ch-quick-url");
+        const quickEnabledInput = $("ch-quick-enabled");
+        const quickSaveButton = $("ch-quick-save");
+        const quickClearButton = $("ch-quick-clear");
+
+        function readQuickLaunchSettings() {
+          try {
+            const value = JSON.parse(localStorage.getItem(QUICK_LAUNCH_KEY) || "{}");
+            return {
+              key: typeof value.key === "string" ? value.key : "",
+              url: typeof value.url === "string" ? value.url : "",
+              enabled: value.enabled === true
+            };
+          } catch (_) {
+            return { key: "", url: "", enabled: false };
+          }
+        }
+
+        function loadQuickLaunchSettings() {
+          const settings = readQuickLaunchSettings();
+          if (quickKeyInput) quickKeyInput.value = settings.key;
+          if (quickUrlInput) quickUrlInput.value = settings.url;
+          if (quickEnabledInput) quickEnabledInput.checked = settings.enabled;
+        }
+
+        quickKeyInput?.addEventListener("keydown", (event) => {
+          if (event.ctrlKey || event.altKey || event.metaKey || event.key.length !== 1) return;
+          event.preventDefault();
+          quickKeyInput.value = event.key.toUpperCase();
+        });
+
+        quickSaveButton?.addEventListener("click", () => {
+          const key = (quickKeyInput?.value || "").trim().toUpperCase();
+          const rawUrl = (quickUrlInput?.value || "").trim();
+          let url;
+          try {
+            url = new URL(rawUrl);
+          } catch (_) {
+            toast("Enter a valid website URL starting with https:// or http://.");
+            return;
+          }
+          if (!key || key.length !== 1 || !/^[A-Z0-9]$/.test(key)) {
+            toast("Choose one letter or number as the shortcut key.");
+            return;
+          }
+          if (url.protocol !== "https:" && url.protocol !== "http:") {
+            toast("Only http:// and https:// websites are allowed.");
+            return;
+          }
+          const settings = { key, url: url.href, enabled: !!quickEnabledInput?.checked };
+          try {
+            localStorage.setItem(QUICK_LAUNCH_KEY, JSON.stringify(settings));
+            loadQuickLaunchSettings();
+            toast("Quick-launch shortcut saved.");
+          } catch (_) {
+            toast("Could not save the shortcut in this browser.");
+          }
+        });
+
+        quickClearButton?.addEventListener("click", () => {
+          try { localStorage.removeItem(QUICK_LAUNCH_KEY); } catch (_) {}
+          loadQuickLaunchSettings();
+          toast("Custom quick-launch shortcut cleared.");
+        });
+
+        document.addEventListener("keydown", (event) => {
+          if (event.ctrlKey || event.altKey || event.metaKey || event.repeat) return;
+          const target = event.target;
+          if (target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))) return;
+          const settings = readQuickLaunchSettings();
+          if (!settings.enabled || !settings.key || event.key.toUpperCase() !== settings.key) return;
+          try {
+            const url = new URL(settings.url);
+            if (url.protocol !== "https:" && url.protocol !== "http:") return;
+            event.preventDefault();
+            window.open(url.href, "_blank", "noopener,noreferrer");
+          } catch (_) {
+            toast("Your quick-launch URL is invalid. Update it in Keyboard shortcuts.");
+          }
+        });
+
+        loadQuickLaunchSettings();
       })();
     </script>
   </body>
