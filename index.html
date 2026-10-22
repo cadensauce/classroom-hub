@@ -3637,6 +3637,12 @@
       <hr />
       <h3>Customize dashboard</h3>
       <p class="section-sub">Hide or show dashboard sections. Your choices are saved on this device.</p>
+      <div class="section-sub">Choose a starting layout, then fine-tune the sections below.</div>
+      <div id="ch-style-presets" aria-label="Dashboard layout presets">
+        <button type="button" data-dashboard-preset="minimal">Minimal</button>
+        <button type="button" data-dashboard-preset="study">Study mode</button>
+        <button type="button" data-dashboard-preset="everything">Everything</button>
+      </div>
       <div id="ch-widget-toggles">
         <label><input type="checkbox" data-ch-widget="schoolTimerSection" checked /> School countdown</label>
         <label><input type="checkbox" data-ch-widget="bellScheduleSection" checked /> Bell schedule</label>
@@ -3644,7 +3650,7 @@
         <label><input type="checkbox" data-ch-widget="recentActivitySection" checked /> Recently opened</label>
         <label><input type="checkbox" data-ch-widget="todoSection" checked /> To-do list</label>
       </div>
-      <div class="ch-tools-row"><button type="button" class="btn" id="ch-widgets-reset">Show all sections</button></div>
+      <div class="ch-tools-row"><button type="button" class="btn" id="ch-widgets-reset">Restore default layout</button></div>
       <hr />
       <h3>Keyboard shortcuts</h3>
       <p class="section-sub">
@@ -6030,6 +6036,33 @@
             );
           });
           syncToggles(applyOrder(saved));
+          // One-click layouts use the existing visibility and order preferences.
+          const presetLayouts = {
+            minimal: ["dashboardLinksSection"],
+            study: ["schoolTimerSection", "bellScheduleSection", "todoSection", "dashboardLinksSection"],
+            everything: defaults,
+          };
+          document.querySelectorAll("[data-dashboard-preset]").forEach((button) => {
+            button.addEventListener("click", () => {
+              const preset = button.dataset.dashboardPreset;
+              const visibleIds = presetLayouts[preset] || defaults;
+              box.querySelectorAll("[data-ch-widget]").forEach((input) => {
+                input.checked = visibleIds.includes(input.dataset.chWidget);
+              });
+              saveWidgets();
+              const preferredOrder = preset === "minimal"
+                ? ["dashboardLinksSection", "schoolTimerSection", "todoSection", "bellScheduleSection", "recentActivitySection"]
+                : preset === "study"
+                  ? ["todoSection", "schoolTimerSection", "bellScheduleSection", "dashboardLinksSection", "recentActivitySection"]
+                  : defaults;
+              const ordered = applyOrder(preferredOrder);
+              syncToggles(ordered);
+              try {
+                localStorage.setItem(ORDER_KEY, JSON.stringify(ordered));
+              } catch {}
+              toast((preset === "minimal" ? "Minimal" : preset === "study" ? "Study mode" : "Everything") + " layout applied.");
+            });
+          });
           box.addEventListener("click", (e) => {
             const b = e.target.closest("[data-widget-move]");
             if (!b) return;
