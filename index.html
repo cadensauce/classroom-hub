@@ -56,6 +56,12 @@
         scroll-behavior: smooth;
       }
       body[data-font="comfortaa"] { font-family: "Comfortaa", ui-sans-serif, system-ui, sans-serif; }
+      body { --font-size-adjust: 1; --font-weight-adjust: 600; font-weight: var(--font-weight-adjust); }
+      body[data-font-size-adjust="custom"] { font-size: calc(14px * var(--font-size-adjust)); }
+      body[data-font-size-adjust="custom"] .hero h1 { font-size: calc(clamp(32px, 4.7vw, 52px) * var(--font-size-adjust)); }
+      body[data-font-size-adjust="custom"] .section-title { font-size: calc(20px * var(--font-size-adjust)); }
+      body[data-font-size-adjust="custom"] .nav-btn, body[data-font-size-adjust="custom"] .btn, body[data-font-size-adjust="custom"] input, body[data-font-size-adjust="custom"] select, body[data-font-size-adjust="custom"] textarea { font-size: calc(14px * var(--font-size-adjust)); }
+      body[data-font-weight-adjust="custom"] strong, body[data-font-weight-adjust="custom"] b, body[data-font-weight-adjust="custom"] h1, body[data-font-weight-adjust="custom"] h2, body[data-font-weight-adjust="custom"] h3, body[data-font-weight-adjust="custom"] .brand-name, body[data-font-weight-adjust="custom"] .nav-btn, body[data-font-weight-adjust="custom"] .btn, body[data-font-weight-adjust="custom"] label { font-weight: var(--font-weight-adjust) !important; }
       body[data-font="humanist"] { font-family: Inter, "Segoe UI", sans-serif; }
       body[data-font="serif"] { font-family: Georgia, "Times New Roman", serif; }
       body[data-font="mono"] { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
@@ -240,7 +246,10 @@
         gap: 12px;
       }
       .mobile-menu {
-        display: none;
+        display: grid;
+        position: relative;
+        z-index: 31;
+        flex: 0 0 auto;
       }
       .page-label {
         color: var(--muted);
@@ -3440,12 +3449,20 @@
                 <h3>Fine-tune the look</h3>
                 <p>Small visual details, saved automatically.</p>
                 <div class="form-group">
-                  <label for="fontScaleSelect">Text size</label
+                  <label for="fontScaleSelect">Text size preset</label
                   ><select class="select" id="fontScaleSelect">
                     <option value="normal">Default</option>
                     <option value="small">Slightly smaller</option>
                     <option value="large">Slightly larger</option>
                   </select>
+                </div>
+                <div class="form-group">
+                  <label for="fontSizeAdjust">Font size <span id="fontSizeAdjustValue">100%</span></label>
+                  <input class="field" id="fontSizeAdjust" type="range" min="80" max="130" step="5" value="100" />
+                </div>
+                <div class="form-group">
+                  <label for="fontWeightAdjust">Font boldness <span id="fontWeightAdjustValue">600</span></label>
+                  <input class="field" id="fontWeightAdjust" type="range" min="300" max="800" step="50" value="600" />
                 </div>
                 <div class="form-group">
                   <label for="cornerSelect">Corner shape</label
@@ -3771,6 +3788,8 @@
           density: "comfortable",
           width: "normal",
           fontScale: "normal",
+          fontSizeAdjust: 100,
+          fontWeightAdjust: 600,
           corners: "soft",
           animation: "subtle",
           background: "plain",
@@ -3985,6 +4004,16 @@
             s.theme === "light" || (s.theme === "system" && !window.matchMedia("(prefers-color-scheme: dark)").matches),
           );
           document.body.dataset.fontScale = s.fontScale || "normal";
+          const fontSizeAdjust = Math.max(80, Math.min(130, Number(s.fontSizeAdjust) || 100));
+          const fontWeightAdjust = Math.max(300, Math.min(800, Number(s.fontWeightAdjust) || 600));
+          document.documentElement.style.setProperty("--font-size-adjust", String(fontSizeAdjust / 100));
+          document.documentElement.style.setProperty("--font-weight-adjust", String(fontWeightAdjust));
+          document.body.dataset.fontSizeAdjust = "custom";
+          document.body.dataset.fontWeightAdjust = "custom";
+          $("fontSizeAdjust").value = fontSizeAdjust;
+          $("fontSizeAdjustValue").textContent = fontSizeAdjust + "%";
+          $("fontWeightAdjust").value = fontWeightAdjust;
+          $("fontWeightAdjustValue").textContent = fontWeightAdjust;
           document.body.dataset.corners = s.corners || "soft";
           document.body.dataset.animation = s.reducedMotion ? "none" : s.animation || "subtle";
           document.body.dataset.background = s.background || "plain";
@@ -4423,6 +4452,8 @@
             density: $("densitySelect").value,
             width: $("widthSelect").value,
             fontScale: $("fontScaleSelect").value,
+            fontSizeAdjust: +$("fontSizeAdjust").value,
+            fontWeightAdjust: +$("fontWeightAdjust").value,
             corners: $("cornerSelect").value,
             animation: $("animationSelect").value,
             background: $("backgroundSelect").value,
@@ -4610,9 +4641,13 @@
         };
         $("mobileMenu").setAttribute("aria-expanded", "false");
         $("mobileMenu").addEventListener("click", () => {
-          const isOpen = document.body.classList.toggle("mobile-open");
-          $("mobileMenu").setAttribute("aria-expanded", String(isOpen));
-          $("mobileMenu").setAttribute("aria-label", isOpen ? "Close navigation" : "Open navigation");
+          if (window.matchMedia("(max-width: 760px)").matches) {
+            const isOpen = document.body.classList.toggle("mobile-open");
+            $("mobileMenu").setAttribute("aria-expanded", String(isOpen));
+            $("mobileMenu").setAttribute("aria-label", isOpen ? "Close navigation" : "Open navigation");
+          } else {
+            $("collapseBtn").click();
+          }
         });
         $("mobileNavBackdrop").addEventListener("click", closeMobileNav);
         window.addEventListener("resize", () => {
@@ -5625,7 +5660,7 @@
         document
           .querySelectorAll("[data-preset]")
           .forEach((b) => b.addEventListener("click", () => applyPreset(b.dataset.preset)));
-        ["fontFamilySelect", "sidebarWidthRange", "surfaceOpacityRange"].forEach((id) =>
+        ["fontFamilySelect", "sidebarWidthRange", "surfaceOpacityRange", "fontSizeAdjust", "fontWeightAdjust"].forEach((id) =>
           $(id).addEventListener(id.endsWith("Range") ? "input" : "change", () => saveSettingsFromUI(false)),
         );
         $("openCommands").addEventListener("click", openCommandPalette);
@@ -6234,7 +6269,12 @@
         quickKeyInput?.addEventListener("keydown", (event) => {
           if (event.ctrlKey || event.altKey || event.metaKey || event.key.length !== 1) return;
           event.preventDefault();
+          event.stopPropagation();
           quickKeyInput.value = event.key.toUpperCase();
+          quickKeyInput.dispatchEvent(new Event("input", { bubbles: true }));
+        });
+        quickKeyInput?.addEventListener("input", () => {
+          quickKeyInput.value = quickKeyInput.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 1);
         });
 
         quickSaveButton?.addEventListener("click", () => {
