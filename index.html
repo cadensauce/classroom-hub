@@ -3452,6 +3452,27 @@
                   <input class="switch" type="checkbox" id="sidebarCollapsed" />
                 </div>
               </div>
+              <div class="setting-card" style="grid-column:1/-1">
+                <h3>Your school schedule</h3>
+                <p>Set your own school-day start and end times, then add only the classes you want to show. Nothing is pre-filled for new users.</p>
+                <div class="form-group">
+                  <label for="schoolDayStart">School day starts</label>
+                  <input class="field" id="schoolDayStart" type="time" />
+                </div>
+                <div class="form-group">
+                  <label for="schoolDayEnd">School day ends</label>
+                  <input class="field" id="schoolDayEnd" type="time" />
+                </div>
+                <div id="schoolClassesEditor"></div>
+                <div class="section-sub" style="margin:16px 0 8px">Add a class</div>
+                <div style="display:grid;grid-template-columns:minmax(120px,1.5fr) minmax(100px,1fr) minmax(100px,1fr) auto;gap:8px;align-items:end">
+                  <label class="form-group" for="newSchoolClassName">Class name<input class="field" id="newSchoolClassName" maxlength="60" placeholder="e.g. Biology" /></label>
+                  <label class="form-group" for="newSchoolClassStart">Starts<input class="field" id="newSchoolClassStart" type="time" /></label>
+                  <label class="form-group" for="newSchoolClassEnd">Ends<input class="field" id="newSchoolClassEnd" type="time" /></label>
+                  <button type="button" class="btn primary" id="schoolClassAdd">Add class</button>
+                </div>
+                <div class="note">Changes are saved in this browser on this device. Class times also control the highlighted current period.</div>
+              </div>
               <div class="setting-card">
                 <h3>Quick controls</h3>
                 <p>Keep the interface minimal while making common actions faster.</p>
@@ -4776,21 +4797,95 @@
           renderTasks();
           toast("Completed tasks cleared.");
         });
-        // School-day countdown and bell schedule.
-        const SCHOOL_START_MINUTES = 7 * 60 + 54,
-          SCHOOL_END_MINUTES = 14 * 60 + 26;
-        const BELL_SCHEDULE = [
-          { name: "Homeroom", start: 7 * 60 + 50, end: 7 * 60 + 54, startLabel: "7:50 AM", endLabel: "7:54 AM" },
-          { name: "Period 1", start: 7 * 60 + 58, end: 8 * 60 + 39, startLabel: "7:58 AM", endLabel: "8:39 AM" },
-          { name: "Period 2", start: 8 * 60 + 43, end: 9 * 60 + 24, startLabel: "8:43 AM", endLabel: "9:24 AM" },
-          { name: "Period 3", start: 9 * 60 + 28, end: 10 * 60 + 9, startLabel: "9:28 AM", endLabel: "10:09 AM" },
-          { name: "Period 4", start: 10 * 60 + 13, end: 10 * 60 + 54, startLabel: "10:13 AM", endLabel: "10:54 AM" },
-          { name: "Period 5", start: 10 * 60 + 58, end: 11 * 60 + 39, startLabel: "10:58 AM", endLabel: "11:39 AM" },
-          { name: "Period 6", start: 11 * 60 + 43, end: 12 * 60 + 24, startLabel: "11:43 AM", endLabel: "12:24 PM" },
-          { name: "Period 7", start: 12 * 60 + 26, end: 12 * 60 + 56, startLabel: "12:26 PM", endLabel: "12:56 PM" },
-          { name: "Period 8", start: 13 * 60, end: 13 * 60 + 41, startLabel: "1:00 PM", endLabel: "1:41 PM" },
-          { name: "Period 9", start: 13 * 60 + 45, end: 14 * 60 + 26, startLabel: "1:45 PM", endLabel: "2:26 PM" },
-        ];
+        // School-day countdown and bell schedule. New users start with no assumed school schedule.
+        const SCHOOL_SCHEDULE_KEY = "classroomHubSchoolScheduleV1";
+        let SCHOOL_START_MINUTES = 0, SCHOOL_END_MINUTES = 0, BELL_SCHEDULE = [];
+        function minuteOfTime(value) {
+          if (!/^([01]?\d|2[0-3]):[0-5]\d$/.test(value || "")) return NaN;
+          const [h, m] = value.split(":").map(Number);
+          return h * 60 + m;
+        }
+        function timeInputValue(minutes) {
+          if (!Number.isFinite(minutes)) return "";
+          return String(Math.floor(minutes / 60)).padStart(2, "0") + ":" + String(minutes % 60).padStart(2, "0");
+        }
+        function timeLabel(minutes) {
+          if (!Number.isFinite(minutes)) return "";
+          const h = Math.floor(minutes / 60) % 24, m = minutes % 60;
+          return (h % 12 || 12) + ":" + String(m).padStart(2, "0") + (h >= 12 ? " PM" : " AM");
+        }
+        function loadSchoolSchedule() {
+          let saved = {};
+          try { saved = JSON.parse(localStorage.getItem(SCHOOL_SCHEDULE_KEY) || "{}") || {}; } catch {}
+          BELL_SCHEDULE = Array.isArray(saved.classes) ? saved.classes.map((p) => {
+            const start = minuteOfTime(p.startTime), end = minuteOfTime(p.endTime);
+            return { name: String(p.name || "").trim(), start, end, startLabel: timeLabel(start), endLabel: timeLabel(end), startTime: p.startTime, endTime: p.endTime };
+          }).filter((p) => p.name && Number.isFinite(p.start) && Number.isFinite(p.end) && p.end > p.start).sort((a,b) => a.start-b.start) : [];
+          SCHOOL_START_MINUTES = Number.isFinite(minuteOfTime(saved.schoolStart)) ? minuteOfTime(saved.schoolStart) : (BELL_SCHEDULE[0]?.start ?? 0);
+          SCHOOL_END_MINUTES = Number.isFinite(minuteOfTime(saved.schoolEnd)) ? minuteOfTime(saved.schoolEnd) : (BELL_SCHEDULE[BELL_SCHEDULE.length - 1]?.end ?? 0);
+          const startInput = $("schoolDayStart"), endInput = $("schoolDayEnd");
+          if (startInput) startInput.value = saved.schoolStart || (BELL_SCHEDULE[0]?.startTime || "");
+          if (endInput) endInput.value = saved.schoolEnd || (BELL_SCHEDULE[BELL_SCHEDULE.length - 1]?.endTime || "");
+          renderSchoolClassEditor();
+        }
+        function saveSchoolSchedule() {
+          const classes = BELL_SCHEDULE.map((p) => ({ name: p.name, startTime: timeInputValue(p.start), endTime: timeInputValue(p.end) }));
+          try { localStorage.setItem(SCHOOL_SCHEDULE_KEY, JSON.stringify({ schoolStart: $("schoolDayStart")?.value || "", schoolEnd: $("schoolDayEnd")?.value || "", classes })); } catch {}
+          loadSchoolSchedule();
+          renderBellSchedule();
+          updateSchoolTimer();
+        }
+        function renderSchoolClassEditor() {
+          const list = $("schoolClassesEditor");
+          if (!list) return;
+          list.innerHTML = BELL_SCHEDULE.length ? BELL_SCHEDULE.map((p, i) => `
+            <div class="school-class-edit" data-class-index="${i}" style="display:grid;grid-template-columns:minmax(100px,1.4fr) minmax(90px,1fr) minmax(90px,1fr) auto;gap:8px;align-items:end;margin:10px 0">
+              <label class="form-group">Class name<input class="field" data-class-name value="${escH(p.name)}" maxlength="60" required /></label>
+              <label class="form-group">Starts<input class="field" data-class-start type="time" value="${timeInputValue(p.start)}" required /></label>
+              <label class="form-group">Ends<input class="field" data-class-end type="time" value="${timeInputValue(p.end)}" required /></label>
+              <button type="button" class="btn danger" data-remove-class="${i}">Remove</button>
+            </div>`).join("") : '<div class="note">No classes added yet. Add your own periods below to personalize the schedule.</div>';
+        }
+        function renderBellSchedule() {
+          const list = $("bellScheduleList");
+          if (!list) return;
+          list.innerHTML = BELL_SCHEDULE.length ? BELL_SCHEDULE.map(
+            (p, i) => `<div class="bell-period" data-bell-index="${i}"><span class="bell-period-name">${escH(p.name)}</span><span class="bell-period-time">${p.startLabel} – ${p.endLabel}</span></div>`,
+          ).join("") : '<div class="empty"><strong>No schedule set up yet</strong>Add your class times in Settings to show your personal bell schedule.</div>';
+        }
+        $("schoolClassAdd")?.addEventListener("click", () => {
+          const name = $("newSchoolClassName").value.trim(), startTime = $("newSchoolClassStart").value, endTime = $("newSchoolClassEnd").value;
+          const start = minuteOfTime(startTime), end = minuteOfTime(endTime);
+          if (!name || !Number.isFinite(start) || !Number.isFinite(end) || end <= start) { toast("Enter a class name and valid start/end times."); return; }
+          BELL_SCHEDULE.push({ name, start, end, startTime, endTime, startLabel: timeLabel(start), endLabel: timeLabel(end) });
+          BELL_SCHEDULE.sort((a,b) => a.start-b.start);
+          $("newSchoolClassName").value = ""; $("newSchoolClassStart").value = ""; $("newSchoolClassEnd").value = "";
+          saveSchoolSchedule(); toast("Class added.");
+        });
+        $("schoolClassesEditor")?.addEventListener("change", (e) => {
+          const row = e.target.closest("[data-class-index]"); if (!row) return;
+          const i = Number(row.dataset.classIndex), name = row.querySelector("[data-class-name]").value.trim();
+          const startTime = row.querySelector("[data-class-start]").value, endTime = row.querySelector("[data-class-end]").value;
+          const start = minuteOfTime(startTime), end = minuteOfTime(endTime);
+          if (!name || !Number.isFinite(start) || !Number.isFinite(end) || end <= start) { toast("Please enter a class name and an end time after its start time."); renderSchoolClassEditor(); return; }
+          BELL_SCHEDULE[i] = { name, start, end, startTime, endTime, startLabel: timeLabel(start), endLabel: timeLabel(end) };
+          BELL_SCHEDULE.sort((a,b) => a.start-b.start); saveSchoolSchedule();
+        });
+        $("schoolClassesEditor")?.addEventListener("click", (e) => {
+          const b = e.target.closest("[data-remove-class]"); if (!b) return;
+          BELL_SCHEDULE.splice(Number(b.dataset.removeClass), 1); saveSchoolSchedule(); toast("Class removed.");
+        });
+        $("schoolDayStart")?.addEventListener("change", () => {
+          const start = minuteOfTime($("schoolDayStart").value), end = minuteOfTime($("schoolDayEnd").value);
+          if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) { toast("Enter a school start and end time, with the end later than the start."); return; }
+          saveSchoolSchedule();
+        });
+        $("schoolDayEnd")?.addEventListener("change", () => {
+          const start = minuteOfTime($("schoolDayStart").value), end = minuteOfTime($("schoolDayEnd").value);
+          if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) { toast("Enter a school start and end time, with the end later than the start."); return; }
+          saveSchoolSchedule();
+        });
+        loadSchoolSchedule();
 
         /* ===== SCHOOL BELL SCHEDULE & COUNTDOWN ===== */
         function renderBellSchedule() {
@@ -4848,7 +4943,8 @@
         renderBellSchedule();
         function nextSchoolStart(now) {
           const d = new Date(now);
-          d.setHours(7, 54, 0, 0);
+          if (!SCHOOL_START_MINUTES && !BELL_SCHEDULE.length) return new Date(now.getTime() + 24 * 60 * 60 * 1000);
+          d.setHours(Math.floor(SCHOOL_START_MINUTES / 60), SCHOOL_START_MINUTES % 60, 0, 0);
           if (now.getDay() === 0 || now.getDay() === 6 || now.getTime() >= d.getTime()) {
             do {
               d.setDate(d.getDate() + 1);
@@ -4875,6 +4971,11 @@
             return [h, m, sec].map((v) => String(v).padStart(2, "0")).join(":");
           };
           const schoolDay = day >= 1 && day <= 5;
+          if (!BELL_SCHEDULE.length || !SCHOOL_START_MINUTES || !SCHOOL_END_MINUTES) {
+            count.textContent = "--:--:--";
+            status.textContent = "Add your school hours and classes in Settings to activate the countdown.";
+            fill.style.width = "0%"; label.textContent = "School schedule not set up"; return;
+          }
           if (!schoolDay) {
             const next = nextSchoolStart(now);
             count.textContent = fmt(next - now);
@@ -4883,16 +4984,16 @@
               next.toLocaleDateString([], { weekday: "long", month: "short", day: "numeric" }) +
               ".";
             fill.style.width = "0%";
-            label.textContent = "Next school day · 7:54 AM";
+            label.textContent = "Next school day · " + timeLabel(SCHOOL_START_MINUTES);
             return;
           }
           if (minutes < SCHOOL_START_MINUTES) {
             const start = new Date(now);
-            start.setHours(7, 54, 0, 0);
+            start.setHours(Math.floor(SCHOOL_START_MINUTES / 60), SCHOOL_START_MINUTES % 60, 0, 0);
             count.textContent = fmt(start - now);
-            status.textContent = "Countdown to the start of school at 7:54 AM.";
+            status.textContent = "Countdown to the start of school at " + timeLabel(SCHOOL_START_MINUTES) + ".";
             fill.style.width = "0%";
-            label.textContent = "School starts at 7:54 AM";
+            label.textContent = "School starts at " + timeLabel(SCHOOL_START_MINUTES);
             return;
           }
           if (minutes >= SCHOOL_END_MINUTES) {
@@ -4903,7 +5004,7 @@
             return;
           }
           const end = new Date(now);
-          end.setHours(14, 26, 0, 0);
+          end.setHours(Math.floor(SCHOOL_END_MINUTES / 60), SCHOOL_END_MINUTES % 60, 0, 0);
           const start = new Date(now);
           start.setHours(7, 54, 0, 0);
           const remaining = end - now,
@@ -4911,7 +5012,7 @@
             duration = end - start,
             pct = Math.max(0, Math.min(100, (elapsed / duration) * 100));
           count.textContent = fmt(remaining);
-          status.textContent = "Time left until the final bell at 2:26 PM.";
+          status.textContent = "Time left until the final bell at " + timeLabel(SCHOOL_END_MINUTES) + ".";
           fill.style.width = pct.toFixed(2) + "%";
           label.textContent = Math.round(pct) + "% of the school day complete";
         }
