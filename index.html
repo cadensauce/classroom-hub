@@ -56,8 +56,9 @@
         scroll-behavior: smooth;
       }
       body[data-font="comfortaa"] { font-family: "Comfortaa", ui-sans-serif, system-ui, sans-serif; }
-      body { --font-size-adjust: 1; --font-weight-adjust: 600; zoom: var(--font-size-adjust); }
-      body[data-font-weight-adjust="custom"] * { font-weight: var(--font-weight-adjust) !important; }
+      :root { --font-size-adjust: 1; --font-weight-adjust: 600; --weight-delta: 0; }
+      body { zoom: var(--font-size-adjust); }
+      body[data-font-weight-adjust="custom"] { font-weight: clamp(100, calc(400 + var(--weight-delta)), 900); }
       body[data-font="humanist"] { font-family: Inter, "Segoe UI", sans-serif; }
       body[data-font="serif"] { font-family: Georgia, "Times New Roman", serif; }
       body[data-font="mono"] { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
@@ -131,12 +132,12 @@
         border: 1px solid rgba(var(--accent-rgb), 0.35);
         border-radius: 13px;
         background: linear-gradient(145deg, rgba(var(--accent-rgb), 0.23), rgba(var(--accent-rgb), 0.05));
-        font-weight: 850;
+        font-weight: clamp(100, calc(850 + var(--weight-delta, 0)), 900);
         font-size: 18px;
         color: var(--accent);
       }
       .brand-name {
-        font-weight: 780;
+        font-weight: clamp(100, calc(780 + var(--weight-delta, 0)), 900);
         letter-spacing: -0.3px;
       }
       .brand-sub {
@@ -150,7 +151,7 @@
         padding: 10px 12px 7px;
         color: #6f7785;
         font-size: 10px;
-        font-weight: 750;
+        font-weight: clamp(100, calc(750 + var(--weight-delta, 0)), 900);
         letter-spacing: 1.6px;
         text-transform: uppercase;
       }
@@ -252,7 +253,7 @@
         font-size: 11px;
         text-transform: uppercase;
         letter-spacing: 1.8px;
-        font-weight: 750;
+        font-weight: clamp(100, calc(750 + var(--weight-delta, 0)), 900);
       }
       .top-actions {
         display: flex;
@@ -290,7 +291,7 @@
         background: var(--accent);
         border-color: var(--accent);
         color: #10131a;
-        font-weight: 750;
+        font-weight: clamp(100, calc(750 + var(--weight-delta, 0)), 900);
       }
       .btn.danger {
         color: #ff9e9e;
@@ -327,7 +328,7 @@
       .eyebrow {
         font-size: 10px;
         color: var(--muted);
-        font-weight: 750;
+        font-weight: clamp(100, calc(750 + var(--weight-delta, 0)), 900);
         letter-spacing: 2.4px;
         text-transform: uppercase;
       }
@@ -336,7 +337,7 @@
         letter-spacing: -2.5px;
         line-height: 1.1;
         margin: 12px 0 10px;
-        font-weight: 790;
+        font-weight: clamp(100, calc(790 + var(--weight-delta, 0)), 900);
       }
       h1 .accent-text {
         color: var(--accent);
@@ -355,7 +356,7 @@
         font-size: 24px;
         letter-spacing: -0.7px;
         color: var(--text);
-        font-weight: 700;
+        font-weight: clamp(100, calc(700 + var(--weight-delta, 0)), 900);
       }
       .date {
         font-size: 12px;
@@ -430,7 +431,7 @@
       .section-title {
         margin: 0;
         font-size: 16px;
-        font-weight: 740;
+        font-weight: clamp(100, calc(740 + var(--weight-delta, 0)), 900);
         letter-spacing: -0.3px;
       }
       .section-sub {
@@ -490,7 +491,7 @@
         padding-right: 38px;
       }
       .card-name {
-        font-weight: 680;
+        font-weight: clamp(100, calc(680 + var(--weight-delta, 0)), 900);
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -564,7 +565,7 @@
       }
       .panel-title {
         font-size: 13px;
-        font-weight: 720;
+        font-weight: clamp(100, calc(720 + var(--weight-delta, 0)), 900);
       }
       .panel-body {
         padding: 17px;
@@ -653,7 +654,7 @@
         background: var(--panel2);
       }
       .research-card a {
-        font-weight: 700;
+        font-weight: clamp(100, calc(700 + var(--weight-delta, 0)), 900);
         color: var(--accent);
         text-decoration: none;
       }
@@ -797,7 +798,7 @@
         margin-bottom: 7px;
         color: var(--muted);
         font-size: 12px;
-        font-weight: 650;
+        font-weight: clamp(100, calc(650 + var(--weight-delta, 0)), 900);
       }
       .field,
       .select {
@@ -1271,7 +1272,7 @@
         background: linear-gradient(135deg, var(--accent), #b9a3ff);
         color: #111;
         font-size: 21px;
-        font-weight: 800;
+        font-weight: clamp(100, calc(800 + var(--weight-delta, 0)), 900);
       }
       .ai-head h2 {
         font-size: 17px;
@@ -1507,7 +1508,7 @@
       .hero h1 {
         font-size: clamp(26px, 3.5vw, 36px) !important;
         letter-spacing: -1.2px !important;
-        font-weight: 650;
+        font-weight: clamp(100, calc(650 + var(--weight-delta, 0)), 900);
       }
       .clock-box {
         border: 1px solid var(--border);
@@ -1541,7 +1542,7 @@
         padding: 8px 12px;
       }
       .btn.primary {
-        font-weight: 600;
+        font-weight: clamp(100, calc(600 + var(--weight-delta, 0)), 900);
       }
       .section {
         margin-top: 25px;
@@ -1589,7 +1590,7 @@
       .view h1 {
         font-size: 28px !important;
         letter-spacing: -0.8px !important;
-        font-weight: 650;
+        font-weight: clamp(100, calc(650 + var(--weight-delta, 0)), 900);
       }
       .browser-toolbar {
         gap: 6px;
@@ -1762,7 +1763,7 @@
         padding: 12px 16px 6px;
         color: var(--muted);
         font-size: 10px;
-        font-weight: 750;
+        font-weight: clamp(100, calc(750 + var(--weight-delta, 0)), 900);
         letter-spacing: 1.3px;
         text-transform: uppercase;
       }
@@ -1991,7 +1992,7 @@
       }
       h1 {
         letter-spacing: -1.8px;
-        font-weight: 720;
+        font-weight: clamp(100, calc(720 + var(--weight-delta, 0)), 900);
       }
       h1 .accent-text {
         color: var(--text);
@@ -2150,7 +2151,7 @@
       .school-timer-eyebrow {
         font-size: 10px;
         letter-spacing: 1.8px;
-        font-weight: 750;
+        font-weight: clamp(100, calc(750 + var(--weight-delta, 0)), 900);
         color: var(--muted);
       }
       .school-timer h2 {
@@ -2160,7 +2161,7 @@
       }
       .school-timer-count {
         font-size: clamp(27px, 4vw, 38px);
-        font-weight: 760;
+        font-weight: clamp(100, calc(760 + var(--weight-delta, 0)), 900);
         letter-spacing: -1.5px;
         font-variant-numeric: tabular-nums;
         line-height: 1.25;
@@ -2191,7 +2192,7 @@
       }
       .school-timer-times strong {
         font-size: 13px;
-        font-weight: 700;
+        font-weight: clamp(100, calc(700 + var(--weight-delta, 0)), 900);
       }
       .school-progress-track {
         height: 6px;
@@ -2313,7 +2314,7 @@
       }
       .bell-period-name {
         font-size: 12px;
-        font-weight: 650;
+        font-weight: clamp(100, calc(650 + var(--weight-delta, 0)), 900);
         min-width: 0;
       }
       .bell-period-time {
@@ -2328,7 +2329,7 @@
       }
       .bell-period.active .bell-period-time {
         color: var(--text);
-        font-weight: 650;
+        font-weight: clamp(100, calc(650 + var(--weight-delta, 0)), 900);
       }
       .bell-period.past {
         opacity: 0.58;
@@ -2530,7 +2531,7 @@
       }
       .ytr-title {
         font-size: 13px;
-        font-weight: 600;
+        font-weight: clamp(100, calc(600 + var(--weight-delta, 0)), 900);
         line-height: 1.35;
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -2598,7 +2599,7 @@
         padding: 12px 14px;
         text-align: left;
         font-size: 13px;
-        font-weight: 750;
+        font-weight: clamp(100, calc(750 + var(--weight-delta, 0)), 900);
         border-radius: 13px;
         transition: transform var(--speed), border-color var(--speed), background var(--speed);
       }
@@ -2607,7 +2608,7 @@
         margin-top: 5px;
         color: var(--muted);
         font-size: 11px;
-        font-weight: 450;
+        font-weight: clamp(100, calc(450 + var(--weight-delta, 0)), 900);
       }
       #ch-tools-panel #ch-style-presets [data-dashboard-preset="minimal"]::after { content: "Just the essentials"; }
       #ch-tools-panel #ch-style-presets [data-dashboard-preset="study"]::after { content: "Focus on your school day"; }
@@ -2710,7 +2711,7 @@
         padding: 14px 12px 5px;
         color: #6f7785;
         font-size: 10px;
-        font-weight: 750;
+        font-weight: clamp(100, calc(750 + var(--weight-delta, 0)), 900);
         letter-spacing: 1.6px;
         text-transform: uppercase;
       }
@@ -2726,7 +2727,7 @@
       .content > *, .view > * { max-width: 100%; }
       .btn, .icon-btn, .collapse-btn, .nav-btn, #ch-style-presets button, .ytr-card { -webkit-tap-highlight-color: transparent; }
       .btn, .icon-btn, .field, .select, input, select, textarea { max-width: 100%; }
-      .btn { min-height: 38px; font-weight: 600; line-height: 1.25; }
+      .btn { min-height: 38px; font-weight: clamp(100, calc(600 + var(--weight-delta, 0)), 900); line-height: 1.25; }
       .btn.primary { box-shadow: 0 2px 8px rgba(var(--accent-rgb), .12); }
       .btn.primary:hover { filter: brightness(1.06); transform: translateY(-1px); }
       .field, .select, input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]), select, textarea { min-width: 0; }
@@ -3987,6 +3988,7 @@
           const fontWeightAdjust = Math.max(300, Math.min(800, Number(s.fontWeightAdjust) || 600));
           document.documentElement.style.setProperty("--font-size-adjust", String(fontSizeAdjust / 100));
           document.documentElement.style.setProperty("--font-weight-adjust", String(fontWeightAdjust));
+          document.documentElement.style.setProperty("--weight-delta", String(fontWeightAdjust - 600));
           document.body.dataset.fontSizeAdjust = "custom";
           document.body.dataset.fontWeightAdjust = "custom";
           $("fontSizeAdjust").value = fontSizeAdjust;
@@ -5040,10 +5042,10 @@
         function renderBellSchedule() {
           const list = $("bellScheduleList");
           if (!list) return;
-          list.innerHTML = BELL_SCHEDULE.map(
+          list.innerHTML = BELL_SCHEDULE.length ? BELL_SCHEDULE.map(
             (p, i) =>
-              `<div class="bell-period" data-bell-index="${i}"><span class="bell-period-name">${p.name}</span><span class="bell-period-time">${p.startLabel} – ${p.endLabel}</span></div>`,
-          ).join("");
+              `<div class="bell-period" data-bell-index="${i}"><span class="bell-period-name">${escH(p.name)}</span><span class="bell-period-time">${p.startLabel} – ${p.endLabel}</span></div>`,
+          ).join("") : '<div class="empty"><strong>No schedule set up yet</strong>Add your class times in Settings to show your personal bell schedule.</div>';
         }
         function updateBellSchedule(now = new Date()) {
           const mins = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
@@ -5055,6 +5057,10 @@
             el.classList.toggle("past", weekday && mins >= BELL_SCHEDULE[i].end);
           });
           const status = $("bellScheduleStatus");
+          if (!BELL_SCHEDULE.length) {
+            if (status) status.textContent = "No schedule set. Add your class times in Settings.";
+            return;
+          }
           if (status) {
             if (!weekday) status.textContent = "Weekday bell times · Schedule resumes Monday.";
             else if (active >= 0) {
@@ -5120,7 +5126,7 @@
             return [h, m, sec].map((v) => String(v).padStart(2, "0")).join(":");
           };
           const schoolDay = day >= 1 && day <= 5;
-          if (!SCHOOL_START_MINUTES || !SCHOOL_END_MINUTES) {
+          if (!BELL_SCHEDULE.length || !Number.isFinite(SCHOOL_START_MINUTES) || !Number.isFinite(SCHOOL_END_MINUTES) || SCHOOL_END_MINUTES <= SCHOOL_START_MINUTES) {
             count.textContent = "--:--:--";
             status.textContent = "Add your school hours and classes in Settings to activate the countdown.";
             fill.style.width = "0%"; label.textContent = "School schedule not set up"; return;
@@ -5155,7 +5161,7 @@
           const end = new Date(now);
           end.setHours(Math.floor(SCHOOL_END_MINUTES / 60), SCHOOL_END_MINUTES % 60, 0, 0);
           const start = new Date(now);
-          start.setHours(7, 54, 0, 0);
+          start.setHours(Math.floor(SCHOOL_START_MINUTES / 60), SCHOOL_START_MINUTES % 60, 0, 0);
           const remaining = end - now,
             elapsed = now - start,
             duration = end - start,
@@ -5180,27 +5186,10 @@
           applySettings();
         });
         [
-          "themeSelect",
-          "densitySelect",
-          "widthSelect",
-          "fontScaleSelect",
-          "fontSizeAdjust",
-          "fontWeightAdjust",
-          "cornerSelect",
-          "animationSelect",
-          "backgroundSelect",
-          "settingsEngine",
-          "startPage",
-          "sidebarCollapsed",
-          "reducedMotion",
-          "showClock",
-          "showGreeting",
-          "showDashboardLinks",
-          "showTodo",
-        ].forEach((id) => $(id).addEventListener("change", saveSettingsFromUI));
-        $("greetingInput").addEventListener("change", saveSettingsFromUI); // Appearance and preference controls save automatically.
-        [
           "accentColor",
+          "fontFamilySelect",
+          "sidebarWidthRange",
+          "surfaceOpacityRange",
           "themeSelect",
           "densitySelect",
           "widthSelect",
@@ -5222,7 +5211,8 @@
         ].forEach((id) => {
           const el = $(id);
           if (!el) return;
-          el.addEventListener(id === "accentColor" ? "input" : "change", () => saveSettingsFromUI(false));
+          const eventName = ["accentColor", "fontSizeAdjust", "fontWeightAdjust", "sidebarWidthRange", "surfaceOpacityRange"].includes(id) ? "input" : "change";
+          el.addEventListener(eventName, () => saveSettingsFromUI(false));
         });
         $("resetSettings").addEventListener("click", () => {
           if (!confirm("Reset appearance and dashboard settings? Your links and tasks will be kept.")) return;
@@ -5643,18 +5633,6 @@
         document
           .querySelectorAll("[data-preset]")
           .forEach((b) => b.addEventListener("click", () => applyPreset(b.dataset.preset)));
-        // Save slider adjustments immediately while dragging, and again on release.
-        ["fontFamilySelect", "sidebarWidthRange", "surfaceOpacityRange", "fontSizeAdjust", "fontWeightAdjust"].forEach((id) => {
-          const el = $(id);
-          if (!el) return;
-          const saveAppearance = () => {
-            state.settings.fontSizeAdjust = Number($("fontSizeAdjust").value) || 100;
-            state.settings.fontWeightAdjust = Number($("fontWeightAdjust").value) || 600;
-            saveSettingsFromUI(false);
-          };
-          el.addEventListener(id === "fontSizeAdjust" || id === "fontWeightAdjust" || id.endsWith("Range") ? "input" : "change", saveAppearance);
-          el.addEventListener("change", saveAppearance);
-        });
         $("openCommands").addEventListener("click", openCommandPalette);
         const EXTRA_CMDS = [
           ["layout", "◫", "Customize home screen"],
@@ -5706,6 +5684,7 @@
           f[e.shiftKey ? (i <= 0 ? f.length - 1 : i - 1) : i >= f.length - 1 ? 0 : i + 1].focus();
         });
         function bellInfo(now) {
+          if (!BELL_SCHEDULE.length) return { phase: "unset" };
           const day = now.getDay();
           if (day === 0 || day === 6) return { phase: "weekend" };
           const m = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
@@ -5754,7 +5733,9 @@
                   ? "Next bell: " + b.next + " at " + b.nextStart + " · in " + fmtSecs(b.secsLeft)
                   : b.phase === "after"
                     ? "School is finished for today."
-                    : "No classes today. Bells resume on the next school day.";
+                    : b.phase === "unset"
+                      ? "No schedule set. Add your class times in Settings."
+                      : "No classes today. Bells resume on the next school day.";
         }
         // ===== v3: browser + YouTube fixes =====
         // Why pages "refuse to connect": these sites send X-Frame-Options / CSP frame-ancestors, and the browser then refuses to show them in an iframe.
