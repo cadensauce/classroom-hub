@@ -4386,53 +4386,118 @@
           try { return JSON.parse(localStorage.getItem(YT_PROGRESS_KEY) || "{}") || {}; } catch { return {}; }
         }
         function saveYoutubeProgress(id, seconds, duration) {
-          if (!id || !Number.isFinite(seconds)) return;
+          if (!id || !Number.isFinite(seconds) || seconds < 0) return;
           const all = getYoutubeProgress();
-          all[id] = { seconds: Math.max(0, Math.floor(seconds)), duration: Math.max(0, Math.floor(duration || 0)), updatedAt: Date.now() };
+          const previous = all[id] || {};
+          const cleanSeconds = Math.floor(seconds);
+          const cleanDuration = Number.isFinite(duration) && duration > 0 ? Math.floor(duration) : (previous.duration || 0);
+          all[id] = { seconds: cleanSeconds, duration: cleanDuration, updatedAt: Date.now() };
           try { localStorage.setItem(YT_PROGRESS_KEY, JSON.stringify(all)); } catch {}
           const item = state.youtubeWatchHistory.find(v => v.id === id);
-          if (item) { item.position = all[id].seconds; item.duration = all[id].duration; item.updatedAt = Date.now(); save(); renderYoutubeLibrary(); }
+          if (item) {
+            item.position = cleanSeconds;
+            item.duration = cleanDuration;
+            item.updatedAt = all[id].updatedAt;
+            // Keep the library UI in sync without rebuilding it every few seconds.
+            const row = document.querySelector('[data-yt-resume="' + id + '"]');
+            const sub = row && row.closest(".yt-library-item")?.querySelector(".yt-library-item-sub");
+            if (sub) sub.textContent = cleanSeconds ? "Resume at " + fmtSecs(cleanSeconds) : "Not started";
+            save();
+          }
         }
         function loadYoutubeApi() {
-          if (ytPlayerApiReady || ytPlayerApiLoading) return;
+          if (window.YT && window.YT.Player) {
+            ytPlayerApiReady = true;
+            if (activeYoutubeId) mountYoutubePlayer(activeYoutubeId);
+            return;
+          }
+          if (ytPlayerApiLoading) return;
           ytPlayerApiLoading = true;
+          const previousReady = window.onYouTubeIframeAPIReady;
           window.onYouTubeIframeAPIReady = () => {
+            if (typeof previousReady === "function") {
+              try { previousReady(); } catch {}
+            }
             ytPlayerApiReady = true;
             ytPlayerApiLoading = false;
             if (activeYoutubeId) mountYoutubePlayer(activeYoutubeId);
           };
           if (!document.querySelector('script[data-youtube-iframe-api]')) {
-            const s = document.createElement("script");
-            s.src = "https://www.youtube.com/iframe_api";
-            s.dataset.youtubeIframeApi = "true";
-            document.head.appendChild(s);
+            const script = document.createElement("script");
+            script.src = "https://www.youtube.com/iframe_api";
+            script.dataset.youtubeIframeApi = "true";
+            script.onerror = () => {
+              ytPlayerApiLoading = false;
+              $("youtubeStatus").textContent = "The YouTube player API did not load, so automatic resume may not work in this browser.";
+            };
+            document.head.appendChild(script);
           }
         }
         function mountYoutubePlayer(id) {
-          if (!window.YT || !window.YT.Player) return;
+          if (!window.YT || !window.YT.Player || !id || id !== activeYoutubeId) return;
           const saved = getYoutubeProgress()[id];
-          const startSeconds = saved && saved.seconds > 5 && (!saved.duration || saved.seconds < saved.duration - 8) ? saved.seconds : 0;
-          if (ytPlayerApiInstance && ytPlayerApiInstance.destroy) { try { ytPlayerApiInstance.destroy(); } catch {} }
-          ytPlayerApiInstance = new YT.Player("youtubePlayerFrame", {
+          const startSeconds = saved && saved.seconds > 5 && (!saved.duration || saved.seconds < saved.duration - 2) ? saved.seconds : 0;
+          saveActiveYoutubeProgress();
+          stopYoutubeProgressTracking();
+          if (ytPlayerApiInstance && ytPlayerApiInstance.destroy) {
+            try { ytPlayerApiInstance.destroy(); } catch {}
+          }
+          // Give the IFrame API the iframe element directly; it owns its loading and seek timing.
+          const frame = $("youtubePlayerFrame");
+          frame.removeAttribute("src");
+          ytPlayerApiInstance = new YT.Player(frame, {
             videoId: id,
-            playerVars: { autoplay: 1, rel: 0, playsinline: 1, start: startSeconds, enablejsapi: 1 },
+            playerVars: { autoplay: 1, rel: 0, playsinline: 1, enablejsapi: 1 },
             events: {
-              onReady: e => { if (startSeconds) $("youtubeStatus").textContent = "Resuming at " + fmtSecs(startSeconds) + "."; startYoutubeProgressTracking(); },
-              onStateChange: e => { if (e.data === 0) { saveYoutubeProgress(id, 0, e.target.getDuration()); stopYoutubeProgressTracking(); } else if (e.data === 1) startYoutubeProgressTracking(); else if (e.data === 2) saveYoutubeProgress(id, e.target.getCurrentTime(), e.target.getDuration()); },
-              onError: () => { $("youtubeStatus").textContent = "This video can't be embedded. Try opening it on YouTube."; }
+              onReady: e => {
+                if (id !== activeYoutubeId) return;
+                if (startSeconds > 0) {
+                  e.target.seekTo(startSeconds, true);
+                  $("youtubeStatus").textContent = "Resuming near " + fmtSecs(startSeconds) + ".";
+                }
+                startYoutubeProgressTracking();
+              },
+              onStateChange: e => {
+                if (id !== activeYoutubeId) return;
+                if (e.data === 0) {
+                  saveYoutubeProgress(id, 0, e.target.getDuration());
+                  stopYoutubeProgressTracking();
+                } else if (e.data === 1) {
+                  startYoutubeProgressTracking();
+                } else if (e.data === 2) {
+                  saveYoutubeProgress(id, e.target.getCurrentTime(), e.target.getDuration());
+                }
+              },
+              onError: () => {
+                if (id === activeYoutubeId) $("youtubeStatus").textContent = "This video can't be embedded. Try opening it on YouTube.";
+              }
             }
           });
         }
         function startYoutubeProgressTracking() {
           stopYoutubeProgressTracking();
           ytProgressTimer = setInterval(() => {
-            if (!ytPlayerApiInstance || !activeYoutubeId) return;
-            try { saveYoutubeProgress(activeYoutubeId, ytPlayerApiInstance.getCurrentTime(), ytPlayerApiInstance.getDuration()); } catch {}
-          }, 5000);
+            const id = activeYoutubeId;
+            const player = ytPlayerApiInstance;
+            if (!player || !id) return;
+            try {
+              const seconds = player.getCurrentTime();
+              if (Number.isFinite(seconds)) saveYoutubeProgress(id, seconds, player.getDuration());
+            } catch {}
+          }, 1000);
         }
         function stopYoutubeProgressTracking() {
           if (ytProgressTimer) clearInterval(ytProgressTimer);
           ytProgressTimer = null;
+        }
+        function saveActiveYoutubeProgress() {
+          const id = activeYoutubeId;
+          const player = ytPlayerApiInstance;
+          if (!id || !player) return;
+          try {
+            const seconds = player.getCurrentTime();
+            if (Number.isFinite(seconds)) saveYoutubeProgress(id, seconds, player.getDuration());
+          } catch {}
         }
         function searchYoutube(q) {
           q = String(q || "").trim();
@@ -4476,7 +4541,6 @@
           renderYoutubeLibrary();
           $("ytPlayer").hidden = false;
           $("ytBackResults").textContent = ytResults.length ? "← Back to results" : "✕ Close player";
-          $("youtubePlayerFrame").src = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(id) + "?autoplay=1&rel=0&playsinline=1&enablejsapi=1";
           $("youtubeStatus").textContent = "Video loaded. Playback position is saved on this device when the embedded player supports it.";
           loadYoutubeApi();
           if (ytPlayerApiReady) mountYoutubePlayer(id);
@@ -6043,7 +6107,7 @@
         });
         $("ytMore").addEventListener("click", () => ytApiSearch(ytQuery, true));
         $("ytBackResults").addEventListener("click", () => {
-          try { if (ytPlayerApiInstance && activeYoutubeId) saveYoutubeProgress(activeYoutubeId, ytPlayerApiInstance.getCurrentTime(), ytPlayerApiInstance.getDuration()); } catch {}
+          saveActiveYoutubeProgress()
           stopYoutubeProgressTracking();
           if (ytPlayerApiInstance && ytPlayerApiInstance.destroy) { try { ytPlayerApiInstance.destroy(); } catch {} }
           ytPlayerApiInstance = null;
