@@ -5149,8 +5149,8 @@
             const start = minuteOfTime(p.startTime), end = minuteOfTime(p.endTime);
             return { name: String(p.name || "").trim(), start, end, startLabel: timeLabel(start), endLabel: timeLabel(end), startTime: p.startTime, endTime: p.endTime };
           }).filter((p) => p.name && Number.isFinite(p.start) && Number.isFinite(p.end) && p.end > p.start).sort((a,b) => a.start-b.start) : [];
-          SCHOOL_START_MINUTES = Number.isFinite(minuteOfTime(saved.schoolStart)) ? minuteOfTime(saved.schoolStart) : (BELL_SCHEDULE[0]?.start ?? 0);
-          SCHOOL_END_MINUTES = Number.isFinite(minuteOfTime(saved.schoolEnd)) ? minuteOfTime(saved.schoolEnd) : (BELL_SCHEDULE[BELL_SCHEDULE.length - 1]?.end ?? 0);
+          SCHOOL_START_MINUTES = Number.isFinite(minuteOfTime(saved.schoolStart)) ? minuteOfTime(saved.schoolStart) : (BELL_SCHEDULE[0]?.start ?? NaN);
+          SCHOOL_END_MINUTES = Number.isFinite(minuteOfTime(saved.schoolEnd)) ? minuteOfTime(saved.schoolEnd) : (BELL_SCHEDULE[BELL_SCHEDULE.length - 1]?.end ?? NaN);
           const startInput = $("schoolDayStart"), endInput = $("schoolDayEnd");
           if (startInput) startInput.value = saved.schoolStart || (BELL_SCHEDULE[0]?.startTime || "");
           if (endInput) endInput.value = saved.schoolEnd || (BELL_SCHEDULE[BELL_SCHEDULE.length - 1]?.endTime || "");
