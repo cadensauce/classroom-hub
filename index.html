@@ -4539,6 +4539,20 @@
           state.youtubeWatchHistory = [video, ...state.youtubeWatchHistory.filter(v => v.id !== id)].slice(0, 30);
           save();
           renderYoutubeLibrary();
+          // For pasted links, look up the real title instead of leaving a generic video ID.
+          if (!result && (!existing || !existing.title || /^YouTube video\\s/.test(existing.title))) {
+            fetch("https://www.youtube.com/oembed?url=" + encodeURIComponent("https://www.youtube.com/watch?v=" + id) + "&format=json")
+              .then(response => { if (!response.ok) throw new Error("Title lookup failed"); return response.json(); })
+              .then(data => {
+                const item = state.youtubeWatchHistory.find(v => v.id === id);
+                if (!item || !data.title) return;
+                item.title = data.title;
+                if (data.author_name) item.channel = data.author_name;
+                save();
+                renderYoutubeLibrary();
+              })
+              .catch(() => {});
+          }
           $("ytPlayer").hidden = false;
           $("ytBackResults").textContent = ytResults.length ? "← Back to results" : "✕ Close player";
           $("youtubeStatus").textContent = "Video loaded. Playback position is saved on this device when the embedded player supports it.";
