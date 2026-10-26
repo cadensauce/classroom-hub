@@ -571,6 +571,7 @@
         padding: 17px;
       }
       /* ===== BROWSER ===== */
+      #view-browser { display: none !important; }
       .browser-toolbar {
         display: flex;
         align-items: center;
@@ -2912,7 +2913,23 @@
         *, *::before, *::after { transition-duration: .01ms !important; }
       }
 
-    </style>
+    
+      .yt-library { display:grid; gap:18px; margin-top:22px; }
+      .yt-library-section { border-top:1px solid var(--border); padding-top:14px; min-width:0; }
+      .yt-library-heading { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
+      .yt-library-heading h2 { font-size:14px; margin:0; font-weight:650; }
+      .yt-library-list { display:grid; gap:8px; }
+      .yt-library-item { display:flex; align-items:center; gap:10px; min-width:0; padding:10px; border:1px solid var(--border); border-radius:10px; background:var(--panel2); }
+      .yt-library-item img { width:88px; aspect-ratio:16/9; object-fit:cover; border-radius:6px; background:var(--panel3); }
+      .yt-library-item-main { flex:1; min-width:0; }
+      .yt-library-item-title { font-size:13px; font-weight:600; overflow-wrap:anywhere; }
+      .yt-library-item-sub { font-size:11px; color:var(--muted); margin-top:3px; }
+      .yt-library-item-actions { display:flex; gap:6px; flex-wrap:wrap; }
+      .yt-library-item-actions .btn { padding:7px 9px; font-size:12px; }
+      .yt-playlist-select-label { color:var(--muted); font-size:12px; }
+      #youtubePlaylistForm { margin-bottom:10px; }
+      @media(max-width:640px) { .yt-library-item { align-items:flex-start; flex-wrap:wrap; } .yt-library-item-actions { width:100%; } .yt-library-item img { width:76px; } }
+</style>
   </head>
   <body>
     <noscript
@@ -2938,9 +2955,7 @@
             <span class="nav-icon">☆</span><span class="nav-text">Favorites</span>
           </button>
           <div class="nav-group-label" aria-hidden="true">Tools</div>
-          <button class="nav-btn" data-view="browser">
-            <span class="nav-icon">◎</span><span class="nav-text">Browser</span></button
-          ><button class="nav-btn" data-view="youtube">
+          <button class="nav-btn" data-view="youtube">
             <span class="nav-icon">▷</span><span class="nav-text">YouTube</span></button
           ><button class="nav-btn" data-view="ai">
             <span class="nav-icon">✦</span><span class="nav-text">AI Assistant</span>
@@ -3123,7 +3138,7 @@
             </div>
             <div class="section"><div class="grid" id="allLinks"></div></div>
           </section>
-          <!-- ===== VIEW: BROWSER ===== -->
+          <!-- ===== VIEW: BROWSER REMOVED FROM NAVIGATION ===== -->
           <section class="view" id="view-browser">
             <div class="section-head">
               <div><h1 style="font-size: 34px; margin: 0 0 5px; letter-spacing: -1.3px">Browser</h1></div>
@@ -3250,11 +3265,23 @@
                     ><button class="btn" type="button" id="ytKeyClear">Remove</button>
                   </div>
                 </details>
-                <div class="recent-row" id="recentYoutubeRow" aria-label="Recent YouTube searches"></div>
+                <div class="yt-library">
+                  <section class="yt-library-section">
+                    <div class="yt-library-heading"><h2>Recent searches</h2><button class="btn" type="button" id="clearYoutubeSearches">Clear</button></div>
+                    <div class="recent-row" id="recentYoutubeRow" aria-label="Recent YouTube searches"></div>
+                  </section>
+                  <section class="yt-library-section">
+                    <div class="yt-library-heading"><h2>Continue watching</h2><button class="btn" type="button" id="clearYoutubeHistory">Clear</button></div>
+                    <div class="yt-library-list" id="youtubeWatchHistory"></div>
+                  </section>
+                  <section class="yt-library-section">
+                    <div class="yt-library-heading"><h2>Saved playlists</h2></div>
+                    <form class="yt-search" id="youtubePlaylistForm"><input class="field" id="youtubePlaylistName" maxlength="50" placeholder="New playlist name" aria-label="New playlist name"><button class="btn" type="submit">Create playlist</button></form>
+                    <div id="youtubePlaylists" class="yt-library-list"></div>
+                  </section>
+                </div>
                 <div class="note">
-                  YouTube’s own pages (youtube.com) refuse to be shown inside other websites, which is why they can’t
-                  open in the Browser. Videos can still play here, and search results can appear here if you add a free
-                  YouTube API key below. Without a key, search opens YouTube in a new tab.
+                  Search results inside Classroom Hub require a YouTube Data API key. Without a key, Search opens official YouTube results in a new tab. Saved videos, playlists, and playback positions are stored on this device.
                 </div>
                 <div class="form-group" style="margin-top: 22px">
                   <label for="youtubeVideoInput">Or paste a YouTube video link</label>
@@ -3269,6 +3296,8 @@
                 <div class="yt-player" id="ytPlayer" hidden>
                   <div class="ytr-bar">
                     <button class="btn" type="button" id="ytBackResults">✕ Close player</button>
+                    <button class="btn" type="button" id="saveCurrentYoutubeVideo">Save video</button>
+                    <label class="yt-playlist-select-label" for="addVideoToPlaylist">Add to playlist</label><select class="select" id="addVideoToPlaylist"><option value="">Choose playlist…</option></select>
                   </div>
                   <iframe
                     class="video-frame"
@@ -3887,11 +3916,10 @@
                   .slice(0, 6)
               : [],
             recentYoutubeSearches: Array.isArray(s.recentYoutubeSearches)
-              ? s.recentYoutubeSearches
-                  .filter((x) => typeof x === "string")
-                  .map((x) => safeText(x, 160))
-                  .slice(0, 6)
+              ? s.recentYoutubeSearches.filter((x) => typeof x === "string").map((x) => safeText(x, 160)).slice(0, 10)
               : [],
+            youtubeWatchHistory: Array.isArray(s.youtubeWatchHistory) ? s.youtubeWatchHistory.filter((v) => v && /^[\w-]{11}$/.test(v.id)).slice(0, 30) : [],
+            youtubePlaylists: Array.isArray(s.youtubePlaylists) ? s.youtubePlaylists.filter((p) => p && typeof p.name === "string" && Array.isArray(p.videos)).slice(0, 30) : [],
             recentActivity: Array.isArray(s.recentActivity)
               ? s.recentActivity.filter((x) => x && typeof x.id === "string").slice(0, 8)
               : [],
@@ -4348,6 +4376,64 @@
           return "";
         }
         let lastYtQuery = "";
+        let activeYoutubeId = "";
+        let ytPlayerApiReady = false;
+        let ytPlayerApiLoading = false;
+        let ytPlayerApiInstance = null;
+        let ytProgressTimer = null;
+        const YT_PROGRESS_KEY = "classroomHubYoutubeProgressV1";
+        function getYoutubeProgress() {
+          try { return JSON.parse(localStorage.getItem(YT_PROGRESS_KEY) || "{}") || {}; } catch { return {}; }
+        }
+        function saveYoutubeProgress(id, seconds, duration) {
+          if (!id || !Number.isFinite(seconds)) return;
+          const all = getYoutubeProgress();
+          all[id] = { seconds: Math.max(0, Math.floor(seconds)), duration: Math.max(0, Math.floor(duration || 0)), updatedAt: Date.now() };
+          try { localStorage.setItem(YT_PROGRESS_KEY, JSON.stringify(all)); } catch {}
+          const item = state.youtubeWatchHistory.find(v => v.id === id);
+          if (item) { item.position = all[id].seconds; item.duration = all[id].duration; item.updatedAt = Date.now(); save(); renderYoutubeLibrary(); }
+        }
+        function loadYoutubeApi() {
+          if (ytPlayerApiReady || ytPlayerApiLoading) return;
+          ytPlayerApiLoading = true;
+          window.onYouTubeIframeAPIReady = () => {
+            ytPlayerApiReady = true;
+            ytPlayerApiLoading = false;
+            if (activeYoutubeId) mountYoutubePlayer(activeYoutubeId);
+          };
+          if (!document.querySelector('script[data-youtube-iframe-api]')) {
+            const s = document.createElement("script");
+            s.src = "https://www.youtube.com/iframe_api";
+            s.dataset.youtubeIframeApi = "true";
+            document.head.appendChild(s);
+          }
+        }
+        function mountYoutubePlayer(id) {
+          if (!window.YT || !window.YT.Player) return;
+          const saved = getYoutubeProgress()[id];
+          const startSeconds = saved && saved.seconds > 5 && (!saved.duration || saved.seconds < saved.duration - 8) ? saved.seconds : 0;
+          if (ytPlayerApiInstance && ytPlayerApiInstance.destroy) { try { ytPlayerApiInstance.destroy(); } catch {} }
+          ytPlayerApiInstance = new YT.Player("youtubePlayerFrame", {
+            videoId: id,
+            playerVars: { autoplay: 1, rel: 0, playsinline: 1, start: startSeconds, enablejsapi: 1 },
+            events: {
+              onReady: e => { if (startSeconds) $("youtubeStatus").textContent = "Resuming at " + fmtSecs(startSeconds) + "."; startYoutubeProgressTracking(); },
+              onStateChange: e => { if (e.data === 0) { saveYoutubeProgress(id, 0, e.target.getDuration()); stopYoutubeProgressTracking(); } else if (e.data === 1) startYoutubeProgressTracking(); else if (e.data === 2) saveYoutubeProgress(id, e.target.getCurrentTime(), e.target.getDuration()); },
+              onError: () => { $("youtubeStatus").textContent = "This video can't be embedded. Try opening it on YouTube."; }
+            }
+          });
+        }
+        function startYoutubeProgressTracking() {
+          stopYoutubeProgressTracking();
+          ytProgressTimer = setInterval(() => {
+            if (!ytPlayerApiInstance || !activeYoutubeId) return;
+            try { saveYoutubeProgress(activeYoutubeId, ytPlayerApiInstance.getCurrentTime(), ytPlayerApiInstance.getDuration()); } catch {}
+          }, 5000);
+        }
+        function stopYoutubeProgressTracking() {
+          if (ytProgressTimer) clearInterval(ytProgressTimer);
+          ytProgressTimer = null;
+        }
         function searchYoutube(q) {
           q = String(q || "").trim();
           if (!q) {
@@ -4356,15 +4442,15 @@
           }
           lastYtQuery = q;
           rememberSearch(q, "youtube");
+          state.recentYoutubeSearches = [q, ...state.recentYoutubeSearches.filter(x => x.toLowerCase() !== q.toLowerCase())].slice(0, 10);
+          save();
+          renderYoutubeLibrary();
           $("youtubeQuery").value = q;
           goView("youtube");
           if (ytKey()) ytApiSearch(q, false);
           else {
             openNewTab("https://www.youtube.com/results?search_query=" + encodeURIComponent(q));
-            $("youtubeStatus").textContent =
-              "Opened YouTube results for “" +
-              q +
-              "” in a new tab. To see results here instead, add a free YouTube API key below.";
+            $("youtubeStatus").textContent = "Opened official YouTube search results in a new tab. Add a YouTube Data API key above to display results inside Classroom Hub.";
           }
         }
         function playYoutube(raw) {
@@ -4375,12 +4461,25 @@
             toast("Could not find a YouTube video ID.");
             return;
           }
+          activeYoutubeId = id;
+          const existing = state.youtubeWatchHistory.find(v => v.id === id);
+          const result = ytResults.find(v => v.id === id);
+          const progress = getYoutubeProgress()[id] || {};
+          const video = {
+            id, title: result?.title || existing?.title || "YouTube video " + id,
+            channel: result?.channel || existing?.channel || "YouTube",
+            thumb: result?.thumb || existing?.thumb || "https://i.ytimg.com/vi/" + id + "/mqdefault.jpg",
+            position: progress.seconds || existing?.position || 0, duration: progress.duration || existing?.duration || 0, updatedAt: Date.now()
+          };
+          state.youtubeWatchHistory = [video, ...state.youtubeWatchHistory.filter(v => v.id !== id)].slice(0, 30);
+          save();
+          renderYoutubeLibrary();
           $("ytPlayer").hidden = false;
           $("ytBackResults").textContent = ytResults.length ? "← Back to results" : "✕ Close player";
-          $("youtubePlayerFrame").src =
-            "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(id) + "?autoplay=1&rel=0&playsinline=1";
-          $("youtubeStatus").textContent =
-            "Video loaded. If playback is unavailable, the video owner or network may restrict embedding.";
+          $("youtubePlayerFrame").src = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(id) + "?autoplay=1&rel=0&playsinline=1&enablejsapi=1";
+          $("youtubeStatus").textContent = "Video loaded. Playback position is saved on this device when the embedded player supports it.";
+          loadYoutubeApi();
+          if (ytPlayerApiReady) mountYoutubePlayer(id);
           $("ytPlayer").scrollIntoView({
             behavior: state.settings.reducedMotion ? "auto" : "smooth",
             block: "nearest",
@@ -5917,6 +6016,7 @@
             );
             ytToken = d.nextPageToken || "";
             ytRender();
+            renderYoutubeLibrary();
             st.textContent = ytResults.length
               ? "Showing " + ytResults.length + " results for “" + ytQuery + "”. Select one to play."
               : "No embeddable videos found for “" + ytQuery + "”.";
@@ -5930,10 +6030,24 @@
         }
         $("ytResults").addEventListener("click", (e) => {
           const c = e.target.closest("[data-vid]");
-          if (c) playYoutube(c.dataset.vid);
+          if (!c) return;
+          const video = ytResults.find(v => v.id === c.dataset.vid);
+          if (video) {
+            const old = state.youtubeWatchHistory.find(v => v.id === video.id);
+            if (!old) state.youtubeWatchHistory.unshift({ ...video, position: 0, duration: 0, updatedAt: Date.now() });
+            else Object.assign(old, video, { updatedAt: Date.now() });
+            save();
+            renderYoutubeLibrary();
+          }
+          playYoutube(c.dataset.vid);
         });
         $("ytMore").addEventListener("click", () => ytApiSearch(ytQuery, true));
         $("ytBackResults").addEventListener("click", () => {
+          try { if (ytPlayerApiInstance && activeYoutubeId) saveYoutubeProgress(activeYoutubeId, ytPlayerApiInstance.getCurrentTime(), ytPlayerApiInstance.getDuration()); } catch {}
+          stopYoutubeProgressTracking();
+          if (ytPlayerApiInstance && ytPlayerApiInstance.destroy) { try { ytPlayerApiInstance.destroy(); } catch {} }
+          ytPlayerApiInstance = null;
+          activeYoutubeId = "";
           $("youtubePlayerFrame").src = "about:blank";
           $("ytPlayer").hidden = true;
           if (ytResults.length) {
@@ -5942,6 +6056,101 @@
           } else $("youtubeStatus").textContent = "";
         });
         $("youtubeOpenHome").addEventListener("click", () => openNewTab("https://www.youtube.com/"));
+        function ytSafeUrl(id) { return "https://www.youtube.com/watch?v=" + encodeURIComponent(id); }
+        function renderYoutubeLibrary() {
+          const recent = $("recentYoutubeRow");
+          if (recent) recent.innerHTML = state.recentYoutubeSearches.length
+            ? state.recentYoutubeSearches.map(q => '<button class="btn" type="button" data-yt-recent="' + esc(q) + '">' + esc(q) + '</button>').join("")
+            : '<span class="section-sub">No recent searches yet.</span>';
+          const history = $("youtubeWatchHistory");
+          if (history) history.innerHTML = state.youtubeWatchHistory.length ? state.youtubeWatchHistory.map(v => {
+            const p = getYoutubeProgress()[v.id] || {};
+            const pos = p.seconds || v.position || 0;
+            return '<div class="yt-library-item"><img src="' + esc(v.thumb || ("https://i.ytimg.com/vi/" + v.id + "/mqdefault.jpg")) + '" alt="" loading="lazy"><div class="yt-library-item-main"><div class="yt-library-item-title">' + esc(v.title || "YouTube video") + '</div><div class="yt-library-item-sub">' + (pos ? "Resume at " + fmtSecs(pos) : "Not started") + '</div></div><div class="yt-library-item-actions"><button class="btn primary" type="button" data-yt-resume="' + esc(v.id) + '">Play</button><button class="btn" type="button" data-yt-save="' + esc(v.id) + '">Save to playlist</button></div></div>';
+          }).join("") : '<div class="section-sub">Videos you play here will appear in this list.</div>';
+          const playlists = $("youtubePlaylists");
+          const select = $("addVideoToPlaylist");
+          const current = select ? select.value : "";
+          if (playlists) playlists.innerHTML = state.youtubePlaylists.length ? state.youtubePlaylists.map(p =>
+            '<div class="yt-library-item"><div class="yt-library-item-main"><div class="yt-library-item-title">' + esc(p.name) + '</div><div class="yt-library-item-sub">' + p.videos.length + ' saved video' + (p.videos.length === 1 ? '' : 's') + '</div>' +
+            (p.videos.length ? p.videos.map(v => '<div class="yt-library-item-sub">' + esc(v.title || v.id) + ' <button class="mini-btn" type="button" data-yt-play="' + esc(v.id) + '" aria-label="Play ' + esc(v.title || v.id) + '">▶</button> <button class="mini-btn" type="button" data-yt-remove-video="' + esc(p.id) + ':' + esc(v.id) + '" aria-label="Remove video">×</button></div>').join('') : '') +
+            '</div><div class="yt-library-item-actions"><button class="btn" type="button" data-yt-delete-playlist="' + esc(p.id) + '">Delete playlist</button></div></div>'
+          ).join("") : '<div class="section-sub">Create a playlist to save videos for later.</div>';
+          if (select) {
+            select.innerHTML = '<option value="">Choose playlist…</option>' + state.youtubePlaylists.map(p => '<option value="' + esc(p.id) + '">' + esc(p.name) + '</option>').join("");
+            select.value = current;
+          }
+        }
+        $("recentYoutubeRow").addEventListener("click", e => {
+          const b = e.target.closest("[data-yt-recent]");
+          if (b) searchYoutube(b.dataset.ytRecent);
+        });
+        $("clearYoutubeSearches").addEventListener("click", () => {
+          state.recentYoutubeSearches = []; save(); renderYoutubeLibrary();
+        });
+        $("clearYoutubeHistory").addEventListener("click", () => {
+          if (!confirm("Clear your YouTube watch history and saved playback positions?")) return;
+          state.youtubeWatchHistory = [];
+          try { localStorage.removeItem(YT_PROGRESS_KEY); } catch {}
+          save(); renderYoutubeLibrary();
+        });
+        $("youtubePlaylistForm").addEventListener("submit", e => {
+          e.preventDefault();
+          const name = $("youtubePlaylistName").value.trim();
+          if (!name) return;
+          if (state.youtubePlaylists.some(p => p.name.toLowerCase() === name.toLowerCase())) { toast("A playlist with that name already exists."); return; }
+          state.youtubePlaylists.push({ id: uid(), name: safeText(name, 50), videos: [] });
+          $("youtubePlaylistName").value = ""; save(); renderYoutubeLibrary(); toast("Playlist created.");
+        });
+        $("youtubePlaylists").addEventListener("click", e => {
+          const del = e.target.closest("[data-yt-delete-playlist]");
+          const play = e.target.closest("[data-yt-play]");
+          const rem = e.target.closest("[data-yt-remove-video]");
+          if (del) {
+            state.youtubePlaylists = state.youtubePlaylists.filter(p => p.id !== del.dataset.ytDeletePlaylist);
+            save(); renderYoutubeLibrary(); return;
+          }
+          if (play) {
+            const v = state.youtubeWatchHistory.find(v => v.id === play.dataset.ytPlay) || state.youtubePlaylists.flatMap(p => p.videos).find(v => v.id === play.dataset.ytPlay);
+            if (v) { ytResults = [v]; playYoutube(v.id); } return;
+          }
+          if (rem) {
+            const [pid, vid] = rem.dataset.ytRemoveVideo.split(":");
+            const p = state.youtubePlaylists.find(p => p.id === pid);
+            if (p) p.videos = p.videos.filter(v => v.id !== vid);
+            save(); renderYoutubeLibrary();
+          }
+        });
+        $("youtubeWatchHistory").addEventListener("click", e => {
+          const resume = e.target.closest("[data-yt-resume]");
+          const saveBtn = e.target.closest("[data-yt-save]");
+          if (resume) {
+            const v = state.youtubeWatchHistory.find(v => v.id === resume.dataset.ytResume);
+            if (v) { ytResults = [v]; playYoutube(v.id); }
+          }
+          if (saveBtn) {
+            if (!state.youtubePlaylists.length) { toast("Create a playlist first."); return; }
+            const id = saveBtn.dataset.ytSave;
+            const v = state.youtubeWatchHistory.find(v => v.id === id);
+            if (v) { const p = state.youtubePlaylists[0]; if (!p.videos.some(x => x.id === id)) p.videos.push({ ...v }); save(); renderYoutubeLibrary(); toast("Saved to " + p.name + "."); }
+          }
+        });
+        $("saveCurrentYoutubeVideo").addEventListener("click", () => {
+          if (!activeYoutubeId) return;
+          if (!state.youtubePlaylists.length) { toast("Create a playlist first."); return; }
+          const p = state.youtubePlaylists[0];
+          const v = state.youtubeWatchHistory.find(v => v.id === activeYoutubeId) || { id: activeYoutubeId, title: "YouTube video " + activeYoutubeId };
+          if (!p.videos.some(x => x.id === activeYoutubeId)) p.videos.push({ ...v });
+          save(); renderYoutubeLibrary(); toast("Saved to " + p.name + ".");
+        });
+        $("addVideoToPlaylist").addEventListener("change", e => {
+          const p = state.youtubePlaylists.find(p => p.id === e.target.value);
+          const v = state.youtubeWatchHistory.find(v => v.id === activeYoutubeId);
+          if (!p || !v) return;
+          if (!p.videos.some(x => x.id === v.id)) p.videos.push({ ...v });
+          save(); renderYoutubeLibrary(); toast("Added to " + p.name + ".");
+        });
+        renderYoutubeLibrary();
         $("ytKeySave").addEventListener("click", () => {
           const v = $("ytApiKey").value.trim();
           if (!v) {
