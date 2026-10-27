@@ -5,7 +5,7 @@
   FILE LAYOUT
     head    meta tags, favicon, ONE style element (sections are labelled)
     body    sidebar, main (top bar + 7 views), modals, toasts, then ONE script element at the end
-    script  one IIFE with labelled sections: constants, state, appearance, quick access, browser,
+    script  one IIFE with labelled sections: constants, state, appearance, quick access,
             YouTube, to-do, command launcher, bell schedule, AI, additions, startup, dashboard tools
 
   SAVED DATA (browser localStorage, this device only)
@@ -2925,6 +2925,11 @@
       .yt-playlist-select-label { color:var(--muted); font-size: calc(12px * var(--font-size-adjust)); }
       #youtubePlaylistForm { margin-bottom:10px; }
       @media(max-width:640px) { .yt-library-item { align-items:flex-start; flex-wrap:wrap; } .yt-library-item-actions { width:100%; } .yt-library-item img { width:76px; } }
+      /* Keep legacy browser/search code inaccessible from the interface. */
+      .search-wrap, #view-browser, #globalSearch, #searchSuggestions,
+      #browserForm, #browserAddress, #browserEngine, #settingsEngine,
+      #researchResults, .browser-toolbar, .browser-stage, .browser-frame,
+      .research-results { display: none !important; }
 </style>
   </head>
   <body>
@@ -2997,28 +3002,8 @@
                   <div class="date" id="dateText">Loading date…</div>
                 </div>
               </div>
-              <div class="search-wrap">
-                <div class="suggestions-wrap">
-                  <form class="search-box" id="globalSearch">
-                    <span class="search-icon">⌕</span
-                    ><input
-                      id="globalSearchInput"
-                      autocomplete="off"
-                      placeholder="Search the web or enter a website…"
-                      aria-label="Search the web or enter a website"
-                      aria-controls="searchSuggestions"
-                      aria-expanded="false"
-                    /><select id="globalEngine" aria-label="Search engine">
-                      <option value="duckduckgo">DuckDuckGo</option>
-                      <option value="google">Google</option>
-                      <option value="bing">Bing</option></select
-                    ><button class="btn primary" type="submit">Search ↗</button>
-                  </form>
-                  <div class="suggestion-list" id="searchSuggestions" role="listbox"></div>
-                </div>
-                <div class="recent-row" id="recentSearchRow" aria-label="Recent searches"></div>
-              </div>
-            </div>
+              <!-- Web search controls removed from the home page. -->
+
             <section class="section school-timer-section" id="schoolTimerSection" aria-labelledby="schoolTimerTitle">
               <div class="school-timer panel">
                 <div class="school-timer-main">
@@ -3134,91 +3119,7 @@
             </div>
             <div class="section"><div class="grid" id="allLinks"></div></div>
           </section>
-          <!-- ===== VIEW: BROWSER REMOVED FROM NAVIGATION ===== -->
-          <section class="view" id="view-browser">
-            <div class="section-head">
-              <div><h1 style="font-size: calc(34px * var(--font-size-adjust)); margin: 0 0 5px; letter-spacing: -1.3px">Browser</h1></div>
-            </div>
-            <div class="panel">
-              <form class="browser-toolbar" id="browserForm">
-                <button class="icon-btn" type="button" id="browserBack" title="Back" aria-label="Back">←</button
-                ><button class="icon-btn" type="button" id="browserForward" title="Forward" aria-label="Forward">
-                  →</button
-                ><button
-                  class="icon-btn"
-                  type="button"
-                  id="browserRefresh"
-                  title="Reload current page"
-                  aria-label="Reload current page"
-                >
-                  ↻</button
-                ><button
-                  class="btn browser-home"
-                  type="button"
-                  id="browserHome"
-                  title="Return to the browser start screen"
-                >
-                  Home</button
-                ><select
-                  class="select browser-engine"
-                  id="browserEngine"
-                  aria-label="Browser search engine"
-                  title="Choose search engine"
-                  style="width: auto; padding: 9px 8px"
-                >
-                  <option value="duckduckgo">DuckDuckGo</option>
-                  <option value="google">Google</option>
-                  <option value="bing">Bing</option></select
-                ><input
-                  class="browser-address"
-                  id="browserAddress"
-                  placeholder="Search the web or enter a website address…"
-                  aria-label="Browser address"
-                /><button class="btn primary" type="submit">Go</button
-                ><button class="btn" type="button" id="browserOpenSameTab">Open in new tab ↗</button>
-              </form>
-              <div class="browser-stage" id="browserStage">
-                <div class="browser-welcome">
-                  <div class="browser-symbol">◎</div>
-                  <h3>Your research space</h3>
-                  <p>
-                    Search educational reference results here, or type a website address. Sites that forbid embedding
-                    show an explanation and an Open in New Tab button.
-                  </p>
-                  <button class="btn" type="button" id="browserSearchExample">Try a research search</button>
-                </div>
-              </div>
-              <div class="browser-stage" id="browserNotice" style="display: none" aria-live="polite"></div>
-              <div class="research-results" id="researchResults" hidden>
-                <div class="section-head">
-                  <div>
-                    <h3 class="section-title" id="researchTitle">Research results</h3>
-                    <div class="section-sub">Quick reference results from Wikipedia</div>
-                  </div>
-                  <button class="btn" type="button" id="researchFullWeb">Search full web in a new tab ↗</button>
-                </div>
-                <p class="research-intro" id="researchIntro">Searching…</p>
-                <div class="research-list" id="researchList"></div>
-                <div class="research-actions">
-                  <button class="btn" type="button" id="researchTryAgain">Try again</button
-                  ><button class="btn" type="button" id="researchBackHome">Browser home</button>
-                </div>
-              </div>
-              <iframe
-                class="browser-frame"
-                id="browserFrame"
-                title="Embedded website view"
-                referrerpolicy="strict-origin-when-cross-origin"
-                sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-downloads"
-                allow="clipboard-read; clipboard-write; fullscreen"
-              ></iframe>
-            </div>
-            <div class="note">
-              Search phrases show quick educational reference results here. Use “Search full web in this tab” for normal
-              web results without opening a new tab. Website addresses may still refuse to embed; use the same-tab
-              option when needed. This does not bypass school or website restrictions.
-            </div>
-          </section>
+          <!-- Browser view removed. -->
           <!-- ===== VIEW: YOUTUBE ===== -->
           <section class="view" id="view-youtube">
             <div class="section-head">
@@ -3524,19 +3425,10 @@
                   />
                 </div>
                 <div class="form-group">
-                  <label for="settingsEngine">Default search engine</label
-                  ><select class="select" id="settingsEngine">
-                    <option value="duckduckgo">DuckDuckGo</option>
-                    <option value="google">Google</option>
-                    <option value="bing">Bing</option>
-                  </select>
-                </div>
-                <div class="form-group">
                   <label for="startPage">Startup page</label
                   ><select class="select" id="startPage">
                     <option value="dashboard">Home</option>
                     <option value="quick">Quick Access</option>
-                    <option value="browser">Browser</option>
                     <option value="youtube">YouTube</option>
                   </select>
                 </div>
