@@ -3780,11 +3780,13 @@
           const s = state.settings;
           document.documentElement.style.setProperty("--accent", s.accent);
           const validColor = (value, fallback) => /^#[0-9a-f]{6}$/i.test(value || "") ? value : fallback;
-          document.documentElement.style.setProperty("--bg", validColor(s.customBg, "#0b0d11"));
-          document.documentElement.style.setProperty("--panel", validColor(s.customPanel, "#12151b"));
-          document.documentElement.style.setProperty("--panel2", validColor(s.customPanel, "#171b23"));
-          document.documentElement.style.setProperty("--text", validColor(s.customText, "#f3f5f8"));
-          document.documentElement.style.setProperty("--border", validColor(s.customBorder, "#2a303b"));
+          const applyCustomColors = () => {
+            document.body.style.setProperty("--bg", validColor(s.customBg, "#0b0d11"));
+            document.body.style.setProperty("--panel", validColor(s.customPanel, "#12151b"));
+            document.body.style.setProperty("--panel2", validColor(s.customPanel, "#171b23"));
+            document.body.style.setProperty("--text", validColor(s.customText, "#f3f5f8"));
+            document.body.style.setProperty("--border", validColor(s.customBorder, "#2a303b"));
+          };
           const hex = s.accent.replace("#", "");
           const rgb = [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(",");
           document.documentElement.style.setProperty("--accent-rgb", rgb);
@@ -3800,6 +3802,7 @@
             "light",
             s.theme === "light" || (s.theme === "system" && !window.matchMedia("(prefers-color-scheme: dark)").matches),
           );
+          applyCustomColors();
           document.body.dataset.fontScale = s.fontScale || "normal";
           const fontSizeAdjust = Math.max(80, Math.min(130, Number(s.fontSizeAdjust) || 100));
           const fontWeightAdjust = Math.max(300, Math.min(800, Number(s.fontWeightAdjust) || 600));
@@ -5713,57 +5716,7 @@
           });
           loadWidgets();
           // Small arithmetic parser; it accepts arithmetic tokens only and never executes arbitrary JavaScript.
-          $("ch-calc-run")?.addEventListener("click", () => {
-            const raw = $("ch-calc-expression").value.replace(/\s/g, "");
-            const out = $("ch-tool-result");
-            if (!raw || !/^[0-9.+\-*/()%]+$/.test(raw)) {
-              out.textContent = "Use numbers, parentheses, and arithmetic operators.";
-              return;
-            }
-            try {
-              const t = raw.match(/\d*\.?\d+|[()+\-*/%]/g) || [];
-              if (t.join("") !== raw) throw Error();
-              let i = 0;
-              function atom() {
-                const x = t[i++];
-                if (x === "(") {
-                  const v = sum();
-                  if (t[i++] !== ")") throw Error();
-                  return v;
-                }
-                if (x === "+" || x === "-") return (x === "-" ? -1 : 1) * atom();
-                if (!x || !/^(\d*\.?\d+)$/.test(x)) throw Error();
-                return Number(x);
-              }
-              function mul() {
-                let v = atom();
-                while (["*", "/", "%"].includes(t[i])) {
-                  const op = t[i++],
-                    n = atom();
-                  if ((op === "/" || op === "%") && n === 0) throw Error();
-                  v = op === "*" ? v * n : op === "/" ? v / n : v % n;
-                }
-                return v;
-              }
-              function sum() {
-                let v = mul();
-                while (t[i] === "+" || t[i] === "-") {
-                  const op = t[i++],
-                    n = mul();
-                  v = op === "+" ? v + n : v - n;
-                }
-                return v;
-              }
-              const v = sum();
-              if (i !== t.length || !Number.isFinite(v)) throw Error();
-              out.textContent = "Result: " + Number(v.toPrecision(12));
-            } catch {
-              out.textContent = "That calculation is invalid. Check the expression.";
-            }
-          });
-          $("ch-calc-expression")?.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") $("ch-calc-run").click();
-          });
+          
           // Home screen order (visibility is handled above). Order is stored in its own key.
           const ORDER_KEY = "classroomHubDashboardOrderV1",
             toast = (m) => window.chToast && window.chToast(m);
