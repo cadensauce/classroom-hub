@@ -2977,20 +2977,7 @@
                 </div>
               </div>
               <div class="grid" id="dashboardLinks"></div>
-            </section>
-            <section class="section" id="recentActivitySection">
-              <div class="section-head">
-                <div>
-                  <h2 class="section-title">Recently opened</h2>
-                  <div class="section-sub">Your latest shortcuts, right where you need them.</div>
-                </div>
-                <button class="btn" id="clearActivity">Clear</button>
-              </div>
-              <div class="activity-list" id="recentActivity">
-                <div class="section-sub">Your opened shortcuts will appear here.</div>
-              </div>
-            </section>
-            <section class="section" id="todoSection">
+            </section><section class="section" id="todoSection">
               <div class="section-head">
                 <div><h2 class="section-title">To-do list</h2></div>
                 <button class="btn" id="hideTodo">Hide widget</button>
@@ -3249,6 +3236,22 @@
                     <input type="color" id="accentColor" value="#9caeff" />
                     <div class="swatches" id="swatches"></div>
                   </div>
+                </div>
+                <div class="form-group">
+                  <label for="customBgColor">Background color</label>
+                  <input type="color" id="customBgColor" value="#0b0d11" />
+                </div>
+                <div class="form-group">
+                  <label for="customCardColor">Card color</label>
+                  <input type="color" id="customCardColor" value="#12151b" />
+                </div>
+                <div class="form-group">
+                  <label for="customTextColor">Text color</label>
+                  <input type="color" id="customTextColor" value="#f3f5f8" />
+                </div>
+                <div class="form-group">
+                  <label for="customBorderColor">Border color</label>
+                  <input type="color" id="customBorderColor" value="#2a303b" />
                 </div>
                 <div class="form-group">
                   <label for="themeSelect">Theme</label
@@ -3554,24 +3557,12 @@
     <div class="action-toast" id="actionToast" role="status" aria-live="polite"></div>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <div id="ch-tools-wrap" aria-label="Extra tools">
-      <button type="button" class="btn" id="ch-tools-toggle">Quick tools & customize</button>
+      <button type="button" class="btn" id="ch-tools-toggle">Customize home screen</button>
     </div>
-    <section id="ch-tools-panel" aria-label="Quick tools and dashboard customization">
-      <h3>Quick calculator</h3>
-      <input
-        type="text"
-        id="ch-calc-expression"
-        placeholder="Example: (24 * 3) + 8"
-        autocomplete="off"
-        aria-label="Calculator expression"
-      />
-      <div class="ch-tools-row">
-        <button type="button" class="btn primary" id="ch-calc-run">Calculate</button
-        ><span id="ch-tool-result" aria-live="polite"></span>
-      </div>
-      <hr />
-      <h3>Customize dashboard</h3>
-      <p class="section-sub">Hide or show dashboard sections. Your choices are saved on this device.</p>
+    <section id="ch-tools-panel" aria-label="Home screen customization">
+      
+      <h3>Home screen layout</h3>
+      <p class="section-sub">Choose which sections appear on your home screen and reorder them. Changes save automatically on this device.</p>
       <div class="section-sub">Choose a starting layout, then fine-tune the sections below.</div>
       <div id="ch-style-presets" aria-label="Dashboard layout presets">
         <button type="button" data-dashboard-preset="minimal">Minimal</button>
@@ -3582,21 +3573,9 @@
         <label><input type="checkbox" data-ch-widget="schoolTimerSection" checked /> School countdown</label>
         <label><input type="checkbox" data-ch-widget="bellScheduleSection" checked /> Bell schedule</label>
         <label><input type="checkbox" data-ch-widget="dashboardLinksSection" checked /> Quick Access</label>
-        <label><input type="checkbox" data-ch-widget="recentActivitySection" checked /> Recently opened</label>
         <label><input type="checkbox" data-ch-widget="todoSection" checked /> To-do list</label>
       </div>
-      <div class="ch-tools-row"><button type="button" class="btn" id="ch-widgets-reset">Restore default layout</button></div>
-      <hr />
-      <h3>Keyboard shortcuts</h3>
-      <p class="section-sub">
-        <kbd>Ctrl</kbd> + <kbd>K</kbd> opens the command launcher · <kbd>Esc</kbd> closes dialogs · drag shortcut cards
-        to reorder them.
-      </p>
-      <p class="section-sub">
-        Tip: use Settings → Export backup occasionally to keep a copy of your shortcuts and tasks.
-      </p>
-
-    </section>
+      <div class="ch-tools-row"><button type="button" class="btn" id="ch-widgets-reset">Restore default layout</button></div></section>
     <script>
       (() => {
         "use strict";
@@ -3609,6 +3588,10 @@
           greeting: "",
           startPage: "dashboard",
           accent: "#9caeff",
+          customBg: "#0b0d11",
+          customPanel: "#12151b",
+          customText: "#f3f5f8",
+          customBorder: "#2a303b",
           theme: "dark",
           density: "comfortable",
           width: "normal",
@@ -3640,9 +3623,6 @@
             star: true,
           },
           { id: "google-drive", name: "Google Drive", url: "https://drive.google.com/", icon: "📁", star: false },
-          { id: "wikipedia", name: "Wikipedia", url: "https://www.wikipedia.org/", icon: "🌐", star: false },
-          { id: "coolmath", name: "Coolmath Games", url: "https://www.coolmathgames.com/", icon: "🎮", star: false },
-          { id: "scratch", name: "Scratch", url: "https://scratch.mit.edu/", icon: "🐱", star: false },
         ];
 
         /* ===== STATE, VALIDATION & STORAGE ===== */
@@ -3696,7 +3676,7 @@
           } catch {}
           const s = raw && typeof raw === "object" ? raw : {};
           let links = Array.isArray(s.links)
-            ? s.links.map(normalizeLink).filter(Boolean)
+            ? s.links.map(normalizeLink).filter(Boolean).filter((link) => !["wikipedia", "coolmath", "scratch"].includes(link.id))
             : Array.isArray(s.quickLinks)
               ? s.quickLinks.map(normalizeLink).filter(Boolean)
               : DEFAULT_LINKS.map((x) => ({ ...x }));
@@ -3799,6 +3779,12 @@
         function applySettings() {
           const s = state.settings;
           document.documentElement.style.setProperty("--accent", s.accent);
+          const validColor = (value, fallback) => /^#[0-9a-f]{6}$/i.test(value || "") ? value : fallback;
+          document.documentElement.style.setProperty("--bg", validColor(s.customBg, "#0b0d11"));
+          document.documentElement.style.setProperty("--panel", validColor(s.customPanel, "#12151b"));
+          document.documentElement.style.setProperty("--panel2", validColor(s.customPanel, "#171b23"));
+          document.documentElement.style.setProperty("--text", validColor(s.customText, "#f3f5f8"));
+          document.documentElement.style.setProperty("--border", validColor(s.customBorder, "#2a303b"));
           const hex = s.accent.replace("#", "");
           const rgb = [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(",");
           document.documentElement.style.setProperty("--accent-rgb", rgb);
@@ -3837,6 +3823,10 @@
           $("sidebarWidthRange").value = s.sidebarWidth;
           $("surfaceOpacityRange").value = s.surfaceOpacity;
           $("accentColor").value = s.accent;
+          $("customBgColor").value = s.customBg || "#0b0d11";
+          $("customCardColor").value = s.customPanel || "#12151b";
+          $("customTextColor").value = s.customText || "#f3f5f8";
+          $("customBorderColor").value = s.customBorder || "#2a303b";
           $("themeSelect").value = s.theme;
           $("densitySelect").value = s.density;
           $("widthSelect").value = s.width;
@@ -4177,6 +4167,10 @@
           state.settings = {
             ...state.settings,
             accent: $("accentColor").value,
+            customBg: $("customBgColor").value,
+            customPanel: $("customCardColor").value,
+            customText: $("customTextColor").value,
+            customBorder: $("customBorderColor").value,
             theme: $("themeSelect").value,
             density: $("densitySelect").value,
             width: $("widthSelect").value,
