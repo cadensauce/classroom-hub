@@ -3523,6 +3523,22 @@
             ><button class="btn" type="button" data-icon-pick="🛠️">🛠️ Tools</button>
           </div>
         </div>
+        <div class="form-group">
+          <label for="linkColor">Shortcut color</label>
+          <div class="quick-controls link-color-presets" aria-label="Shortcut color presets">
+            <button type="button" class="swatch selected" data-link-color="" aria-label="Default accent" title="Default" style="background:linear-gradient(135deg,var(--panel2) 50%,var(--accent) 50%)"></button>
+            <button type="button" class="swatch" data-link-color="#f97373" aria-label="Red" title="Red" style="background:#f97373"></button>
+            <button type="button" class="swatch" data-link-color="#fb923c" aria-label="Orange" title="Orange" style="background:#fb923c"></button>
+            <button type="button" class="swatch" data-link-color="#facc15" aria-label="Yellow" title="Yellow" style="background:#facc15"></button>
+            <button type="button" class="swatch" data-link-color="#4ade80" aria-label="Green" title="Green" style="background:#4ade80"></button>
+            <button type="button" class="swatch" data-link-color="#2dd4bf" aria-label="Teal" title="Teal" style="background:#2dd4bf"></button>
+            <button type="button" class="swatch" data-link-color="#38bdf8" aria-label="Blue" title="Blue" style="background:#38bdf8"></button>
+            <button type="button" class="swatch" data-link-color="#818cf8" aria-label="Indigo" title="Indigo" style="background:#818cf8"></button>
+            <button type="button" class="swatch" data-link-color="#e879f9" aria-label="Pink-purple" title="Pink-purple" style="background:#e879f9"></button>
+            <input class="field" type="color" id="linkColor" value="#9caeff" aria-label="Custom shortcut color" style="width:44px;min-width:44px;padding:3px;height:34px" />
+          </div>
+          <div class="section-sub">Colors apply to the shortcut icon, not the whole card.</div>
+        </div>
         <div class="toggle-row">
           <div class="toggle-label"><strong>Star this shortcut</strong><span>Show it in Favorites.</span></div>
           <input class="switch" id="linkStar" type="checkbox" />
@@ -3668,6 +3684,7 @@
             name: safeText(x.name || x.title || new URL(url).hostname, 50),
             url,
             icon: safeText(x.icon || "🌐", 8),
+            color: /^#[0-9a-f]{6}$/i.test(String(x.color || "")) ? String(x.color) : "",
             star: !!(x.star ?? x.favorite ?? x.fav),
             folder: safeText(x.folder || "", 24).trim(),
           };
@@ -3886,7 +3903,7 @@
 
         /* ===== QUICK ACCESS & FAVORITES (cards, folders, reorder) ===== */
         function linkCard(link, mv) {
-          return `<div class="card" draggable="true" data-card-id="${esc(link.id)}"><a href="${esc(link.url)}" class="card-icon" data-open-link="${esc(link.id)}" title="Open ${esc(link.name)}" aria-label="Open ${esc(link.name)}">${iconFor(link)}</a><a href="${esc(link.url)}" class="card-info" data-open-link="${esc(link.id)}" title="Open ${esc(link.name)}" style="text-decoration:none"><div class="card-name">${esc(link.name)}</div><div class="card-url">${esc(new URL(link.url).hostname)}</div></a><div class="card-actions"><button class="mini-btn star ${link.star ? "active" : ""}" data-action="star" data-id="${esc(link.id)}" title="${link.star ? "Remove favorite" : "Add favorite"}" aria-label="Toggle favorite">${link.star ? "★" : "☆"}</button>${mv ? '<button class="mini-btn" data-action="up" data-id="' + esc(link.id) + '" title="Move earlier" aria-label="Move earlier">↑</button><button class="mini-btn" data-action="down" data-id="' + esc(link.id) + '" title="Move later" aria-label="Move later">↓</button>' : ""}<button class="mini-btn" data-action="edit" data-id="${esc(link.id)}" title="Edit link" aria-label="Edit link">✎</button><button class="mini-btn" data-action="delete" data-id="${esc(link.id)}" title="Remove link" aria-label="Remove link">×</button></div></div>`;
+          return `<div class="card" draggable="true" data-card-id="${esc(link.id)}"><a href="${esc(link.url)}" class="card-icon" data-open-link="${esc(link.id)}" title="Open ${esc(link.name)}" aria-label="Open ${esc(link.name)}" style="${/^#[0-9a-f]{6}$/i.test(link.color || "") ? "background:" + link.color + "20;border-color:" + link.color + "70;color:" + link.color : ""}">${iconFor(link)}</a><a href="${esc(link.url)}" class="card-info" data-open-link="${esc(link.id)}" title="Open ${esc(link.name)}" style="text-decoration:none"><div class="card-name">${esc(link.name)}</div><div class="card-url">${esc(new URL(link.url).hostname)}</div></a><div class="card-actions"><button class="mini-btn star ${link.star ? "active" : ""}" data-action="star" data-id="${esc(link.id)}" title="${link.star ? "Remove favorite" : "Add favorite"}" aria-label="Toggle favorite">${link.star ? "★" : "☆"}</button>${mv ? '<button class="mini-btn" data-action="up" data-id="' + esc(link.id) + '" title="Move earlier" aria-label="Move earlier">↑</button><button class="mini-btn" data-action="down" data-id="' + esc(link.id) + '" title="Move later" aria-label="Move later">↓</button>' : ""}<button class="mini-btn" data-action="edit" data-id="${esc(link.id)}" title="Edit link" aria-label="Edit link">✎</button><button class="mini-btn" data-action="delete" data-id="${esc(link.id)}" title="Remove link" aria-label="Remove link">×</button></div></div>`;
         }
         function renderGrid(id, items, emptyTitle, emptyText) {
           const el = $(id);
@@ -4162,6 +4179,8 @@
           $("linkName").value = link?.name || "";
           $("linkUrl").value = link?.url || "";
           $("linkIcon").value = link?.icon || "🌐";
+          $("linkColor").value = /^#[0-9a-f]{6}$/i.test(link?.color || "") ? link.color : state.settings.accent;
+          document.querySelectorAll("[data-link-color]").forEach((b) => b.classList.toggle("selected", (b.dataset.linkColor || "") === (link?.color || "")));
           $("linkStar").checked = !!link?.star;
           $("linkModal").classList.add("open");
           setTimeout(() => $("linkName").focus(), 50);
@@ -4463,6 +4482,7 @@
             name: name || new URL(url).hostname,
             url,
             icon: $("linkIcon").value.trim() || "🌐",
+            color: (() => { const selected = document.querySelector("[data-link-color].selected"); return selected ? (selected.dataset.linkColor || "") : $("linkColor").value; })(),
             star: $("linkStar").checked,
             folder: "",
           };
@@ -4478,7 +4498,16 @@
         $("closeLinkModal").addEventListener("click", closeModal);
         $("cancelLink").addEventListener("click", closeModal);
         $("linkModal").addEventListener("click", (e) => {
+          const preset = e.target.closest("[data-link-color]");
+          if (preset) {
+            $("linkColor").value = preset.dataset.linkColor || state.settings.accent;
+            document.querySelectorAll("[data-link-color]").forEach((b) => b.classList.toggle("selected", b === preset));
+            return;
+          }
           if (e.target === $("linkModal")) closeModal();
+        });
+        $("linkColor").addEventListener("input", () => {
+          document.querySelectorAll("[data-link-color]").forEach((b) => b.classList.remove("selected"));
         });
         document.addEventListener("keydown", (e) => {
           if (e.key === "Escape") {
