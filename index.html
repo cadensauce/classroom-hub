@@ -1057,30 +1057,32 @@
         }
       }
 
-      /* ===== GAMING & ARCADE ===== */
-      .arcade-intro { margin: 0 0 20px; color: var(--muted); }
-      .arcade-layout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(260px, .85fr); gap: 14px; align-items: start; }
-      .arcade-panel { padding: 18px; }
-      .arcade-head { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px; }
-      .arcade-head h2 { margin:0; font-size:16px; }
-      .arcade-tag { color:var(--accent); border:1px solid rgba(var(--accent-rgb),.25); border-radius:999px; padding:4px 9px; font-size:10px; letter-spacing:1.3px; }
-      .game-link-form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 12px; margin-bottom:20px; }
-      .game-link-form .form-group { min-width:0; }
-      .game-link-form .snake-actions { grid-column:1/-1; margin-top:0; }
-      .snake-actions { display:flex; flex-wrap:wrap; gap:8px; }
-      .snake-actions .btn { flex:1; min-width:100px; }
+      /* ===== GAME LIBRARY ===== */
+      .game-library-intro { margin: 0 0 18px; color: var(--muted); }
+      .game-library-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; align-items: start; }
+      .game-library-panel { padding: 22px; }
+      .game-library-header { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:22px; }
+      .game-library-header h2 { margin:0; font-size:17px; font-weight:700; }
+      .game-library-label { flex:0 0 auto; color:var(--muted); border:1px solid var(--border); border-radius:7px; padding:5px 8px; font-size:10px; font-weight:600; letter-spacing:1px; }
+      .game-link-form { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.5fr) minmax(110px,.55fr); gap:14px; margin-bottom:18px; align-items:end; }
+      .game-link-form .form-group { min-width:0; margin-bottom:0; }
+      .game-library-form-actions { grid-column:1/-1; display:flex; flex-wrap:wrap; gap:8px; }
       .game-library-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
-      .game-library-card { min-width:0; display:flex; align-items:center; gap:12px; padding:14px; border:1px solid var(--border); border-radius:13px; background:var(--panel2); }
-      .game-library-icon { flex:0 0 44px; height:44px; display:grid; place-items:center; border:1px solid var(--border); border-radius:12px; font-size:23px; background:var(--panel); }
+      .game-library-card { min-width:0; display:flex; align-items:flex-start; gap:12px; padding:16px; border:1px solid var(--border); border-radius:12px; background:var(--panel2); }
+      .game-library-icon { flex:0 0 42px; height:42px; display:grid; place-items:center; border:1px solid var(--border); border-radius:10px; font-size:20px; background:var(--panel); }
       .game-library-info { flex:1; min-width:0; }
-      .game-library-title { font-weight:700; overflow-wrap:anywhere; }
-      .game-library-url { color:var(--muted); font-size:11px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:4px; }
-      .game-library-actions { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
-      .game-library-actions .btn { padding:6px 9px; font-size:12px; }
-      .game-library-empty { grid-column:1/-1; padding:28px 16px; text-align:center; border:1px dashed var(--border); border-radius:13px; color:var(--muted); }
-      .game-library-empty strong { display:block; color:var(--text); margin-bottom:5px; }
-      @media (max-width:850px) { .arcade-layout { grid-template-columns:1fr; } }
-      @media (max-width:560px) { .game-link-form,.game-library-grid { grid-template-columns:1fr; } }
+      .game-library-title { font-weight:650; overflow-wrap:anywhere; }
+      .game-library-url { color:var(--muted); font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:5px; }
+      .game-library-actions { display:flex; flex-wrap:wrap; gap:7px; margin-top:12px; }
+      .game-library-actions .btn { padding:7px 10px; font-size:12px; }
+      .game-library-empty { grid-column:1/-1; padding:28px 18px; text-align:left; border:1px dashed var(--border); border-radius:12px; color:var(--muted); background:var(--panel); }
+      .game-library-empty strong { display:block; color:var(--text); margin-bottom:5px; font-weight:650; }
+      .game-library-divider { height:1px; background:var(--border); margin:22px 0 18px; }
+      .game-library-list-head { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px; }
+      .game-library-list-head h3 { margin:0; font-size:14px; font-weight:650; }
+      .game-library-footnote { margin:16px 0 0; color:var(--muted); font-size:12px; }
+      @media (max-width:850px) { .game-library-layout { grid-template-columns:1fr; } }
+      @media (max-width:650px) { .game-link-form,.game-library-grid { grid-template-columns:1fr; } .game-library-panel { padding:16px; } .game-library-header { flex-direction:column; } }
 
       /* ===== RESPONSIVE & ACCESSIBILITY ===== */
       @media (max-width: 1000px) {
@@ -2989,9 +2991,9 @@
           ><button class="nav-btn" data-view="ai">
             <span class="nav-icon">✦</span><span class="nav-text">AI Assistant</span>
           </button>
-          <div class="nav-group-label" aria-hidden="true">Play</div>
+          <div class="nav-group-label" aria-hidden="true">Library</div>
           <button class="nav-btn" data-view="gaming">
-            <span class="nav-icon">🎮</span><span class="nav-text">Gaming &amp; Arcade</span>
+            <span class="nav-icon">🎮</span><span class="nav-text">Game Library</span>
           </button>
         </nav>
         <nav class="nav">
@@ -3304,61 +3306,48 @@
             </div>
             <div class="section"><div class="grid" id="favoriteLinks"></div></div>
           </section>
-          <!-- ===== VIEW: GAMING & ARCADE ===== -->
+          <!-- ===== VIEW: GAME LIBRARY ===== -->
           <section class="view" id="view-gaming">
             <div class="section-head">
               <div>
-                <h1 style="font-size: calc(34px * var(--font-size-adjust)); margin: 0 0 5px; letter-spacing: -1.3px">Gaming &amp; Arcade</h1>
-                <div class="section-sub">A small break, built right into your hub.</div>
+                <h1 style="font-size: calc(34px * var(--font-size-adjust)); margin: 0 0 5px; letter-spacing: -1.3px">Game Library</h1>
+                <div class="section-sub">A central place for the games you choose to save.</div>
               </div>
-              <span class="arcade-tag">ARCADE MODE</span>
             </div>
-            <p class="arcade-intro">Play a quick round without leaving Classroom Hub.</p>
-            <div class="arcade-layout">
-              <section class="panel arcade-panel" aria-labelledby="snakeTitle">
-                <div class="arcade-head">
-                  <h2>Your game library</h2>
-                  <span class="arcade-tag">YOUR SHORTCUTS</span>
+            <section class="panel game-library-panel" aria-labelledby="gameLibraryHeading">
+              <div class="game-library-header">
+                <div>
+                  <h2 id="gameLibraryHeading">Saved games</h2>
+                  <p class="section-sub" style="margin:5px 0 0">Add a title and web address for each game. Your library starts empty.</p>
                 </div>
-                <p class="section-sub" style="margin:0 0 16px">Save your favorite browser games and game sites. Add a title, paste the link, and launch it whenever you want.</p>
-                <form id="gameLinkForm" class="game-link-form">
-                  <div class="form-group">
-                    <label for="gameLinkName">Game title</label>
-                    <input class="field" id="gameLinkName" maxlength="50" required placeholder="e.g. Minecraft Classic" />
-                  </div>
-                  <div class="form-group">
-                    <label for="gameLinkUrl">Game URL</label>
-                    <input class="field" id="gameLinkUrl" type="text" maxlength="500" required placeholder="https://example.com/game" />
-                  </div>
-                  <div class="form-group">
-                    <label for="gameLinkIcon">Icon or emoji</label>
-                    <input class="field" id="gameLinkIcon" maxlength="8" value="🎮" placeholder="🎮" />
-                  </div>
-                  <div class="snake-actions">
-                    <button class="btn primary" id="gameLinkSubmit" type="submit">＋ Add game</button>
-                    <button class="btn" id="gameLinkCancel" type="button" hidden>Cancel edit</button>
-                  </div>
-                </form>
-                <div class="game-library-grid" id="gameLibraryGrid" aria-live="polite"></div>
-              </section>
-              <aside class="panel arcade-panel">
-                <div class="arcade-head"><h2>How it works</h2><span class="nav-icon">🎮</span></div>
-                <div class="arcade-side-note">
-                  <span class="nav-icon">＋</span>
-                  <div><strong>Add your own games</strong><p>Give each shortcut a title, paste its web address, and choose an emoji. Your library starts empty.</p></div>
+                <span class="game-library-label">PERSONAL</span>
+              </div>
+              <form id="gameLinkForm" class="game-link-form">
+                <div class="form-group">
+                  <label for="gameLinkName">Game title</label>
+                  <input class="field" id="gameLinkName" maxlength="50" required placeholder="Enter a game title" />
                 </div>
-                <div style="height:12px"></div>
-                <div class="arcade-side-note">
-                  <span class="nav-icon">↗</span>
-                  <div><strong>Launch in a new tab</strong><p>Games open directly at their saved website. Some sites may block being embedded inside other websites.</p></div>
+                <div class="form-group">
+                  <label for="gameLinkUrl">Web address</label>
+                  <input class="field" id="gameLinkUrl" type="text" maxlength="500" required placeholder="https://example.com/game" />
                 </div>
-                <div style="height:12px"></div>
-                <div class="arcade-side-note">
-                  <span class="nav-icon">▣</span>
-                  <div><strong>Saved on this device</strong><p>Your game titles and links are stored in this browser, separate from Quick Access.</p></div>
+                <div class="form-group">
+                  <label for="gameLinkIcon">Icon (optional)</label>
+                  <input class="field" id="gameLinkIcon" maxlength="8" placeholder="e.g. ◈" />
                 </div>
-              </aside>
-            </div>
+                <div class="game-library-form-actions">
+                  <button class="btn primary" id="gameLinkSubmit" type="submit">＋ Add game</button>
+                  <button class="btn" id="gameLinkCancel" type="button" hidden>Cancel</button>
+                </div>
+              </form>
+              <div class="game-library-divider"></div>
+              <div class="game-library-list-head">
+                <h3>Your games</h3>
+                <span class="section-sub" id="gameLibraryCount">0 saved</span>
+              </div>
+              <div class="game-library-grid" id="gameLibraryGrid" aria-live="polite"></div>
+              <p class="game-library-footnote">Game links are saved in this browser and are separate from Quick Access.</p>
+            </section>
           </section>
           <!-- ===== VIEW: SETTINGS ===== -->
           <section class="view" id="view-settings">
@@ -3881,7 +3870,7 @@
             ai: "AI ASSISTANT",
             youtube: "YOUTUBE",
             favorites: "FAVORITES",
-            gaming: "GAMING & ARCADE",
+            gaming: "GAME LIBRARY",
             settings: "SETTINGS",
           };
           $("pageLabel").textContent = labels[name] || "CLASSROOM HUB";
@@ -5703,7 +5692,7 @@
           toast("YouTube key removed.");
         });
 
-        /* ===== GAMING & ARCADE: PERSONAL GAME LIBRARY ===== */
+        /* ===== GAME LIBRARY: PERSONAL GAME LIBRARY ===== */
         function initGameLibrary() {
           const form = $("gameLinkForm");
           const nameInput = $("gameLinkName");
@@ -5715,6 +5704,7 @@
           if (!form || form.dataset.initialized) return;
           form.dataset.initialized = "true";
           const storageKey = "classroomHubGameLibraryV1";
+          const count = $("gameLibraryCount");
           let games = [];
           let editingId = "";
           try {
@@ -5736,15 +5726,16 @@
             } catch { return ""; }
           }
           function render() {
+            if (count) count.textContent = games.length + " saved";
             if (!games.length) {
-              grid.innerHTML = '<div class="game-library-empty"><strong>Your library is empty</strong>Add your first game above. Your saved games will appear here.</div>';
+              grid.innerHTML = '<div class="game-library-empty"><strong>No games saved yet</strong>Add a game using the form above. Saved games will appear here.</div>';
               return;
             }
             grid.innerHTML = games.map(game => {
               let host = "";
               try { host = new URL(game.url).hostname; } catch {}
               return '<article class="game-library-card" data-game-id="' + esc(game.id) + '">' +
-                '<div class="game-library-icon">' + esc(game.icon || "🎮") + '</div>' +
+                '<div class="game-library-icon">' + esc(game.icon || "◈") + '</div>' +
                 '<div class="game-library-info"><div class="game-library-title">' + esc(game.name) + '</div>' +
                 '<div class="game-library-url" title="' + esc(game.url) + '">' + esc(host) + '</div>' +
                 '<div class="game-library-actions"><a class="btn primary" href="' + esc(game.url) + '" target="_blank" rel="noopener noreferrer">Launch ↗</a>' +
@@ -5755,7 +5746,7 @@
           function clearForm() {
             editingId = "";
             form.reset();
-            iconInput.value = "🎮";
+            iconInput.value = "";
             submit.textContent = "＋ Add game";
             cancel.hidden = true;
           }
