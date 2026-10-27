@@ -3549,6 +3549,8 @@
             <span>＋</span><span>Add a task</span></button
           ><button class="command-item" type="button" data-command-action="youtube">
             <span>▶</span><span>Open YouTube library</span></button
+          ><button class="command-item" type="button" data-command-action="open-youtube">
+            <span>↗</span><span>Open YouTube</span></button
         </div>
         <div class="command-empty" id="commandEmpty" hidden>No matching commands.</div>
         <div class="command-footer"><span>Use ↑ ↓ to navigate · Enter to open</span><span>Ctrl K</span></div>
@@ -3720,11 +3722,11 @@
             tasks: Array.isArray(s.tasks)
               ? s.tasks
                   .filter((t) => t && typeof t.text === "string")
-                  .map((t) => ({ id: String(t.id || uid()), text: safeText(t.text, 180), done: !!t.done }))
+                  .map((t) => ({ id: String(t.id || uid()), text: safeText(t.text, 180), done: !!t.done, doneDay: /^\d{4}-\d{2}-\d{2}$/.test(t.doneDay || "") ? t.doneDay : "" }))
               : Array.isArray(s.todo)
                 ? s.todo
                     .filter((t) => t && typeof t.text === "string")
-                    .map((t) => ({ id: String(t.id || uid()), text: safeText(t.text, 180), done: !!t.done }))
+                    .map((t) => ({ id: String(t.id || uid()), text: safeText(t.text, 180), done: !!t.done, doneDay: /^\d{4}-\d{2}-\d{2}$/.test(t.doneDay || "") ? t.doneDay : "" }))
                 : [],
             recentYoutubeSearches: Array.isArray(s.recentYoutubeSearches)
               ? s.recentYoutubeSearches.filter((x) => typeof x === "string").map((x) => safeText(x, 160)).slice(0, 10)
@@ -4294,7 +4296,11 @@
             toast("Theme changed.");
           }
           if (action === "youtube") goView("youtube");
-          if (action === "task") { goView("dashboard"); $("todoInput")?.focus(); }
+          if (action === "open-youtube") openNewTab("https://www.youtube.com/");
+          if (action === "task") {
+            goView("dashboard");
+            $("todoInput")?.focus();
+          }
         });
         $("commandPalette").addEventListener("keydown", (e) => {
           const items = [...$("commandList").querySelectorAll(".command-item:not([hidden])")];
@@ -4542,9 +4548,16 @@
           const row = e.target.closest("[data-task-id]");
           const task = state.tasks.find((t) => t.id === row?.dataset.taskId);
           if (task) {
+            const today = localDayKey();
+            state.taskCompletionDays = state.taskCompletionDays || {};
             if (!task.done && e.target.checked) {
-              const day = localDayKey();
-              state.taskCompletionDays[day] = (Number(state.taskCompletionDays[day]) || 0) + 1;
+              task.doneDay = today;
+              state.taskCompletionDays[today] = (Number(state.taskCompletionDays[today]) || 0) + 1;
+            } else if (task.done && !e.target.checked) {
+              if (task.doneDay === today) {
+                state.taskCompletionDays[today] = Math.max(0, (Number(state.taskCompletionDays[today]) || 0) - 1);
+              }
+              task.doneDay = "";
             }
             task.done = e.target.checked;
             save();
@@ -5569,7 +5582,7 @@
           const current = select ? select.value : "";
           if (playlists) playlists.innerHTML = state.youtubePlaylists.length ? state.youtubePlaylists.map(p =>
             '<div class="yt-library-item"><div class="yt-library-item-main"><div class="yt-library-item-title">' + esc(p.name) + '</div><div class="yt-library-item-sub">' + p.videos.length + ' saved video' + (p.videos.length === 1 ? '' : 's') + '</div>' +
-            (p.videos.length ? p.videos.map(v => '<div class="yt-library-item-sub">' + esc(v.title || v.id) + ' <button class="mini-btn" type="button" data-yt-play="' + esc(v.id) + '" aria-label="Play ' + esc(v.title || v.id) + '">▶</button> <button class="mini-btn" type="button" data-yt-remove-video="' + esc(p.id) + ':' + esc(v.id) + '" aria-label="Remove video">×</button></div>').join('') : '') +
+            (p.videos.length ? p.videos.map(v => '<div class="yt-library-item-sub">' + esc(v.title || v.id) + ' <button class="mini-btn" type="button" data-yt-play="' + esc(v.id) + '" aria-label="Play ' + esc(v.title || v.id) + '">▶</button> <button class="mini-btn" type="button" data-yt-watched="' + esc(v.id) + '">' + (state.watchedYoutubeIds.includes(v.id) ? 'Mark unwatched' : 'Mark watched') + '</button> <button class="mini-btn" type="button" data-yt-remove-video="' + esc(p.id) + ':' + esc(v.id) + '" aria-label="Remove video">×</button></div>').join('') : '') +
             '</div><div class="yt-library-item-actions"><button class="btn" type="button" data-yt-delete-playlist="' + esc(p.id) + '">Delete playlist</button></div></div>'
           ).join("") : '<div class="section-sub">Create a playlist to save videos for later.</div>';
           if (select) {
