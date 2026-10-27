@@ -2966,6 +2966,19 @@
               </div>
               <div class="grid" id="dashboardLinks"></div>
             </section>
+            <section class="section" id="dailyGoalsSection" aria-labelledby="dailyGoalsTitle">
+              <div class="section-head">
+                <div><h2 class="section-title" id="dailyGoalsTitle">Daily goals</h2><div class="section-sub" id="dailyGoalProgress">Complete tasks to build a streak.</div></div>
+                <label class="section-sub" for="dailyGoalTarget">Target</label>
+                <select class="field" id="dailyGoalTarget" style="width:auto;min-width:86px" aria-label="Daily task target">
+                  <option value="1">1 task</option><option value="3">3 tasks</option><option value="5">5 tasks</option><option value="8">8 tasks</option><option value="10">10 tasks</option>
+                </select>
+              </div>
+              <div class="panel"><div class="panel-body">
+                <div class="school-progress-track"><div class="school-progress-fill" id="dailyGoalFill" style="width:0%"></div></div>
+                <div class="section-sub" id="dailyStreakCount" style="margin-top:10px">0-day streak</div>
+              </div></div>
+            </section>
             <section class="section" id="recentActivitySection">
               <div class="section-head">
                 <div>
@@ -3518,8 +3531,6 @@
             <span>⌂</span><span>Home</span></button
           ><button class="command-item" type="button" data-command-view="quick">
             <span>▦</span><span>Quick Access</span></button
-          ><button class="command-item" type="button" data-command-view="browser">
-            <span>⌕</span><span>Browser and search</span><kbd>Ctrl L</kbd></button
           ><button class="command-item" type="button" data-command-view="ai">
             <span>✳</span><span>AI Assistant</span></button
           ><button class="command-item" type="button" data-command-view="youtube">
@@ -3534,6 +3545,10 @@
             <span>⇧</span><span>Export backup</span></button
           ><button class="command-item" type="button" data-command-action="theme">
             <span>◐</span><span>Switch theme</span></button
+          ><button class="command-item" type="button" data-command-action="task">
+            <span>＋</span><span>Add a task</span></button
+          ><button class="command-item" type="button" data-command-action="youtube">
+            <span>▶</span><span>Open YouTube library</span></button
           ><button class="command-item" type="button" data-command-action="search">
             <span>⌕</span><span>Focus home search</span><kbd>/</kbd>
           </button>
@@ -3722,6 +3737,8 @@
             recentActivity: Array.isArray(s.recentActivity)
               ? s.recentActivity.filter((x) => x && typeof x.id === "string").slice(0, 8)
               : [],
+            dailyGoalTarget: [1, 3, 5, 8, 10].includes(+s.dailyGoalTarget) ? +s.dailyGoalTarget : 3,
+            taskCompletionDays: s.taskCompletionDays && typeof s.taskCompletionDays === "object" ? s.taskCompletionDays : {},
             settings,
           };
         }
@@ -4192,6 +4209,24 @@
           if (showMessage) toast("Settings saved.");
         }
 
+        /* ===== DAILY GOALS & STREAKS ===== */
+        function localDayKey(date = new Date()) {
+          return date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0") + "-" + String(date.getDate()).padStart(2, "0");
+        }
+        function renderDailyGoals() {
+          const target = $("dailyGoalTarget");
+          if (!target) return;
+          target.value = String(state.dailyGoalTarget || 3);
+          const days = state.taskCompletionDays || {}, today = localDayKey();
+          const count = Math.max(0, Number(days[today]) || 0), goal = state.dailyGoalTarget || 3;
+          $("dailyGoalProgress").textContent = count + " of " + goal + " tasks completed today" + (count >= goal ? " · Goal reached!" : "");
+          $("dailyGoalFill").style.width = Math.min(100, Math.round(count / goal * 100)) + "%";
+          let streak = 0, cursor = new Date();
+          if ((Number(days[today]) || 0) < goal) cursor.setDate(cursor.getDate() - 1);
+          while (streak < 366 && (Number(days[localDayKey(cursor)]) || 0) >= goal) { streak++; cursor.setDate(cursor.getDate() - 1); }
+          $("dailyStreakCount").textContent = streak + "-day streak";
+        }
+        $("dailyGoalTarget")?.addEventListener("change", () => { state.dailyGoalTarget = +$("dailyGoalTarget").value || 3; save(); renderDailyGoals(); });
         /* ===== TO-DO LIST ===== */
         function renderTasks() {
           const list = $("todoList");
@@ -4260,6 +4295,8 @@
             applySettings();
             toast("Theme changed.");
           }
+          if (action === "youtube") goView("youtube");
+          if (action === "task") { goView("dashboard"); $("todoInput")?.focus(); }
         });
         $("commandPalette").addEventListener("keydown", (e) => {
           const items = [...$("commandList").querySelectorAll(".command-item:not([hidden])")];
@@ -4507,9 +4544,14 @@
           const row = e.target.closest("[data-task-id]");
           const task = state.tasks.find((t) => t.id === row?.dataset.taskId);
           if (task) {
+            if (!task.done && e.target.checked) {
+              const day = localDayKey();
+              state.taskCompletionDays[day] = (Number(state.taskCompletionDays[day]) || 0) + 1;
+            }
             task.done = e.target.checked;
             save();
             renderTasks();
+            renderDailyGoals();
           }
         });
         $("todoList").addEventListener("click", (e) => {
@@ -5636,6 +5678,7 @@
           initAi();
           renderLinks();
           renderTasks();
+          renderDailyGoals();
           renderActivity();
           updateClock();
           setInterval(updateClock, 30000);
