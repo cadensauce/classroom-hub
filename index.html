@@ -4854,7 +4854,7 @@
               throw new Error("Invalid backup");
             if (
               !confirm(
-                "Import this backup? It replaces your current shortcuts, folders, tasks and appearance settings. A copy of your current data is kept in this browser first. (Dashboard layout is not part of backups.)",
+                "Import this backup? It replaces your current shortcuts, folders, tasks and appearance settings. A copy of your current data is kept in this browser first. Dashboard section visibility and order are included when the backup was created by a newer version.",
               )
             )
               return;
@@ -4865,7 +4865,9 @@
               localStorage.setItem(STORAGE_KEY, JSON.stringify(Object.fromEntries(Object.entries(parsed).filter(([k]) => k !== "_classroomHub"))));
               if (parsed._classroomHub && parsed._classroomHub.version === 1) {
                 if (typeof parsed._classroomHub.dashboardWidgets === "string") localStorage.setItem("classroomHubDashboardWidgetsV1", parsed._classroomHub.dashboardWidgets);
+                else localStorage.removeItem("classroomHubDashboardWidgetsV1");
                 if (typeof parsed._classroomHub.dashboardOrder === "string") localStorage.setItem("classroomHubDashboardOrderV1", parsed._classroomHub.dashboardOrder);
+                else localStorage.removeItem("classroomHubDashboardOrderV1");
               }
             } catch {
               toast("Could not save the imported backup (browser storage is full or unavailable). Nothing was changed.");
