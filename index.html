@@ -3215,7 +3215,7 @@
             <div class="section-head">
               <div>
                 <h1 style="font-size: calc(34px * var(--font-size-adjust)); margin: 0 0 5px; letter-spacing: -1.3px">YouTube</h1>
-                <div class="section-sub">Search for videos, browse thumbnails, and play selected videos here.</div>
+                <div class="section-sub">Searches stay on this page. Without an API key, live results and thumbnails cannot load here, but you can try embedded playback with a video link.</div>
               </div>
             </div>
             <div class="panel">
@@ -3232,7 +3232,7 @@
                   <button class="btn" type="button" id="youtubeOpenResults">Open results on YouTube ↗</button
                   ><button class="btn" type="button" id="youtubeOpenHome">YouTube home ↗</button>
                 </div>
-                <details class="yt-key" open>
+                <details class="yt-key">
                   <summary>Enable video search inside Classroom Hub</summary>
                   <p class="section-sub">
                     To show video thumbnails and play search results here, add a YouTube Data API key. You can create one
@@ -3307,7 +3307,7 @@
                     allowfullscreen
                   ></iframe>
                 </div>
-                <div class="yt-status" id="youtubeStatus" role="status" aria-live="polite"></div>
+                <div class="yt-status" id="youtubeStatus" role="status" aria-live="polite">Search here to save a recent search. In-page video results need a YouTube Data API key; playback can still depend on device or network restrictions.</div>
                 <div class="ytr-grid" id="ytResults"></div>
                 <button class="btn ytr-more" type="button" id="ytMore" hidden>Load more</button>
               </div>
@@ -4289,10 +4289,12 @@
           renderYoutubeLibrary();
           $("youtubeQuery").value = q;
           goView("youtube");
-          if (ytKey()) ytApiSearch(q, false);
-          else {
-            openNewTab("https://www.youtube.com/results?search_query=" + encodeURIComponent(q));
-            $("youtubeStatus").textContent = "Opened official YouTube search results in a new tab. Add a YouTube Data API key above to display results inside Classroom Hub.";
+          if (ytKey()) {
+            ytApiSearch(q, false);
+          } else {
+            $("ytResults").innerHTML = "";
+            $("ytMore").hidden = true;
+            $("youtubeStatus").textContent = "Your search is saved, but live thumbnails and results inside Classroom Hub need a YouTube Data API key. No new tab was opened. You can still try playing a video with its link below if embedding is allowed, or use “Open results on YouTube” if that site is accessible.";
           }
         }
         function playYoutube(raw) {
