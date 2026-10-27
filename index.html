@@ -4259,11 +4259,22 @@
               onError: (e) => {
                 if (id !== activeYoutubeId) return;
                 const reason = e && (e.data === 101 || e.data === 150)
-                  ? "The uploader does not allow this video to play inside other websites."
+                  ? "This video does not allow playback on other websites."
                   : e && e.data === 100
                     ? "This video is unavailable or private."
-                    : "YouTube could not play this video in the embedded player.";
-                $("youtubeStatus").textContent = reason + " The player is staying open. Use “Open on YouTube” below to watch it there instead.";
+                    : e && e.data === 153
+                      ? "YouTube needs referrer information from this browser to play the video."
+                      : "YouTube could not play this video in the embedded player.";
+                // Keep the player panel visible on every playback error. Destroy the failed
+                // API instance and restore a normal iframe so the user can retry or use
+                // the always-visible Open on YouTube button without losing the player UI.
+                stopYoutubeProgressTracking();
+                try { if (ytPlayerApiInstance && ytPlayerApiInstance.destroy) ytPlayerApiInstance.destroy(); } catch {}
+                ytPlayerApiInstance = null;
+                const frame = $("youtubePlayerFrame");
+                frame.src = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(id) + "?rel=0&playsinline=1";
+                $("ytPlayer").hidden = false;
+                $("youtubeStatus").textContent = reason + " The player will stay open. Try again, or choose “Open on YouTube” above to watch the video there.";
               }
             }
           });
