@@ -4784,6 +4784,10 @@
         });
         [
           "accentColor",
+          "customBgColor",
+          "customCardColor",
+          "customTextColor",
+          "customBorderColor",
           "fontFamilySelect",
           "sidebarWidthRange",
           "surfaceOpacityRange",
@@ -4807,7 +4811,7 @@
         ].forEach((id) => {
           const el = $(id);
           if (!el) return;
-          const eventName = ["accentColor", "fontSizeAdjust", "fontWeightAdjust", "sidebarWidthRange", "surfaceOpacityRange"].includes(id) ? "input" : "change";
+          const eventName = ["accentColor", "customBgColor", "customCardColor", "customTextColor", "customBorderColor", "fontSizeAdjust", "fontWeightAdjust", "sidebarWidthRange", "surfaceOpacityRange"].includes(id) ? "input" : "change";
           el.addEventListener(eventName, () => saveSettingsFromUI(false));
         });
         $("resetSettings").addEventListener("click", () => {
