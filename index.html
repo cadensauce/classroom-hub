@@ -3573,7 +3573,7 @@
 
         const $ = (id) => document.getElementById(id);
         const STORAGE_KEY = "classroomHubPremiumV1";
-        const COLORS = ["#9caeff", "#a7e8bd", "#f4c98b", "#f3a8c8", "#c5a7ff", "#80d9e8", "#ff9f91", "#ffffff"];
+        const COLORS = ["#9caeff", "#a7e8bd", "#f4c98b", "#f3a8c8", "#c5a7ff", "#80d9e8", "#ff9f91", "#ffffff", "#b8c0cc", "#f97373", "#fb923c", "#facc15", "#4ade80", "#2dd4bf", "#38bdf8", "#818cf8", "#e879f9"];
         const DEFAULT_SETTINGS = {
           greeting: "",
           startPage: "dashboard",
@@ -3759,7 +3759,17 @@
             hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : hour < 21 ? "Good evening" : "Good night";
           const message = String(state.settings.greeting || "").trim() || greeting;
           const end = /[.!?]$/.test(message) ? "" : ".";
-          $("greeting").innerHTML = esc(message) + end + ' <span class="accent-text">Ready when you are.</span>';
+          const isWeekend = now.getDay() === 0 || now.getDay() === 6;
+          const tagline = isWeekend
+            ? "Make room for what matters."
+            : hour < 12
+              ? "A fresh start, one thing at a time."
+              : hour < 17
+                ? "Keep your momentum."
+                : hour < 21
+                  ? "Finish strong, then unwind."
+                  : "Take a breath. Tomorrow is another day.";
+          $("greeting").innerHTML = esc(message) + end + ' <span class="accent-text">' + esc(tagline) + '</span>';
         }
 
         /* ===== APPEARANCE & SETTINGS ===== */
