@@ -23,6 +23,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#0b0d11" />
     <meta name="color-scheme" content="dark light" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
     <title>Classroom Hub</title>
     <link
       rel="icon"
@@ -4190,8 +4191,27 @@
         let ytApiTimer = null;
         function ytFallbackEmbed() {
           if (!activeYoutubeId || ytPlayerApiInstance) return;
-          $("youtubePlayerFrame").src = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(activeYoutubeId) + "?autoplay=1&rel=0&playsinline=1";
-          $("youtubeStatus").textContent = "Playing in basic mode: the YouTube player API is unavailable here, so Resume can't be saved.";
+          let frame = $("youtubePlayerFrame");
+          if (!frame || !frame.isConnected) {
+            frame = document.createElement("iframe");
+            frame.id = "youtubePlayerFrame";
+            frame.className = "video-frame";
+            frame.title = "YouTube video player";
+            frame.setAttribute("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share");
+            frame.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
+            frame.allowFullscreen = true;
+            const panel = $("ytPlayer");
+            const bar = panel && panel.querySelector(".ytr-bar");
+            if (panel) {
+              if (bar) bar.insertAdjacentElement("afterend", frame);
+              else panel.appendChild(frame);
+            }
+          }
+          if (!frame) return;
+          frame.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
+          frame.src = "https://www.youtube.com/embed/" + encodeURIComponent(activeYoutubeId) + "?autoplay=1&rel=0&playsinline=1&origin=" + encodeURIComponent(location.origin);
+          $("ytPlayer").hidden = false;
+          $("youtubeStatus").textContent = "Basic player mode is active. Playback progress saving may be unavailable, but the video player will remain visible.";
         }
         function loadYoutubeApi() {
           if (window.YT && window.YT.Player) {
@@ -4265,16 +4285,34 @@
                     : e && e.data === 153
                       ? "YouTube needs referrer information from this browser to play the video."
                       : "YouTube could not play this video in the embedded player.";
-                // Keep the player panel visible on every playback error. Destroy the failed
-                // API instance and restore a normal iframe so the user can retry or use
-                // the always-visible Open on YouTube button without losing the player UI.
+                // The IFrame API may remove the iframe passed to YT.Player when destroy()
+                // runs. Never write to that stale, detached element: reacquire it or rebuild it.
                 stopYoutubeProgressTracking();
-                try { if (ytPlayerApiInstance && ytPlayerApiInstance.destroy) ytPlayerApiInstance.destroy(); } catch {}
+                const failedPlayer = ytPlayerApiInstance;
                 ytPlayerApiInstance = null;
-                const frame = $("youtubePlayerFrame");
-                frame.src = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(id) + "?rel=0&playsinline=1";
+                try { if (failedPlayer && failedPlayer.destroy) failedPlayer.destroy(); } catch {}
+                let frame = $("youtubePlayerFrame");
+                if (!frame || !frame.isConnected) {
+                  frame = document.createElement("iframe");
+                  frame.id = "youtubePlayerFrame";
+                  frame.className = "video-frame";
+                  frame.title = "YouTube video player";
+                  frame.setAttribute("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share");
+                  frame.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
+                  frame.allowFullscreen = true;
+                  const playerPanel = $("ytPlayer");
+                  const bar = playerPanel && playerPanel.querySelector(".ytr-bar");
+                  if (playerPanel) {
+                    if (bar) bar.insertAdjacentElement("afterend", frame);
+                    else playerPanel.appendChild(frame);
+                  }
+                }
+                if (frame) {
+                  frame.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
+                  frame.src = "https://www.youtube.com/embed/" + encodeURIComponent(id) + "?rel=0&playsinline=1&origin=" + encodeURIComponent(location.origin);
+                }
                 $("ytPlayer").hidden = false;
-                $("youtubeStatus").textContent = reason + " The player will stay open. Try again, or choose “Open on YouTube” above to watch the video there.";
+                $("youtubeStatus").textContent = reason + " The player has been restored. If embedding is blocked for this video, use “Open on YouTube” above.";
               }
             }
           });
