@@ -4381,20 +4381,31 @@
             toast("Could not find a YouTube video ID.");
             return;
           }
+
+          // Use YouTube's normal embedded iframe directly. This path does not need a
+          // YouTube Data API key or the IFrame API's JavaScript player initialization.
+          stopYoutubeProgressTracking();
+          const oldPlayer = ytPlayerApiInstance;
+          ytPlayerApiInstance = null;
+          try { if (oldPlayer && oldPlayer.destroy) oldPlayer.destroy(); } catch {}
+
           activeYoutubeId = id;
           const existing = state.youtubeWatchHistory.find(v => v.id === id);
           const result = ytResults.find(v => v.id === id);
           const progress = getYoutubeProgress()[id] || {};
           const video = {
-            id, title: result?.title || existing?.title || "YouTube video " + id,
+            id,
+            title: result?.title || existing?.title || "YouTube video " + id,
             channel: result?.channel || existing?.channel || "YouTube",
             thumb: result?.thumb || existing?.thumb || "https://i.ytimg.com/vi/" + id + "/mqdefault.jpg",
-            position: progress.seconds || existing?.position || 0, duration: progress.duration || existing?.duration || 0, updatedAt: Date.now()
+            position: progress.seconds || existing?.position || 0,
+            duration: progress.duration || existing?.duration || 0,
+            updatedAt: Date.now()
           };
           state.youtubeWatchHistory = [video, ...state.youtubeWatchHistory.filter(v => v.id !== id)].slice(0, 30);
           save();
           renderYoutubeLibrary();
-          // For pasted links, look up the real title instead of leaving a generic video ID.
+
           if (!result && (!existing || !existing.title || /^YouTube video\\s/.test(existing.title))) {
             fetch("https://www.youtube.com/oembed?url=" + encodeURIComponent("https://www.youtube.com/watch?v=" + id) + "&format=json")
               .then(response => { if (!response.ok) throw new Error("Title lookup failed"); return response.json(); })
@@ -4408,14 +4419,19 @@
               })
               .catch(() => {});
           }
-          $("ytPlayer").hidden = false;
+
+          const panel = $("ytPlayer");
+          const frame = $("youtubePlayerFrame");
+          panel.hidden = false;
           $("ytBackResults").textContent = ytResults.length ? "← Back to results" : "✕ Close player";
-          $("youtubeStatus").textContent = "Video loaded. Playback position is saved on this device when the embedded player supports it.";
-          loadYoutubeApi();
-          if (ytPlayerApiReady) mountYoutubePlayer(id);
+          if (frame) {
+            frame.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
+            frame.src = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(id) + "?autoplay=1&rel=0&playsinline=1";
+          }
           clearTimeout(ytApiTimer);
-          if (!ytPlayerApiReady) ytApiTimer = setTimeout(ytFallbackEmbed, 6000);
-          $("ytPlayer").scrollIntoView({
+          $("youtubeStatus").textContent =
+            "Playing through YouTube's embedded player. No API key is needed for pasted video links. Some videos may block embedding.";
+          panel.scrollIntoView({
             behavior: state.settings.reducedMotion ? "auto" : "smooth",
             block: "nearest",
           });
