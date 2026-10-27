@@ -101,6 +101,8 @@
       .app {
         min-height: 100vh;
       }
+      #streakSection .panel { border-color: color-mix(in srgb, var(--accent) 30%, var(--border)); }
+      #streakCount { color: var(--accent); }
       /* ===== LAYOUT: SIDEBAR, TOP BAR, MAIN ===== */
       .sidebar {
         position: fixed;
@@ -3124,6 +3126,13 @@
                 </div>
               </div>
             </section>
+            <section class="section" id="streakSection" aria-labelledby="streakTitle">
+              <div class="section-head"><div><h2 class="section-title" id="streakTitle">Daily streak</h2><div class="section-sub">Build a small daily habit, one day at a time.</div></div></div>
+              <div class="panel"><div class="panel-body" style="display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap">
+                <div><div style="font-size:28px;font-weight:750;letter-spacing:-1px"><span id="streakCount">0</span> day streak 🔥</div><div class="section-sub" id="streakStatus">Check in when you’ve made progress today.</div></div>
+                <button type="button" class="btn primary" id="streakCheckIn">Mark today complete</button>
+              </div></div>
+            </section>
             <section class="section" id="dashboardLinksSection">
               <div class="section-head">
                 <div><h2 class="section-title">Quick Access</h2></div>
@@ -3224,7 +3233,7 @@
                   <input
                     class="field"
                     id="youtubeQuery"
-                    placeholder="Search videos, channels, or topics…"
+                    placeholder="Search YouTube or paste a video link…"
                     aria-label="Search YouTube"
                   /><button class="btn primary" type="submit">Search videos</button>
                 </form>
@@ -3746,6 +3755,7 @@
             <span>▶</span><span>YouTube</span><kbd>Ctrl ⇧ Y</kbd></button
           ><button class="command-item" type="button" data-command-view="favorites">
             <span>☆</span><span>Favorites</span></button
+          ><button class="command-item" type="button" data-command-view="gaming"><span>🎮</span><span>Gaming & Arcade</span></button
           ><button class="command-item" type="button" data-command-view="settings">
             <span>⚙</span><span>Appearance and settings</span></button
           ><button class="command-item" type="button" data-command-action="add">
@@ -4280,6 +4290,15 @@
           q = String(q || "").trim();
           if (!q) {
             toast("Enter a video or topic to search.");
+            return;
+          }
+          const pastedVideoId = videoId(q);
+          if (pastedVideoId) {
+            $("youtubeQuery").value = q;
+            goView("youtube");
+            ytResults = [];
+            playYoutube(q);
+            toast("Opening pasted YouTube link.");
             return;
           }
           lastYtQuery = q;
@@ -5889,10 +5908,43 @@
           render();
         }
 
+        /* ===== DAILY STREAK (stored locally on this device) ===== */
+        const STREAK_KEY = "classroomHubDailyStreakV1";
+        function localDayKey(date = new Date()) {
+          return date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0") + "-" + String(date.getDate()).padStart(2, "0");
+        }
+        function shiftDayKey(key, offset) {
+          const date = new Date(key + "T12:00:00");
+          date.setDate(date.getDate() + offset);
+          return localDayKey(date);
+        }
+        function renderStreak() {
+          let data = { days: [] };
+          try { data = JSON.parse(localStorage.getItem(STREAK_KEY) || '{"days":[]}'); } catch {}
+          const days = [...new Set((Array.isArray(data.days) ? data.days : []).filter(x => /^\d{4}-\d{2}-\d{2}$/.test(x)))].sort();
+          const today = localDayKey();
+          let current = 0, cursor = days.includes(today) ? today : shiftDayKey(today, -1);
+          while (days.includes(cursor)) { current++; cursor = shiftDayKey(cursor, -1); }
+          $("streakCount").textContent = current;
+          const done = days.includes(today);
+          $("streakStatus").textContent = done ? "Nice work — today’s check-in is complete." : "Check in once you’ve made progress today.";
+          $("streakCheckIn").textContent = done ? "Completed today ✓" : "Mark today complete";
+          $("streakCheckIn").disabled = done;
+        }
+        $("streakCheckIn").addEventListener("click", () => {
+          let data = { days: [] };
+          try { data = JSON.parse(localStorage.getItem(STREAK_KEY) || '{"days":[]}'); } catch {}
+          data.days = [...new Set([...(Array.isArray(data.days) ? data.days : []), localDayKey()])].sort();
+          try { localStorage.setItem(STREAK_KEY, JSON.stringify(data)); } catch {}
+          renderStreak();
+          toast("Daily check-in saved on this device.");
+        });
+
         /* ===== STARTUP ===== */
         function init() {
           applySettings();
           initGameLibrary();
+          renderStreak();
           setTimeout(maybeRemindBackup, 6000);
           initAi();
           renderLinks();
