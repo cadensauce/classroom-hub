@@ -4215,8 +4215,9 @@
         }
         function loadYoutubeApi() {
           if (window.YT && window.YT.Player) {
+            // playYoutube() mounts the player immediately after this function returns.
+            // Mounting here too caused an immediate destroy-and-remount race on later plays.
             ytPlayerApiReady = true;
-            if (activeYoutubeId) mountYoutubePlayer(activeYoutubeId);
             return;
           }
           if (ytPlayerApiLoading) return;
