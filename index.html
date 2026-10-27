@@ -2863,6 +2863,22 @@
       .yt-playlist-select-label { color:var(--muted); font-size: calc(12px * var(--font-size-adjust)); }
       #youtubePlaylistForm { margin-bottom:10px; }
       @media(max-width:640px) { .yt-library-item { align-items:flex-start; flex-wrap:wrap; } .yt-library-item-actions { width:100%; } .yt-library-item img { width:76px; } }
+      /* Calm, consistent settings and a balanced home screen. */
+      .settings-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; gap: 16px; }
+      .settings-grid .setting-card { min-width: 0; padding: 22px; border-radius: 13px; }
+      .settings-grid .setting-card h3 { font-size: 15px; font-weight: 650; margin-bottom: 5px; }
+      .settings-grid .setting-card > p { margin-bottom: 20px; }
+      .settings-grid .form-group { margin: 0 0 16px; }
+      .settings-grid .form-group > label { font-size: 12px; color: var(--muted); }
+      .settings-grid .field, .settings-grid .select { width: 100%; min-width: 0; }
+      .custom-color-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 18px; }
+      .custom-color-grid .form-group { margin: 0; padding: 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--panel2); }
+      .custom-color-grid input[type="color"] { width: 100%; height: 34px; border: 0; padding: 0; background: transparent; cursor: pointer; }
+      .yt-history-card { cursor: pointer; transition: border-color 160ms ease, transform 160ms ease, background 160ms ease; }
+      .yt-history-card:hover, .yt-history-card:focus-visible { border-color: var(--accent); outline: none; transform: translateY(-1px); }
+      #dashboardLinks { grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); }
+      #dashboardLinks .card { min-height: 112px; align-content: center; }
+      @media (max-width: 760px) { .settings-grid { grid-template-columns: minmax(0, 1fr); } .settings-grid .setting-card { padding: 17px; } }
       </style>
   </head>
   <body>
@@ -3014,25 +3030,7 @@
                 <span class="search-icon">⌕</span
                 ><input id="linkFilter" placeholder="Filter your links…" aria-label="Filter links" />
               </div>
-              <select class="select" id="linkFolderFilter" aria-label="Filter by folder">
-                <option value="all">All folders</option>
-                <option value="School">School</option>
-                <option value="Tools">Tools</option>
-                <option value="Games">Games</option>
-                <option value="Personal">Personal</option></select
-              ><span class="shortcut-hint">Drag cards, or use the ↑ ↓ buttons, to reorder</span>
-            </div>
-            <div class="folder-bar">
-              <span class="recent-label">Folders</span><span id="folderChips"></span>
-              <form id="folderForm">
-                <input
-                  class="field"
-                  id="folderName"
-                  maxlength="24"
-                  placeholder="New folder"
-                  aria-label="New folder name"
-                /><button class="btn" type="submit">Add</button>
-              </form>
+              <span class="shortcut-hint">Drag cards, or use the ↑ ↓ buttons, to reorder</span>
               <button type="button" class="btn" id="layoutToggle">List view</button>
             </div>
             <div class="section"><div class="grid" id="allLinks"></div></div>
@@ -3237,21 +3235,11 @@
                     <div class="swatches" id="swatches"></div>
                   </div>
                 </div>
-                <div class="form-group">
-                  <label for="customBgColor">Background color</label>
-                  <input type="color" id="customBgColor" value="#0b0d11" />
-                </div>
-                <div class="form-group">
-                  <label for="customCardColor">Card color</label>
-                  <input type="color" id="customCardColor" value="#12151b" />
-                </div>
-                <div class="form-group">
-                  <label for="customTextColor">Text color</label>
-                  <input type="color" id="customTextColor" value="#f3f5f8" />
-                </div>
-                <div class="form-group">
-                  <label for="customBorderColor">Border color</label>
-                  <input type="color" id="customBorderColor" value="#2a303b" />
+                <div class="custom-color-grid">
+                  <div class="form-group"><label for="customBgColor">Background</label><input type="color" id="customBgColor" value="#0b0d11" /></div>
+                  <div class="form-group"><label for="customCardColor">Cards</label><input type="color" id="customCardColor" value="#12151b" /></div>
+                  <div class="form-group"><label for="customTextColor">Text</label><input type="color" id="customTextColor" value="#f3f5f8" /></div>
+                  <div class="form-group"><label for="customBorderColor">Borders</label><input type="color" id="customBorderColor" value="#2a303b" /></div>
                 </div>
                 <div class="form-group">
                   <label for="themeSelect">Theme</label
@@ -3487,16 +3475,6 @@
             ><button class="btn" type="button" data-icon-pick="🎮">🎮 Games</button
             ><button class="btn" type="button" data-icon-pick="🛠️">🛠️ Tools</button>
           </div>
-        </div>
-        <div class="form-group">
-          <label for="linkFolder">Folder</label
-          ><select class="select" id="linkFolder">
-            <option value="">Unsorted</option>
-            <option value="School">School</option>
-            <option value="Tools">Tools</option>
-            <option value="Games">Games</option>
-            <option value="Personal">Personal</option>
-          </select>
         </div>
         <div class="toggle-row">
           <div class="toggle-label"><strong>Star this shortcut</strong><span>Show it in Favorites.</span></div>
@@ -3857,7 +3835,7 @@
 
         /* ===== QUICK ACCESS & FAVORITES (cards, folders, reorder) ===== */
         function linkCard(link, mv) {
-          return `<div class="card" draggable="true" data-card-id="${esc(link.id)}"><a href="${esc(link.url)}" class="card-icon" data-open-link="${esc(link.id)}" title="Open ${esc(link.name)}" aria-label="Open ${esc(link.name)}">${iconFor(link)}</a><a href="${esc(link.url)}" class="card-info" data-open-link="${esc(link.id)}" title="Open ${esc(link.name)}" style="text-decoration:none"><div class="card-name">${esc(link.name)}</div><div class="card-url">${esc(new URL(link.url).hostname)}</div>${link.folder ? `<div class="folder-tag">${esc(link.folder)}</div>` : ""}</a><div class="card-actions"><button class="mini-btn star ${link.star ? "active" : ""}" data-action="star" data-id="${esc(link.id)}" title="${link.star ? "Remove favorite" : "Add favorite"}" aria-label="Toggle favorite">${link.star ? "★" : "☆"}</button>${mv ? '<button class="mini-btn" data-action="up" data-id="' + esc(link.id) + '" title="Move earlier" aria-label="Move earlier">↑</button><button class="mini-btn" data-action="down" data-id="' + esc(link.id) + '" title="Move later" aria-label="Move later">↓</button>' : ""}<button class="mini-btn" data-action="edit" data-id="${esc(link.id)}" title="Edit link" aria-label="Edit link">✎</button><button class="mini-btn" data-action="delete" data-id="${esc(link.id)}" title="Remove link" aria-label="Remove link">×</button></div></div>`;
+          return `<div class="card" draggable="true" data-card-id="${esc(link.id)}"><a href="${esc(link.url)}" class="card-icon" data-open-link="${esc(link.id)}" title="Open ${esc(link.name)}" aria-label="Open ${esc(link.name)}">${iconFor(link)}</a><a href="${esc(link.url)}" class="card-info" data-open-link="${esc(link.id)}" title="Open ${esc(link.name)}" style="text-decoration:none"><div class="card-name">${esc(link.name)}</div><div class="card-url">${esc(new URL(link.url).hostname)}</div></a><div class="card-actions"><button class="mini-btn star ${link.star ? "active" : ""}" data-action="star" data-id="${esc(link.id)}" title="${link.star ? "Remove favorite" : "Add favorite"}" aria-label="Toggle favorite">${link.star ? "★" : "☆"}</button>${mv ? '<button class="mini-btn" data-action="up" data-id="' + esc(link.id) + '" title="Move earlier" aria-label="Move earlier">↑</button><button class="mini-btn" data-action="down" data-id="' + esc(link.id) + '" title="Move later" aria-label="Move later">↓</button>' : ""}<button class="mini-btn" data-action="edit" data-id="${esc(link.id)}" title="Edit link" aria-label="Edit link">✎</button><button class="mini-btn" data-action="delete" data-id="${esc(link.id)}" title="Remove link" aria-label="Remove link">×</button></div></div>`;
         }
         function renderGrid(id, items, emptyTitle, emptyText) {
           const el = $(id);
@@ -3868,14 +3846,11 @@
           el.innerHTML = items.map((l) => linkCard(l, id === "allLinks")).join("");
         }
         function renderLinks() {
-          renderFolders();
           document.body.classList.toggle("links-list", state.settings.linkLayout === "list");
           const filter = ($("linkFilter")?.value || "").trim().toLowerCase();
-          const folder = $("linkFolderFilter")?.value || "all";
           const filtered = state.links.filter(
             (l) =>
-              (l.name + " " + l.url + " " + (l.folder || "")).toLowerCase().includes(filter) &&
-              (folder === "all" || l.folder === folder),
+              (l.name + " " + l.url).toLowerCase().includes(filter),
           );
           renderGrid(
             "dashboardLinks",
@@ -4136,7 +4111,6 @@
           $("linkName").value = link?.name || "";
           $("linkUrl").value = link?.url || "";
           $("linkIcon").value = link?.icon || "🌐";
-          $("linkFolder").value = link?.folder || "";
           $("linkStar").checked = !!link?.star;
           $("linkModal").classList.add("open");
           setTimeout(() => $("linkName").focus(), 50);
@@ -4406,7 +4380,6 @@
           }
         });
         $("linkFilter").addEventListener("input", renderLinks);
-        $("linkFolderFilter").addEventListener("change", renderLinks);
         document.addEventListener("click", (e) => {
           const yt = e.target.closest("[data-recent-youtube]");
           if (yt) {
@@ -4441,7 +4414,7 @@
             url,
             icon: $("linkIcon").value.trim() || "🌐",
             star: $("linkStar").checked,
-            folder: $("linkFolder").value,
+            folder: "",
           };
           if (id) {
             const i = state.links.findIndex((x) => x.id === id);
@@ -5109,86 +5082,14 @@
           renderLinks();
           toast("Shortcut restored.");
         }
-        function renderFolders() {
-          const f = state.folders,
-            opt = (v, t) => '<option value="' + esc(v) + '">' + esc(t) + "</option>";
-          const fs = $("linkFolderFilter"),
-            fm = $("linkFolder"),
-            cur = fs.value,
-            curM = fm.value;
-          fs.innerHTML = opt("all", "All folders") + f.map((n) => opt(n, n)).join("");
-          fs.value = f.includes(cur) || cur === "all" ? cur : "all";
-          fm.innerHTML = opt("", "Unsorted") + f.map((n) => opt(n, n)).join("");
-          fm.value = f.includes(curM) ? curM : "";
-          $("folderChips").innerHTML = f.length
-            ? f
-                .map(
-                  (n) =>
-                    '<span class="folder-chip">' +
-                    esc(n) +
-                    '<button type="button" class="mini-btn" data-folder-del="' +
-                    esc(n) +
-                    '" aria-label="Delete folder ' +
-                    esc(n) +
-                    '">×</button></span>',
-                )
-                .join("")
-            : '<span class="section-sub">No folders yet.</span>';
-          $("layoutToggle").textContent = state.settings.linkLayout === "list" ? "Grid view" : "List view";
-        }
-        $("folderForm").addEventListener("submit", (e) => {
-          e.preventDefault();
-          const n = safeText($("folderName").value, 24).trim();
-          if (!n) return;
-          if (state.folders.some((x) => x.toLowerCase() === n.toLowerCase())) {
-            toast("That folder already exists.");
-            return;
-          }
-          if (state.folders.length >= 20) {
-            toast("Folder limit reached (20).");
-            return;
-          }
-          state.folders.push(n);
-          $("folderName").value = "";
-          save();
-          renderLinks();
-          toast("Folder added.");
-        });
-        $("folderChips").addEventListener("click", (e) => {
-          const b = e.target.closest("[data-folder-del]");
-          if (!b) return;
-          const n = b.dataset.folderDel,
-            c = state.links.filter((l) => l.folder === n).length;
-          if (
-            !confirm(
-              "Delete the folder “" +
-                n +
-                "”? " +
-                (c ? c + " shortcut(s) will be kept and moved to Unsorted." : "It has no shortcuts."),
-            )
-          )
-            return;
-          state.links.forEach((l) => {
-            if (l.folder === n) l.folder = "";
-          });
-          state.folders = state.folders.filter((x) => x !== n);
-          save();
-          renderLinks();
-          toast("Folder deleted.");
-        });
         $("layoutToggle").addEventListener("click", () => {
           state.settings.linkLayout = state.settings.linkLayout === "list" ? "grid" : "list";
           save();
           renderLinks();
         });
         function visibleLinks() {
-          const q = ($("linkFilter")?.value || "").trim().toLowerCase(),
-            fo = $("linkFolderFilter")?.value || "all";
-          return state.links.filter(
-            (l) =>
-              (l.name + " " + l.url + " " + (l.folder || "")).toLowerCase().includes(q) &&
-              (fo === "all" || l.folder === fo),
-          );
+          const q = ($("linkFilter")?.value || "").trim().toLowerCase();
+          return state.links.filter((l) => (l.name + " " + l.url).toLowerCase().includes(q));
         }
         function moveLink(id, dir) {
           const v = visibleLinks(),
@@ -5553,7 +5454,7 @@
           if (history) history.innerHTML = state.youtubeWatchHistory.length ? state.youtubeWatchHistory.map(v => {
             const p = getYoutubeProgress()[v.id] || {};
             const pos = p.seconds || v.position || 0;
-            return '<div class="yt-library-item"><img src="' + esc(v.thumb || ("https://i.ytimg.com/vi/" + v.id + "/mqdefault.jpg")) + '" alt="" loading="lazy"><div class="yt-library-item-main"><div class="yt-library-item-title">' + esc(v.title || "YouTube video") + '</div><div class="yt-library-item-sub">' + (pos ? "Resume at " + fmtSecs(pos) : "Not started") + '</div></div><div class="yt-library-item-actions"><button class="btn primary" type="button" data-yt-resume="' + esc(v.id) + '">Play</button><button class="btn" type="button" data-yt-save="' + esc(v.id) + '">Save to playlist</button></div></div>';
+            return '<div class="yt-library-item yt-history-card" data-yt-card="' + esc(v.id) + '" role="button" tabindex="0" aria-label="Play ' + esc(v.title || "YouTube video") + '"><img src="' + esc(v.thumb || ("https://i.ytimg.com/vi/" + v.id + "/mqdefault.jpg")) + '" alt="" loading="lazy"><div class="yt-library-item-main"><div class="yt-library-item-title">' + esc(v.title || "YouTube video") + '</div><div class="yt-library-item-sub">' + (pos ? "Resume at " + fmtSecs(pos) : "Not started") + '</div></div><div class="yt-library-item-actions"><button class="btn primary" type="button" data-yt-resume="' + esc(v.id) + '">Play</button><button class="btn" type="button" data-yt-save="' + esc(v.id) + '">Save to playlist</button></div></div>';
           }).join("") : '<div class="section-sub">Videos you play here will appear in this list.</div>';
           const playlists = $("youtubePlaylists");
           const select = $("addVideoToPlaylist");
@@ -5608,9 +5509,23 @@
             save(); renderYoutubeLibrary();
           }
         });
+        $("youtubeWatchHistory").addEventListener("keydown", e => {
+          if (e.key !== "Enter" && e.key !== " ") return;
+          const card = e.target.closest("[data-yt-card]");
+          if (!card || e.target.closest("button")) return;
+          e.preventDefault();
+          const v = state.youtubeWatchHistory.find(v => v.id === card.dataset.ytCard);
+          if (v) { ytResults = [v]; playYoutube(v.id); }
+        });
         $("youtubeWatchHistory").addEventListener("click", e => {
           const resume = e.target.closest("[data-yt-resume]");
           const saveBtn = e.target.closest("[data-yt-save]");
+          const card = e.target.closest("[data-yt-card]");
+          if (card && !resume && !saveBtn) {
+            const v = state.youtubeWatchHistory.find(v => v.id === card.dataset.ytCard);
+            if (v) { ytResults = [v]; playYoutube(v.id); }
+            return;
+          }
           if (resume) {
             const v = state.youtubeWatchHistory.find(v => v.id === resume.dataset.ytResume);
             if (v) { ytResults = [v]; playYoutube(v.id); }
