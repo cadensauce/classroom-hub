@@ -3215,7 +3215,7 @@
             <div class="section-head">
               <div>
                 <h1 style="font-size: calc(34px * var(--font-size-adjust)); margin: 0 0 5px; letter-spacing: -1.3px">YouTube</h1>
-                <div class="section-sub">Search videos or paste a YouTube video link to play it here.</div>
+                <div class="section-sub">Search for videos, browse thumbnails, and play selected videos here.</div>
               </div>
             </div>
             <div class="panel">
@@ -3232,12 +3232,13 @@
                   <button class="btn" type="button" id="youtubeOpenResults">Open results on YouTube ↗</button
                   ><button class="btn" type="button" id="youtubeOpenHome">YouTube home ↗</button>
                 </div>
-                <details class="yt-key">
-                  <summary>Show search results inside Classroom Hub (optional)</summary>
+                <details class="yt-key" open>
+                  <summary>Enable video search inside Classroom Hub</summary>
                   <p class="section-sub">
-                    Uses YouTube’s official Data API with your own free key (Google Cloud → enable “YouTube Data API v3”
-                    → create an API key, and restrict it to that API and this website). The key is stored only in this
-                    browser and is never included in backups.
+                    To show video thumbnails and play search results here, add a YouTube Data API key. You can create one
+                    in Google Cloud by enabling “YouTube Data API v3” and creating an API key. Restrict the key to that API
+                    and your website. The key is saved only in this browser on this device; anyone who can use this browser
+                    may be able to access it, so restrict it carefully.
                   </p>
                   <div class="yt-search">
                     <input
@@ -3268,18 +3269,21 @@
                   </section>
                 </div>
                 <div class="note">
-                  Search results inside Classroom Hub require a YouTube Data API key. Without a key, Search opens official YouTube results in a new tab. Saved videos, playlists, and playback positions are stored on this device.
+                  Without an API key, YouTube search opens in a new tab because YouTube does not provide a reliable, unrestricted way for a static webpage to fetch its search results. Video playback and search may still be limited by school network policies or YouTube's embedding rules.
                 </div>
-                <div class="form-group" style="margin-top: 22px">
-                  <label for="youtubeVideoInput">Or paste a YouTube video link</label>
-                  <div class="yt-search">
-                    <input
-                      class="field"
-                      id="youtubeVideoInput"
-                      placeholder="https://www.youtube.com/watch?v=…"
-                    /><button class="btn" type="button" id="playYoutubeVideo">Play here</button>
+                <details class="yt-key">
+                  <summary>Play a video by link (optional)</summary>
+                  <div class="form-group" style="margin-top: 14px">
+                    <label for="youtubeVideoInput">YouTube video URL</label>
+                    <div class="yt-search">
+                      <input
+                        class="field"
+                        id="youtubeVideoInput"
+                        placeholder="Paste a YouTube video link…"
+                      /><button class="btn" type="button" id="playYoutubeVideo">Play here</button>
+                    </div>
                   </div>
-                </div>
+                </details>
                 <div class="yt-player" id="ytPlayer" hidden>
                   <div class="ytr-bar">
                     <button class="btn" type="button" id="ytBackResults">✕ Close player</button>
