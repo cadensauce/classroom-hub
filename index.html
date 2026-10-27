@@ -3678,7 +3678,7 @@
           let links = Array.isArray(s.links)
             ? s.links.map(normalizeLink).filter(Boolean).filter((link) => !["wikipedia", "coolmath", "scratch"].includes(link.id))
             : Array.isArray(s.quickLinks)
-              ? s.quickLinks.map(normalizeLink).filter(Boolean)
+              ? s.quickLinks.map(normalizeLink).filter(Boolean).filter((link) => !["wikipedia", "coolmath", "scratch"].includes(link.id))
               : DEFAULT_LINKS.map((x) => ({ ...x }));
           const settings = { ...DEFAULT_SETTINGS, ...(s.settings && typeof s.settings === "object" ? s.settings : {}) };
           if (settings.accent && !/^#[0-9a-f]{6}$/i.test(settings.accent)) settings.accent = DEFAULT_SETTINGS.accent;
