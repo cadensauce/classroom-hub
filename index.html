@@ -312,6 +312,18 @@
         display: none;
         animation: pageIn 0.25s ease both;
       }
+      .card, .setting-card, .btn, .icon-btn, .nav-item, .mini-btn, .command-item {
+        transition: transform 160ms ease, border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
+      }
+      .card:hover, .setting-card:hover { border-color: rgba(var(--accent-rgb), .32); }
+      .card:hover { transform: translateY(-2px); }
+      .settings-grid { align-items: start; gap: 14px; }
+      .settings-grid .setting-card { padding: clamp(16px, 2vw, 22px); }
+      .settings-grid .setting-card h3 { margin: 0 0 7px; letter-spacing: -.2px; }
+      .settings-grid .setting-card > p { margin: 0 0 18px; line-height: 1.55; }
+      .settings-grid .form-group { margin-bottom: 15px; }
+      .settings-grid .form-group:last-child { margin-bottom: 0; }
+      .settings-autosave { position: sticky; bottom: 12px; width: fit-content; margin: 18px auto 0; padding: 9px 14px; border: 1px solid var(--border); border-radius: 999px; background: var(--panel); box-shadow: 0 8px 24px rgba(0,0,0,.16); }
       .view.active {
         display: block;
       }
@@ -3415,8 +3427,7 @@
                 <h3>Quick controls</h3>
                 <p>Keep the interface minimal while making common actions faster.</p>
                 <div class="note">
-                  Keyboard shortcuts: Ctrl/⌘ K opens commands · / focuses search · Ctrl/⌘ L opens Browser · Ctrl/⌘ Shift
-                  Y opens YouTube.
+                  Keyboard shortcuts: Ctrl/⌘ K opens commands · Ctrl/⌘ Shift Y opens YouTube. Use the command palette to add tasks, shortcuts, or start a backup.
                 </div>
               </div>
               <div class="setting-card">
@@ -3518,8 +3529,6 @@
             <span>⌂</span><span>Home</span></button
           ><button class="command-item" type="button" data-command-view="quick">
             <span>▦</span><span>Quick Access</span></button
-          ><button class="command-item" type="button" data-command-view="browser">
-            <span>⌕</span><span>Browser and search</span><kbd>Ctrl L</kbd></button
           ><button class="command-item" type="button" data-command-view="ai">
             <span>✳</span><span>AI Assistant</span></button
           ><button class="command-item" type="button" data-command-view="youtube">
@@ -3530,13 +3539,13 @@
             <span>⚙</span><span>Appearance and settings</span></button
           ><button class="command-item" type="button" data-command-action="add">
             <span>＋</span><span>Add a shortcut</span></button
-          ><button class="command-item" type="button" data-command-action="backup">
+          >
+          <button class="command-item" type="button" data-command-action="task"><span>✓</span><span>Add a task</span></button>
+          <button class="command-item" type="button" data-command-action="youtube-search"><span>▶</span><span>Search YouTube</span></button><button class="command-item" type="button" data-command-action="backup">
             <span>⇧</span><span>Export backup</span></button
           ><button class="command-item" type="button" data-command-action="theme">
             <span>◐</span><span>Switch theme</span></button
-          ><button class="command-item" type="button" data-command-action="search">
-            <span>⌕</span><span>Focus home search</span><kbd>/</kbd>
-          </button>
+          >
         </div>
         <div class="command-empty" id="commandEmpty" hidden>No matching commands.</div>
         <div class="command-footer"><span>Use ↑ ↓ to navigate · Enter to open</span><span>Ctrl K</span></div>
@@ -3598,6 +3607,7 @@
         const COLORS = ["#9caeff", "#a7e8bd", "#f4c98b", "#f3a8c8", "#c5a7ff", "#80d9e8", "#ff9f91", "#ffffff"];
         const DEFAULT_SETTINGS = {
           greeting: "",
+          startPage: "dashboard",
           accent: "#9caeff",
           theme: "dark",
           density: "comfortable",
@@ -3762,7 +3772,6 @@
           const labels = {
             dashboard: "HOME",
             quick: "QUICK ACCESS",
-            browser: "BROWSER",
             ai: "AI ASSISTANT",
             youtube: "YOUTUBE",
             favorites: "FAVORITES",
@@ -3836,6 +3845,7 @@
           $("animationSelect").value = s.animation || "subtle";
           $("backgroundSelect").value = s.background || "plain";
           $("greetingInput").value = s.greeting;
+          $("startPage").value = s.startPage || "dashboard";
           ["sidebarCollapsed", "reducedMotion", "showClock", "showGreeting", "showDashboardLinks", "showTodo"].forEach(
             (id) => ($(id).checked = !!s[id]),
           );
@@ -4177,6 +4187,7 @@
             animation: $("animationSelect").value,
             background: $("backgroundSelect").value,
             greeting: $("greetingInput").value.trim(),
+            startPage: $("startPage").value || "dashboard",
             sidebarCollapsed: $("sidebarCollapsed").checked,
             reducedMotion: $("reducedMotion").checked,
             showClock: $("showClock").checked,
@@ -4253,6 +4264,15 @@
             goView(view);
           }
           if (action === "add") openModal();
+          if (action === "task") {
+            goView("dashboard");
+            $("todoInput")?.focus();
+            $("todoInput")?.scrollIntoView({ block: "center", behavior: state.settings.reducedMotion ? "auto" : "smooth" });
+          }
+          if (action === "youtube-search") {
+            goView("youtube");
+            $("youtubeQuery")?.focus();
+          }
           if (action === "backup") $("exportData").click();
           if (action === "theme") {
             state.settings.theme = state.settings.theme === "dark" ? "light" : "dark";
@@ -4801,7 +4821,15 @@
           toast("Settings reset.");
         });
         $("exportData").addEventListener("click", () => {
-          const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+          const backup = {
+            ...state,
+            _classroomHub: {
+              version: 1,
+              dashboardWidgets: localStorage.getItem("classroomHubDashboardWidgetsV1"),
+              dashboardOrder: localStorage.getItem("classroomHubDashboardOrderV1"),
+            },
+          };
+          const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
           const url = URL.createObjectURL(blob);
           const a = document.createElement("a");
           a.href = url;
@@ -4834,7 +4862,11 @@
               localStorage.setItem(STORAGE_KEY + ".preimport", JSON.stringify(state));
             } catch {}
             try {
-              localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(Object.fromEntries(Object.entries(parsed).filter(([k]) => k !== "_classroomHub"))));
+              if (parsed._classroomHub && parsed._classroomHub.version === 1) {
+                if (typeof parsed._classroomHub.dashboardWidgets === "string") localStorage.setItem("classroomHubDashboardWidgetsV1", parsed._classroomHub.dashboardWidgets);
+                if (typeof parsed._classroomHub.dashboardOrder === "string") localStorage.setItem("classroomHubDashboardOrderV1", parsed._classroomHub.dashboardOrder);
+              }
             } catch {
               toast("Could not save the imported backup (browser storage is full or unavailable). Nothing was changed.");
               return;
@@ -4844,7 +4876,8 @@
             applySettings();
             renderLinks();
             renderTasks();
-            toast("Backup imported (" + state.links.length + " shortcuts, " + state.tasks.length + " tasks).");
+            toast("Backup imported (" + state.links.length + " shortcuts, " + state.tasks.length + " tasks). Reloading to apply all preferences.");
+            if (parsed._classroomHub) setTimeout(() => window.location.reload(), 900);
           } catch {
             toast("That backup file could not be read.");
           } finally {
@@ -5641,7 +5674,7 @@
           setInterval(updateClock, 30000);
           updateSchoolTimer();
           setInterval(updateSchoolTimer, 1000);
-          goView("dashboard");
+          goView(state.settings.startPage || "dashboard");
         }
         init();
 
