@@ -4251,7 +4251,6 @@
           closeCommandPalette();
           if (view) {
             goView(view);
-            if (view === "browser") setTimeout(() => $("browserAddress").focus(), 40);
           }
           if (action === "add") openModal();
           if (action === "backup") $("exportData").click();
@@ -5642,7 +5641,7 @@
           setInterval(updateClock, 30000);
           updateSchoolTimer();
           setInterval(updateSchoolTimer, 1000);
-          goView(state.settings.startPage || "dashboard");
+          goView("dashboard");
         }
         init();
 
