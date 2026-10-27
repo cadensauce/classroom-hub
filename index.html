@@ -494,7 +494,17 @@
         background: var(--panel3);
         font-size: calc(18px * var(--font-size-adjust));
         color: var(--accent);
+        transition: background var(--speed), border-color var(--speed), color var(--speed);
       }
+      .weather-panel { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:18px 20px; }
+      .weather-main { display:flex; align-items:center; gap:14px; min-width:0; }
+      .weather-symbol { display:grid; place-items:center; width:48px; height:48px; flex:0 0 48px; border:1px solid var(--border); border-radius:14px; background:var(--panel2); font-size:25px; }
+      .weather-temp { font-size:clamp(25px, 4vw, 34px); font-weight:650; letter-spacing:-1.2px; line-height:1.1; font-variant-numeric:tabular-nums; }
+      .weather-details { color:var(--muted); font-size:12px; margin-top:5px; }
+      .weather-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+      .weather-status { color:var(--muted); font-size:12px; margin-top:5px; }
+      .weather-panel [hidden] { display:none !important; }
+      @media (max-width:560px) { .weather-panel { align-items:flex-start; flex-direction:column; } .weather-actions { width:100%; } }
       .card-info {
         min-width: 0;
         flex: 1;
@@ -3023,6 +3033,29 @@
               </div>
               <div class="panel bell-schedule-panel" id="bellSchedulePanel">
                 <div class="bell-schedule-list" id="bellScheduleList"></div>
+              </div>
+            </section>
+            <section class="section" id="weatherSection" aria-labelledby="weatherTitle">
+              <div class="section-head">
+                <div>
+                  <h2 class="section-title" id="weatherTitle">Weather</h2>
+                  <div class="section-sub" id="weatherLocation">Use your location to check current conditions.</div>
+                </div>
+              </div>
+              <div class="panel weather-panel">
+                <div class="weather-main">
+                  <div class="weather-symbol" id="weatherSymbol" aria-hidden="true">☁</div>
+                  <div>
+                    <div class="weather-temp" id="weatherTemperature">--°</div>
+                    <div id="weatherCondition">Current conditions</div>
+                    <div class="weather-details" id="weatherDetails">Temperature and wind will appear here.</div>
+                    <div class="weather-status" id="weatherStatus" role="status">Location is only accessed when you choose to allow it.</div>
+                  </div>
+                </div>
+                <div class="weather-actions">
+                  <button class="btn primary" type="button" id="weatherLocateButton">Use my location</button>
+                  <button class="btn" type="button" id="weatherRefreshButton" hidden>Refresh</button>
+                </div>
               </div>
             </section>
             <section class="section" id="dashboardLinksSection">
