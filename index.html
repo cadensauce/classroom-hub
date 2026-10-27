@@ -2959,6 +2959,36 @@
         .school-timer { padding: 16px; gap: 14px; }
         .settings-grid .setting-card { padding: 16px; }
       }
+        /* ===== Browser workspace ===== */
+        .browser-shell { overflow:hidden; }
+        .browser-toolbar { display:flex; align-items:center; gap:8px; padding:12px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+        .browser-address-form { display:flex; align-items:center; gap:8px; flex:1 1 320px; min-width:180px; }
+        .browser-address-form .field { min-width:0; flex:1; }
+        .browser-tab-strip { display:flex; align-items:center; gap:6px; overflow-x:auto; padding:9px 12px; border-bottom:1px solid var(--border); }
+        .browser-tab { border:1px solid var(--border); background:var(--panel-2); color:var(--muted); border-radius:9px; padding:8px 12px; white-space:nowrap; cursor:pointer; max-width:220px; overflow:hidden; text-overflow:ellipsis; }
+        .browser-tab.active { color:var(--text); border-color:var(--accent); background:var(--panel); }
+        .browser-frame-wrap { min-height:420px; height:min(68vh,760px); background:var(--bg); position:relative; }
+        #chBrowserFrame { width:100%; height:100%; min-height:420px; border:0; background:#fff; }
+        .browser-empty { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:12px; padding:24px; color:var(--muted); }
+        .browser-empty h2 { color:var(--text); margin:0; font-size:22px; }
+        .browser-empty p { max-width:560px; margin:0; line-height:1.6; }
+        .browser-empty-mark { display:grid; place-items:center; width:54px; height:54px; border:1px solid var(--border); border-radius:16px; font-size:28px; color:var(--text); }
+        .browser-shortcuts { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin-top:4px; }
+        .browser-footer { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 14px; border-top:1px solid var(--border); color:var(--muted); font-size:12px; flex-wrap:wrap; }
+        .browser-library-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin-top:16px; }
+        .browser-library-panel { padding:16px; min-width:0; }
+        .compact-head { margin-bottom:12px; }
+        .browser-session-form { display:flex; gap:8px; margin-bottom:12px; }
+        .browser-session-form .field { min-width:0; flex:1; }
+        .browser-saved-list { display:flex; flex-direction:column; gap:8px; }
+        .browser-saved-item { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px; border:1px solid var(--border); border-radius:10px; min-width:0; }
+        .browser-saved-item-main { min-width:0; flex:1; }
+        .browser-saved-item-title { color:var(--text); font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .browser-saved-item-sub { color:var(--muted); font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:3px; }
+        .browser-saved-actions { display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-end; }
+        .browser-saved-actions .btn { padding:6px 9px; font-size:12px; }
+        .browser-disclaimer { color:var(--muted); font-size:12px; line-height:1.5; margin:12px 2px 0; }
+        @media(max-width:720px) { .browser-library-grid { grid-template-columns:1fr; } .browser-frame-wrap { height:58vh; min-height:340px; } .browser-toolbar { gap:6px; } .browser-toolbar > .btn { flex:1; } .browser-footer { align-items:flex-start; } }
       </style>
   </head>
   <body>
@@ -2985,6 +3015,9 @@
             <span class="nav-icon">☆</span><span class="nav-text">Favorites</span>
           </button>
           <div class="nav-group-label" aria-hidden="true">Tools</div>
+          <button class="nav-btn" data-view="browser">
+            <span class="nav-icon">◎</span><span class="nav-text">Browser</span>
+          </button>
           <button class="nav-btn" data-view="youtube">
             <span class="nav-icon">▷</span><span class="nav-text">YouTube</span></button
           ><button class="nav-btn" data-view="ai">
@@ -3122,6 +3155,61 @@
             <div class="section"><div class="grid" id="allLinks"></div></div>
           </section>
           <!-- Browser view removed. -->
+          <!-- ===== VIEW: BROWSER ===== -->
+          <section class="view" id="view-browser">
+            <div class="section-head">
+              <div>
+                <h1 style="font-size: calc(34px * var(--font-size-adjust)); margin: 0 0 5px; letter-spacing: -1.3px">Browser</h1>
+                <div class="section-sub">A simple browsing workspace with tabs, bookmarks, and saved sessions.</div>
+              </div>
+            </div>
+            <div class="browser-shell panel">
+              <div class="browser-toolbar">
+                <button class="icon-btn" id="chBrowserBack" type="button" aria-label="Go back" title="Back">←</button>
+                <button class="icon-btn" id="chBrowserForward" type="button" aria-label="Go forward" title="Forward">→</button>
+                <button class="icon-btn" id="chBrowserReload" type="button" aria-label="Reload page" title="Reload">↻</button>
+                <form id="chBrowserForm" class="browser-address-form">
+                  <input class="field" id="chBrowserAddress" type="text" placeholder="Search or enter a website address…" aria-label="Search or enter a website address" autocomplete="url" />
+                  <button class="btn primary" type="submit">Go</button>
+                </form>
+                <button class="btn" id="chBrowserNewTab" type="button">＋ Tab</button>
+                <button class="btn" id="chBrowserOpenExternal" type="button">Open externally ↗</button>
+              </div>
+              <div class="browser-tab-strip" id="chBrowserTabs" aria-label="Browser tabs"></div>
+              <div class="browser-frame-wrap">
+                <div class="browser-empty" id="chBrowserEmpty">
+                  <div class="browser-empty-mark">◎</div>
+                  <h2>Your browsing space</h2>
+                  <p>Enter a website address or search above. Some websites don't allow embedding and may need to be opened in a regular browser tab.</p>
+                  <div class="browser-shortcuts">
+                    <button class="btn" type="button" data-browser-shortcut="https://www.google.com">Google</button>
+                    <button class="btn" type="button" data-browser-shortcut="https://www.wikipedia.org">Wikipedia</button>
+                    <button class="btn" type="button" data-browser-shortcut="https://www.youtube.com">YouTube</button>
+                  </div>
+                </div>
+                <iframe id="chBrowserFrame" title="Browser content" referrerpolicy="no-referrer" loading="lazy" allow="fullscreen; autoplay; encrypted-media; picture-in-picture" hidden></iframe>
+              </div>
+              <div class="browser-footer">
+                <div id="chBrowserStatus" role="status">Ready. Embedded browsing depends on each website's settings.</div>
+                <button class="btn" id="chBrowserBookmark" type="button">☆ Save bookmark</button>
+              </div>
+            </div>
+            <div class="browser-library-grid">
+              <section class="panel browser-library-panel">
+                <div class="section-head compact-head"><div><h2 class="section-title">Bookmarks</h2><div class="section-sub">Saved on this device.</div></div></div>
+                <div id="chBrowserBookmarks" class="browser-saved-list"><div class="empty-state">No bookmarks yet.</div></div>
+              </section>
+              <section class="panel browser-library-panel">
+                <div class="section-head compact-head"><div><h2 class="section-title">Tabs &amp; Sessions</h2><div class="section-sub">Save and reopen a set of browsing tabs.</div></div></div>
+                <form id="chBrowserSessionForm" class="browser-session-form">
+                  <input class="field" id="chBrowserSessionName" maxlength="48" placeholder="Session name" aria-label="Session name" required />
+                  <button class="btn primary" type="submit">Save session</button>
+                </form>
+                <div id="chBrowserSessions" class="browser-saved-list"><div class="empty-state">No saved sessions yet.</div></div>
+              </section>
+            </div>
+            <p class="browser-disclaimer">Classroom Hub is a website, not a full browser or proxy. It cannot override school device or network restrictions.</p>
+          </section>
           <!-- ===== VIEW: YOUTUBE ===== -->
           <section class="view" id="view-youtube">
             <div class="section-head">
@@ -3865,6 +3953,7 @@
           const labels = {
             dashboard: "HOME",
             quick: "QUICK ACCESS",
+            browser: "BROWSER",
             ai: "AI ASSISTANT",
             youtube: "YOUTUBE",
             favorites: "FAVORITES",
@@ -3875,6 +3964,7 @@
           document.body.classList.remove("mobile-open");
           if (name === "quick") renderLinks();
           if (name === "favorites") renderLinks();
+          if (name === "browser") window.dispatchEvent(new CustomEvent("classroomhub-browser-view"));
           window.scrollTo({ top: 0, behavior: state.settings.reducedMotion ? "auto" : "smooth" });
         }
         function updateClock() {
@@ -6087,6 +6177,143 @@
           $("ch-widgets-reset").textContent = "Restore default layout";
         })();
 
+      })();
+
+      /* ===== Browser tabs, bookmarks, and saved sessions ===== */
+      (() => {
+        const $b = (id) => document.getElementById(id);
+        const KEYS = {
+          tabs: "classroomHubBrowserTabsV1",
+          active: "classroomHubBrowserActiveTabV1",
+          bookmarks: "classroomHubBrowserBookmarksV1",
+          sessions: "classroomHubBrowserSessionsV1",
+        };
+        const read = (key, fallback) => {
+          try { const value = JSON.parse(localStorage.getItem(key)); return value ?? fallback; }
+          catch { return fallback; }
+        };
+        const write = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch {} };
+        let tabs = read(KEYS.tabs, []);
+        if (!Array.isArray(tabs) || !tabs.length) tabs = [{ id: "tab-" + Date.now(), title: "New tab", url: "" }];
+        let activeId = read(KEYS.active, tabs[0].id);
+        if (!tabs.some((tab) => tab.id === activeId)) activeId = tabs[0].id;
+        let bookmarks = read(KEYS.bookmarks, []);
+        let sessions = read(KEYS.sessions, []);
+        let historyByTab = {};
+        const activeTab = () => tabs.find((tab) => tab.id === activeId) || tabs[0];
+        const safeUrl = (raw) => {
+          let value = String(raw || "").trim();
+          if (!value) return "";
+          if (/^(javascript|data|file|vbscript):/i.test(value)) return "";
+          if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(value) && !/^(about:|mailto:)/i.test(value)) {
+            value = /\s/.test(value) || !value.includes(".") ? "https://www.google.com/search?q=" + encodeURIComponent(value) : "https://" + value;
+          }
+          try { const parsed = new URL(value); return ["http:", "https:"].includes(parsed.protocol) ? parsed.href : ""; } catch { return ""; }
+        };
+        const titleFor = (url) => { try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return "New tab"; } };
+        const status = (message) => { if ($b("chBrowserStatus")) $b("chBrowserStatus").textContent = message; };
+        const persist = () => { write(KEYS.tabs, tabs); write(KEYS.active, activeId); };
+        const renderTabs = () => {
+          const host = $b("chBrowserTabs"); if (!host) return;
+          host.innerHTML = "";
+          tabs.forEach((tab) => {
+            const button = document.createElement("button");
+            button.type = "button"; button.className = "browser-tab" + (tab.id === activeId ? " active" : "");
+            button.textContent = tab.title || "New tab"; button.title = tab.url || "Empty tab";
+            button.addEventListener("click", () => { activeId = tab.id; persist(); renderTabs(); showActive(); });
+            host.appendChild(button);
+          });
+        };
+        const showActive = () => {
+          const tab = activeTab(); if (!tab) return;
+          $b("chBrowserAddress").value = tab.url || "";
+          const frame = $b("chBrowserFrame"), empty = $b("chBrowserEmpty");
+          if (tab.url) { frame.hidden = false; empty.hidden = true; frame.src = tab.url; status("Trying to load " + titleFor(tab.url) + ". If it refuses to display, use Open externally."); }
+          else { frame.removeAttribute("src"); frame.hidden = true; empty.hidden = false; status("Ready. Enter a URL or search above."); }
+        };
+        const navigate = (raw, replaceHistory = false) => {
+          const url = safeUrl(raw);
+          if (!url) { status("Enter a valid http or https address, or a search phrase."); return; }
+          const tab = activeTab();
+          if (!replaceHistory && tab.url && tab.url !== url) (historyByTab[tab.id] ||= []).push(tab.url);
+          tab.url = url; tab.title = titleFor(url); persist(); renderTabs(); showActive();
+        };
+        const renderBookmarks = () => {
+          const host = $b("chBrowserBookmarks"); if (!host) return;
+          host.innerHTML = "";
+          if (!bookmarks.length) { host.innerHTML = '<div class="empty-state">No bookmarks yet.</div>'; return; }
+          bookmarks.forEach((item, index) => {
+            const row = document.createElement("div"); row.className = "browser-saved-item";
+            const main = document.createElement("div"); main.className = "browser-saved-item-main";
+            const title = document.createElement("div"); title.className = "browser-saved-item-title"; title.textContent = item.title;
+            const sub = document.createElement("div"); sub.className = "browser-saved-item-sub"; sub.textContent = item.url;
+            main.append(title, sub);
+            const actions = document.createElement("div"); actions.className = "browser-saved-actions";
+            const open = document.createElement("button"); open.className = "btn"; open.type = "button"; open.textContent = "Open";
+            open.addEventListener("click", () => navigate(item.url));
+            const remove = document.createElement("button"); remove.className = "btn"; remove.type = "button"; remove.textContent = "Remove";
+            remove.addEventListener("click", () => { bookmarks.splice(index, 1); write(KEYS.bookmarks, bookmarks); renderBookmarks(); });
+            actions.append(open, remove); row.append(main, actions); host.appendChild(row);
+          });
+        };
+        const renderSessions = () => {
+          const host = $b("chBrowserSessions"); if (!host) return;
+          host.innerHTML = "";
+          if (!sessions.length) { host.innerHTML = '<div class="empty-state">No saved sessions yet.</div>'; return; }
+          sessions.forEach((session, index) => {
+            const row = document.createElement("div"); row.className = "browser-saved-item";
+            const main = document.createElement("div"); main.className = "browser-saved-item-main";
+            const title = document.createElement("div"); title.className = "browser-saved-item-title"; title.textContent = session.name;
+            const sub = document.createElement("div"); sub.className = "browser-saved-item-sub"; sub.textContent = session.tabs.length + " tab(s) · " + session.tabs.map((t) => t.title).join(", ");
+            main.append(title, sub);
+            const actions = document.createElement("div"); actions.className = "browser-saved-actions";
+            const open = document.createElement("button"); open.className = "btn"; open.type = "button"; open.textContent = "Load";
+            open.addEventListener("click", () => {
+              tabs = session.tabs.map((tab) => ({ id: "tab-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7), title: tab.title, url: tab.url }));
+              if (!tabs.length) tabs = [{ id: "tab-" + Date.now(), title: "New tab", url: "" }];
+              activeId = tabs[0].id; persist(); renderTabs(); showActive(); status("Loaded session: " + session.name);
+            });
+            const remove = document.createElement("button"); remove.className = "btn"; remove.type = "button"; remove.textContent = "Delete";
+            remove.addEventListener("click", () => { sessions.splice(index, 1); write(KEYS.sessions, sessions); renderSessions(); });
+            actions.append(open, remove); row.append(main, actions); host.appendChild(row);
+          });
+        };
+        $b("chBrowserForm")?.addEventListener("submit", (event) => { event.preventDefault(); navigate($b("chBrowserAddress").value); });
+        $b("chBrowserAddress")?.addEventListener("keydown", (event) => { if (event.key === "Escape") $b("chBrowserAddress").blur(); });
+        $b("chBrowserNewTab")?.addEventListener("click", () => {
+          const tab = { id: "tab-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6), title: "New tab", url: "" };
+          tabs.push(tab); activeId = tab.id; persist(); renderTabs(); showActive(); $b("chBrowserAddress").focus();
+        });
+        $b("chBrowserReload")?.addEventListener("click", () => { const frame = $b("chBrowserFrame"); if (activeTab().url) { frame.src = activeTab().url; status("Reloading page…"); } });
+        $b("chBrowserBack")?.addEventListener("click", () => {
+          const tab = activeTab(), history = historyByTab[tab.id] || [];
+          const previous = history.pop();
+          if (previous) { historyByTab[tab.id] = history; tab.url = previous; tab.title = titleFor(previous); persist(); renderTabs(); showActive(); }
+          else status("Back history is only available for pages opened during this tab session.");
+        });
+        $b("chBrowserForward")?.addEventListener("click", () => status("Use the website's own navigation when available, or enter an address above."));
+        $b("chBrowserOpenExternal")?.addEventListener("click", () => {
+          const url = activeTab().url;
+          if (url) window.open(url, "_blank", "noopener,noreferrer"); else status("Enter a website address first.");
+        });
+        $b("chBrowserBookmark")?.addEventListener("click", () => {
+          const tab = activeTab(); if (!tab.url) { status("Open a website before saving a bookmark."); return; }
+          if (!bookmarks.some((item) => item.url === tab.url)) bookmarks.unshift({ title: tab.title, url: tab.url });
+          write(KEYS.bookmarks, bookmarks); renderBookmarks(); status("Bookmark saved on this device.");
+        });
+        document.querySelectorAll("[data-browser-shortcut]").forEach((button) => button.addEventListener("click", () => navigate(button.dataset.browserShortcut)));
+        $b("chBrowserSessionForm")?.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const name = $b("chBrowserSessionName").value.trim();
+          if (!name) return;
+          const savedTabs = tabs.filter((tab) => tab.url).map((tab) => ({ title: tab.title, url: tab.url }));
+          if (!savedTabs.length) { status("Open at least one website before saving a session."); return; }
+          sessions.unshift({ name, tabs: savedTabs, savedAt: Date.now() });
+          sessions = sessions.slice(0, 30); write(KEYS.sessions, sessions); renderSessions(); $b("chBrowserSessionName").value = "";
+          status("Session saved on this device.");
+        });
+        window.addEventListener("classroomhub-browser-view", () => { renderTabs(); renderBookmarks(); renderSessions(); });
+        renderTabs(); renderBookmarks(); renderSessions(); showActive();
       })();
     </script>
   </body>
