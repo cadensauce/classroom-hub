@@ -2879,6 +2879,48 @@
       #dashboardLinks { grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); }
       #dashboardLinks .card { min-height: 112px; align-content: center; }
       @media (max-width: 760px) { .settings-grid { grid-template-columns: minmax(0, 1fr); } .settings-grid .setting-card { padding: 17px; } }
+
+      /* ===== CLEAN, LOW-CLUTTER PASS ===== */
+      :root { --radius: 12px; }
+      body { background-image: none; }
+      .sidebar { padding: 18px 12px; background: var(--bg); backdrop-filter: none; }
+      .brand { gap: 9px; padding: 3px 7px 20px; }
+      .brand-mark { width: 34px; height: 34px; flex-basis: 34px; border-radius: 10px; }
+      .brand-sub { letter-spacing: .08em; }
+      .main { padding-top: 22px; }
+      .topbar { margin-bottom: 18px; }
+      .content { gap: 22px; }
+      .hero { padding: 8px 0 18px; }
+      .hero h1 { font-size: clamp(25px, 3vw, 34px); letter-spacing: -1.1px; }
+      .section { margin-bottom: 24px; }
+      .section-head { margin-bottom: 11px; }
+      .section-title { font-size: 16px; letter-spacing: -.2px; }
+      .section-sub { font-size: 12px; }
+      .panel, .setting-card, .card { box-shadow: none; }
+      .panel { border-radius: 12px; }
+      .card { border-radius: 11px; }
+      .setting-card { border-radius: 12px; }
+      .settings-grid { gap: 12px; }
+      .settings-grid .setting-card { padding: 18px; }
+      .settings-grid .setting-card > p { margin-bottom: 15px; }
+      .settings-grid .form-group { margin-bottom: 13px; }
+      .custom-color-grid { gap: 8px; }
+      .custom-color-grid .form-group { padding: 8px; }
+      .school-timer { gap: 18px; padding: 20px; }
+      .school-timer-count { font-size: clamp(28px, 4vw, 42px); }
+      .school-timer-eyebrow { letter-spacing: .12em; }
+      #dashboardLinks .card { min-height: 88px; }
+      #manageLinks, #addLinkDash, #topSettings { display: none !important; }
+      .nav-group-label { margin-top: 18px; margin-bottom: 6px; }
+      .nav-btn { min-height: 40px; }
+      .btn { box-shadow: none; }
+      @media (max-width: 760px) {
+        .main { padding-top: 14px; }
+        .content { gap: 16px; }
+        .hero { padding-top: 6px; }
+        .school-timer { padding: 16px; gap: 14px; }
+        .settings-grid .setting-card { padding: 16px; }
+      }
       </style>
   </head>
   <body>
