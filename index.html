@@ -4337,12 +4337,7 @@
           renderLinks();
           toast("Shortcut order saved.");
         });
-        $("clearActivity").addEventListener("click", () => {
-          state.recentActivity = [];
-          save();
-          renderActivity();
-          toast("Recent activity cleared.");
-        });
+        // Recent activity was removed from the dashboard, so there is no clear-activity control to bind.
         document.querySelectorAll("[data-icon-pick]").forEach((b) =>
           b.addEventListener("click", () => {
             $("linkIcon").value = b.dataset.iconPick;
