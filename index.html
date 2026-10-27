@@ -3733,6 +3733,7 @@
               ? s.recentYoutubeSearches.filter((x) => typeof x === "string").map((x) => safeText(x, 160)).slice(0, 10)
               : [],
             youtubeWatchHistory: Array.isArray(s.youtubeWatchHistory) ? s.youtubeWatchHistory.filter((v) => v && /^[\w-]{11}$/.test(v.id)).slice(0, 30) : [],
+            watchedYoutubeIds: Array.isArray(s.watchedYoutubeIds) ? s.watchedYoutubeIds.filter((id) => /^[\w-]{11}$/.test(id)).slice(0, 500) : [],
             youtubePlaylists: Array.isArray(s.youtubePlaylists) ? s.youtubePlaylists.filter((p) => p && typeof p.name === "string" && Array.isArray(p.videos)).slice(0, 30) : [],
             recentActivity: Array.isArray(s.recentActivity)
               ? s.recentActivity.filter((x) => x && typeof x.id === "string").slice(0, 8)
@@ -5564,7 +5565,7 @@
           if (history) history.innerHTML = state.youtubeWatchHistory.length ? state.youtubeWatchHistory.map(v => {
             const p = getYoutubeProgress()[v.id] || {};
             const pos = p.seconds || v.position || 0;
-            return '<div class="yt-library-item"><img src="' + esc(v.thumb || ("https://i.ytimg.com/vi/" + v.id + "/mqdefault.jpg")) + '" alt="" loading="lazy"><div class="yt-library-item-main"><div class="yt-library-item-title">' + esc(v.title || "YouTube video") + '</div><div class="yt-library-item-sub">' + (pos ? "Resume at " + fmtSecs(pos) : "Not started") + '</div></div><div class="yt-library-item-actions"><button class="btn primary" type="button" data-yt-resume="' + esc(v.id) + '">Play</button><button class="btn" type="button" data-yt-save="' + esc(v.id) + '">Save to playlist</button></div></div>';
+            return '<div class="yt-library-item"><img src="' + esc(v.thumb || ("https://i.ytimg.com/vi/" + v.id + "/mqdefault.jpg")) + '" alt="" loading="lazy"><div class="yt-library-item-main"><div class="yt-library-item-title">' + esc(v.title || "YouTube video") + '</div><div class="yt-library-item-sub">' + (state.watchedYoutubeIds.includes(v.id) ? "Watched" : (pos ? "Resume at " + fmtSecs(pos) : "Not started")) + '</div></div><div class="yt-library-item-actions"><button class="btn primary" type="button" data-yt-resume="' + esc(v.id) + '">Play</button><button class="btn" type="button" data-yt-watched="' + esc(v.id) + '">' + (state.watchedYoutubeIds.includes(v.id) ? "Mark unwatched" : "Mark watched") + '</button><button class="btn" type="button" data-yt-save="' + esc(v.id) + '">Save to playlist</button></div></div>';
           }).join("") : '<div class="section-sub">Videos you play here will appear in this list.</div>';
           const playlists = $("youtubePlaylists");
           const select = $("addVideoToPlaylist");
@@ -5622,6 +5623,13 @@
         $("youtubeWatchHistory").addEventListener("click", e => {
           const resume = e.target.closest("[data-yt-resume]");
           const saveBtn = e.target.closest("[data-yt-save]");
+          const watchedBtn = e.target.closest("[data-yt-watched]");
+          if (watchedBtn) {
+            const id = watchedBtn.dataset.ytWatched;
+            state.watchedYoutubeIds = state.watchedYoutubeIds || [];
+            state.watchedYoutubeIds = state.watchedYoutubeIds.includes(id) ? state.watchedYoutubeIds.filter(x => x !== id) : [...state.watchedYoutubeIds, id].slice(-500);
+            save(); renderYoutubeLibrary(); return;
+          }
           if (resume) {
             const v = state.youtubeWatchHistory.find(v => v.id === resume.dataset.ytResume);
             if (v) { ytResults = [v]; playYoutube(v.id); }
