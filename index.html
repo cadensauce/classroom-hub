@@ -3035,27 +3035,6 @@
                 </div>
               </div>
               <div class="grid" id="dashboardLinks"></div>
-            </section><section class="section" id="todoSection">
-              <div class="section-head">
-                <div><h2 class="section-title">To-do list</h2></div>
-                <button class="btn" id="hideTodo">Hide widget</button>
-              </div>
-              <div class="panel">
-                <div class="panel-body">
-                  <form class="todo-add" id="todoForm">
-                    <input
-                      class="field"
-                      id="todoInput"
-                      placeholder="Add a task…"
-                      maxlength="180"
-                      aria-label="New task"
-                    /><button class="btn primary" type="submit">Add task</button>
-                  </form>
-                  <div class="todo-list" id="todoList"></div>
-                  <div class="note" id="todoEmpty">No tasks yet. Add one small thing to get started.</div>
-                  <div style="margin-top: 12px"><button class="btn" id="clearTasks">Clear completed</button></div>
-                </div>
-              </div>
             </section>
           </section>
           <!-- ===== VIEW: QUICK ACCESS ===== -->
@@ -3419,12 +3398,6 @@
                   <input class="switch" type="checkbox" id="showDashboardLinks" checked />
                 </div>
                 <div class="toggle-row">
-                  <div class="toggle-label">
-                    <strong>Show to-do widget</strong><span>Keep your task list on the home screen.</span>
-                  </div>
-                  <input class="switch" type="checkbox" id="showTodo" checked />
-                </div>
-                <div class="toggle-row">
                   <div class="toggle-label"><strong>Reduced motion</strong><span>Turn off most animations.</span></div>
                   <input class="switch" type="checkbox" id="reducedMotion" />
                 </div>
@@ -3586,14 +3559,12 @@
       <div class="section-sub">Choose a starting layout, then fine-tune the sections below.</div>
       <div id="ch-style-presets" aria-label="Dashboard layout presets">
         <button type="button" data-dashboard-preset="minimal">Minimal</button>
-        <button type="button" data-dashboard-preset="study">Study mode</button>
         <button type="button" data-dashboard-preset="everything">Everything</button>
       </div>
       <div id="ch-widget-toggles">
         <label><input type="checkbox" data-ch-widget="schoolTimerSection" checked /> School countdown</label>
         <label><input type="checkbox" data-ch-widget="bellScheduleSection" checked /> Bell schedule</label>
         <label><input type="checkbox" data-ch-widget="dashboardLinksSection" checked /> Quick Access</label>
-        <label><input type="checkbox" data-ch-widget="todoSection" checked /> To-do list</label>
       </div>
       <div class="ch-tools-row"><button type="button" class="btn" id="ch-widgets-reset">Restore default layout</button></div></section>
     <script>
@@ -3814,7 +3785,6 @@
           document.body.classList.toggle("hide-clock", !s.showClock);
           document.body.classList.toggle("hide-greeting", !s.showGreeting);
           document.body.classList.toggle("hide-dashboard-links", !s.showDashboardLinks);
-          document.body.classList.toggle("hide-todo", !s.showTodo);
           document.body.classList.toggle(
             "light",
             s.theme === "light" || (s.theme === "system" && !window.matchMedia("(prefers-color-scheme: dark)").matches),
@@ -3856,7 +3826,7 @@
           $("backgroundSelect").value = s.background || "plain";
           $("greetingInput").value = s.greeting;
           $("startPage").value = s.startPage || "dashboard";
-          ["sidebarCollapsed", "reducedMotion", "showClock", "showGreeting", "showDashboardLinks", "showTodo"].forEach(
+          ["sidebarCollapsed", "reducedMotion", "showClock", "showGreeting", "showDashboardLinks"].forEach(
             (id) => ($(id).checked = !!s[id]),
           );
           renderSwatches();
@@ -4203,7 +4173,6 @@
             showClock: $("showClock").checked,
             showGreeting: $("showGreeting").checked,
             showDashboardLinks: $("showDashboardLinks").checked,
-            showTodo: $("showTodo").checked,
             fontFamily: $("fontFamilySelect").value,
             sidebarWidth: +$("sidebarWidthRange").value,
             surfaceOpacity: +$("surfaceOpacityRange").value,
@@ -4515,46 +4484,6 @@
             e.preventDefault();
             playYoutube(e.currentTarget.value);
           }
-        });
-        // Tasks
-        $("todoForm").addEventListener("submit", (e) => {
-          e.preventDefault();
-          const text = $("todoInput").value.trim();
-          if (!text) return;
-          state.tasks.push({ id: uid(), text, done: false });
-          $("todoInput").value = "";
-          save();
-          renderTasks();
-        });
-        $("todoList").addEventListener("change", (e) => {
-          if (e.target.dataset.taskAction !== "toggle") return;
-          const row = e.target.closest("[data-task-id]");
-          const task = state.tasks.find((t) => t.id === row?.dataset.taskId);
-          if (task) {
-            task.done = e.target.checked;
-            save();
-            renderTasks();
-          }
-        });
-        $("todoList").addEventListener("click", (e) => {
-          const b = e.target.closest('[data-task-action="delete"]');
-          if (!b) return;
-          const row = b.closest("[data-task-id]");
-          state.tasks = state.tasks.filter((t) => t.id !== row.dataset.taskId);
-          save();
-          renderTasks();
-        });
-        $("hideTodo").addEventListener("click", () => {
-          state.settings.showTodo = false;
-          save();
-          applySettings();
-          toast("To-do widget hidden. You can turn it back on in Settings.");
-        });
-        $("clearTasks").addEventListener("click", () => {
-          state.tasks = state.tasks.filter((t) => !t.done);
-          save();
-          renderTasks();
-          toast("Completed tasks cleared.");
         });
         // School-day countdown and bell schedule. New users start with no assumed school schedule.
         const SCHOOL_SCHEDULE_KEY = "classroomHubSchoolScheduleV1";
@@ -4885,7 +4814,6 @@
             save();
             applySettings();
             renderLinks();
-            renderTasks();
             toast("Backup imported (" + state.links.length + " shortcuts, " + state.tasks.length + " tasks). Reloading to apply all preferences.");
             if (parsed._classroomHub) setTimeout(() => window.location.reload(), 900);
           } catch {
@@ -5740,7 +5668,6 @@
           // One-click layouts use the existing visibility and order preferences.
           const presetLayouts = {
             minimal: ["dashboardLinksSection"],
-            study: ["schoolTimerSection", "bellScheduleSection", "todoSection", "dashboardLinksSection"],
             everything: defaults,
           };
           function updatePresetSelection() {
@@ -5749,7 +5676,6 @@
             let active = "";
             if (visible.length === defaults.length && defaults.every((id) => visible.includes(id))) active = "everything";
             else if (visible.length === 1 && visible[0] === "dashboardLinksSection") active = "minimal";
-            else if (visible.length === 4 && ["schoolTimerSection", "bellScheduleSection", "todoSection", "dashboardLinksSection"].every((id) => visible.includes(id))) active = "study";
             document.querySelectorAll("[data-dashboard-preset]").forEach((button) => {
               button.setAttribute("aria-pressed", String(button.dataset.dashboardPreset === active));
             });
@@ -5764,17 +5690,15 @@
               });
               saveWidgets();
               const preferredOrder = preset === "minimal"
-                ? ["dashboardLinksSection", "schoolTimerSection", "todoSection", "bellScheduleSection", "recentActivitySection"]
-                : preset === "study"
-                  ? ["todoSection", "schoolTimerSection", "bellScheduleSection", "dashboardLinksSection", "recentActivitySection"]
-                  : defaults;
+                ? ["dashboardLinksSection", "schoolTimerSection", "bellScheduleSection"]
+                : defaults;
               const ordered = applyOrder(preferredOrder);
               syncToggles(ordered);
               try {
                 localStorage.setItem(ORDER_KEY, JSON.stringify(ordered));
               } catch {}
               updatePresetSelection();
-              toast((preset === "minimal" ? "Minimal" : preset === "study" ? "Study mode" : "Everything") + " layout applied.");
+              toast((preset === "minimal" ? "Minimal" : "Everything") + " layout applied.");
             });
           });
           box.addEventListener("change", updatePresetSelection);
