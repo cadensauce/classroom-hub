@@ -3242,27 +3242,8 @@
                   <button class="btn" type="button" id="youtubeOpenResults">Open results on YouTube ↗</button
                   ><button class="btn" type="button" id="youtubeOpenHome">YouTube home ↗</button>
                 </div>
-                <details class="yt-key">
-                  <summary>Enable video search inside Classroom Hub</summary>
-                  <p class="section-sub">
-                    To show video thumbnails and play search results here, add a YouTube Data API key. You can create one
-                    in Google Cloud by enabling “YouTube Data API v3” and creating an API key. Restrict the key to that API
-                    and your website. The key is saved only in this browser on this device; anyone who can use this browser
-                    may be able to access it, so restrict it carefully.
-                  </p>
-                  <div class="yt-search">
-                    <input
-                      class="field"
-                      id="ytApiKey"
-                      type="password"
-                      autocomplete="off"
-                      spellcheck="false"
-                      placeholder="YouTube Data API key"
-                      aria-label="YouTube API key"
-                    /><button class="btn" type="button" id="ytKeySave">Save key</button
-                    ><button class="btn" type="button" id="ytKeyClear">Remove</button>
-                  </div>
-                </details>
+                <div class="section-sub" style="margin: 8px 0 14px">Search works without an API key through community-run services. Their availability can change; use the YouTube fallback if needed.</div>
+
                 <div class="yt-library">
                   <section class="yt-library-section">
                     <div class="yt-library-heading"><h2>Recent searches</h2><button class="btn" type="button" id="clearYoutubeSearches">Clear</button></div>
@@ -3299,6 +3280,7 @@
                     <button class="btn" type="button" id="ytBackResults">✕ Close player</button>
                     <button class="btn" type="button" id="saveCurrentYoutubeVideo">Save video</button>
                     <button class="btn" type="button" id="openCurrentYoutubeVideo">Open on YouTube ↗</button>
+                    <button class="btn" type="button" id="youtubePlayerToggle">Use YouTube player ↗</button>
                     <label class="yt-playlist-select-label" for="addVideoToPlaylist">Add to playlist</label><select class="select" id="addVideoToPlaylist"><option value="">Choose playlist…</option></select>
                   </div>
                   <iframe
@@ -3318,7 +3300,7 @@
                     allowfullscreen
                   ></iframe>
                 </div>
-                <div class="yt-status" id="youtubeStatus" role="status" aria-live="polite">Search here to save a recent search. In-page video results need a YouTube Data API key; playback can still depend on device or network restrictions.</div>
+                <div class="yt-status" id="youtubeStatus" role="status" aria-live="polite">Search videos here without an API key, or paste a YouTube video link. Search and the alternative player use community-run services, which may occasionally be unavailable.</div>
                 <div class="ytr-grid" id="ytResults"></div>
                 <button class="btn ytr-more" type="button" id="ytMore" hidden>Load more</button>
               </div>
@@ -4365,13 +4347,7 @@
           renderYoutubeLibrary();
           $("youtubeQuery").value = q;
           goView("youtube");
-          if (ytKey()) {
-            ytApiSearch(q, false);
-          } else {
-            $("ytResults").innerHTML = "";
-            $("ytMore").hidden = true;
-            $("youtubeStatus").textContent = "Your search is saved, but live thumbnails and results inside Classroom Hub need a YouTube Data API key. No new tab was opened. You can still try playing a video with its link below if embedding is allowed, or use “Open results on YouTube” if that site is accessible.";
-          }
+          ytApiSearch(q, false);
         }
         function playYoutube(raw) {
           const id = videoId(raw);
@@ -4424,13 +4400,16 @@
           const frame = $("youtubePlayerFrame");
           panel.hidden = false;
           $("ytBackResults").textContent = ytResults.length ? "← Back to results" : "✕ Close player";
+          ytPlayerMode = "alt";
           if (frame) {
             frame.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
-            frame.src = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(id) + "?autoplay=1&rel=0&playsinline=1";
+            frame.src = ytSearchInstance + "/embed/" + encodeURIComponent(id) + "?autoplay=1";
           }
+          const toggle = $("youtubePlayerToggle");
+          if (toggle) toggle.textContent = "Use YouTube player ↗";
           clearTimeout(ytApiTimer);
           $("youtubeStatus").textContent =
-            "Playing through YouTube's embedded player. No API key is needed for pasted video links. Some videos may block embedding.";
+            "Trying the alternative player, which is designed to play without YouTube ads. Public instances can be unreliable; use “Use YouTube player” if this one does not load.";
           panel.scrollIntoView({
             behavior: state.settings.reducedMotion ? "auto" : "smooth",
             block: "nearest",
@@ -5612,13 +5591,14 @@
               "YouTube’s website can’t be shown inside another page. Search above, or paste a video link to play it here.";
           return true;
         }
-        function ytKey() {
-          try {
-            return (localStorage.getItem("classroomHubYtKeyV1") || "").trim();
-          } catch {
-            return "";
-          }
-        }
+        const ytSearchInstances = [
+          "https://inv.nadeko.net",
+          "https://invidious.nerdvpn.de",
+          "https://yt.chocolatemoo53.com",
+          "https://invidious.tiekoetter.com"
+        ];
+        let ytSearchInstance = ytSearchInstances[0];
+        let ytPlayerMode = "alt";
         let ytResults = [],
           ytToken = "",
           ytQuery = "",
@@ -5635,7 +5615,7 @@
                 '<button type="button" class="ytr-card" data-vid="' +
                 esc(v.id) +
                 '">' +
-                (/^https:\/\/i\d?\.ytimg\.com\//.test(v.thumb)
+                (/^https:\/\/(?:i\d?\.ytimg\.com|inv\.nadeko\.net|invidious\.nerdvpn\.de|yt\.chocolatemoo53\.com|invidious\.tiekoetter\.com)\//.test(v.thumb)
                   ? '<img src="' + esc(v.thumb) + '" alt="" loading="lazy" referrerpolicy="no-referrer">'
                   : '<div class="ytr-ph"></div>') +
                 '<div class="ytr-meta"><div class="ytr-title">' +
@@ -5672,53 +5652,79 @@
             ytResults = [];
             $("ytResults").innerHTML = '<div class="ytr-card ytr-skel"></div>'.repeat(8);
           }
-          st.textContent = next ? "Loading more…" : "Searching YouTube for “" + q + "”…";
+          const page = next && ytToken ? Number(ytToken) : 1;
+          st.textContent = next ? "Loading more results…" : "Searching videos without an API key…";
           try {
-            const u = new URL("https://www.googleapis.com/youtube/v3/search");
-            const P = {
-              part: "snippet",
-              type: "video",
-              videoEmbeddable: "true",
-              safeSearch: "moderate",
-              maxResults: "12",
-              q: ytQuery,
-              key: ytKey(),
-            };
-            Object.keys(P).forEach((k) => u.searchParams.set(k, P[k]));
-            if (next && ytToken) u.searchParams.set("pageToken", ytToken);
-            const r = await fetch(u);
-            const d = await r.json().catch(() => ({}));
-            if (!r.ok)
-              throw {
-                status: r.status,
-                reason: d.error && d.error.errors && d.error.errors[0] && d.error.errors[0].reason,
-              };
-            ytResults = ytResults.concat(
-              (d.items || [])
-                .filter((i) => i.id && i.id.videoId && i.snippet)
-                .map((i) => ({
-                  id: i.id.videoId,
-                  title: ytDecode(i.snippet.title),
-                  channel: ytDecode(i.snippet.channelTitle),
-                  thumb:
-                    ((i.snippet.thumbnails && (i.snippet.thumbnails.medium || i.snippet.thumbnails.default)) || {})
-                      .url || "",
-                })),
-            );
-            ytToken = d.nextPageToken || "";
+            let found = null;
+            let lastError = null;
+            for (const base of ytSearchInstances) {
+              try {
+                const u = new URL(base + "/api/v1/search");
+                u.searchParams.set("q", ytQuery);
+                u.searchParams.set("type", "video");
+                u.searchParams.set("page", String(page));
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 4500);
+                let response;
+                try {
+                  response = await fetch(u, { signal: controller.signal, headers: { "Accept": "application/json" } });
+                } finally {
+                  clearTimeout(timeout);
+                }
+                if (!response.ok) throw new Error("Search service returned " + response.status);
+                const data = await response.json();
+                if (!Array.isArray(data)) throw new Error("Unexpected search response");
+                found = { base, data };
+                break;
+              } catch (error) {
+                lastError = error;
+              }
+            }
+            if (!found) throw lastError || new Error("No search services responded");
+            ytSearchInstance = found.base;
+            const incoming = found.data
+              .filter(item => item && item.type === "video" && item.videoId && item.title)
+              .map(item => {
+                const thumbs = Array.isArray(item.videoThumbnails) ? item.videoThumbnails : [];
+                const thumb = thumbs.find(t => t.quality === "medium") || thumbs.find(t => t.quality === "high") || thumbs[0];
+                return {
+                  id: item.videoId,
+                  title: ytDecode(item.title),
+                  channel: ytDecode(item.author || "YouTube"),
+                  thumb: thumb && thumb.url ? thumb.url : "https://i.ytimg.com/vi/" + item.videoId + "/mqdefault.jpg"
+                };
+              });
+            const existingIds = new Set(ytResults.map(item => item.id));
+            ytResults = ytResults.concat(incoming.filter(item => !existingIds.has(item.id)));
+            ytToken = incoming.length >= 10 ? String(page + 1) : "";
             ytRender();
             renderYoutubeLibrary();
             st.textContent = ytResults.length
-              ? "Showing " + ytResults.length + " results for “" + ytQuery + "”. Select one to play."
-              : "No embeddable videos found for “" + ytQuery + "”.";
-          } catch (e) {
+              ? "Showing " + ytResults.length + " results for “" + ytQuery + "”. Select one to try the alternative player. Search is provided by a community-run service; if one is unavailable, Classroom Hub tries another."
+              : "No video results found for “" + ytQuery + "”. Try a different search.";
+          } catch (error) {
             if (!next) $("ytResults").innerHTML = "";
-            st.textContent = ytErr(e);
+            st.textContent = "Couldn’t reach the alternative search services. They can be temporarily unavailable. You can still paste a YouTube link, or open results on YouTube.";
             if (next) $("ytMore").hidden = !ytToken;
           } finally {
             ytBusy = false;
           }
         }
+        $("youtubePlayerToggle").addEventListener("click", () => {
+          if (!activeYoutubeId) return;
+          const frame = $("youtubePlayerFrame");
+          if (ytPlayerMode === "alt") {
+            ytPlayerMode = "youtube";
+            frame.src = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(activeYoutubeId) + "?autoplay=1&rel=0&playsinline=1";
+            $("youtubePlayerToggle").textContent = "Try alternative player ↗";
+            $("youtubeStatus").textContent = "Using YouTube’s embedded player. YouTube may show ads here.";
+          } else {
+            ytPlayerMode = "alt";
+            frame.src = ytSearchInstance + "/embed/" + encodeURIComponent(activeYoutubeId) + "?autoplay=1";
+            $("youtubePlayerToggle").textContent = "Use YouTube player ↗";
+            $("youtubeStatus").textContent = "Trying the alternative player. If it does not load, switch back to YouTube.";
+          }
+        });
         $("ytResults").addEventListener("click", (e) => {
           const c = e.target.closest("[data-vid]");
           if (!c) return;
@@ -5860,28 +5866,6 @@
           save(); renderYoutubeLibrary(); toast("Added to " + p.name + ".");
         });
         renderYoutubeLibrary();
-        $("ytKeySave").addEventListener("click", () => {
-          const v = $("ytApiKey").value.trim();
-          if (!v) {
-            toast("Paste a key first.");
-            return;
-          }
-          try {
-            localStorage.setItem("classroomHubYtKeyV1", v);
-            $("ytApiKey").value = "";
-            toast("YouTube key saved on this device.");
-          } catch {
-            toast("Could not save the key (browser storage unavailable).");
-          }
-        });
-        $("ytKeyClear").addEventListener("click", () => {
-          try {
-            localStorage.removeItem("classroomHubYtKeyV1");
-          } catch {}
-          $("ytApiKey").value = "";
-          toast("YouTube key removed.");
-        });
-
         /* ===== GAME LIBRARY: PERSONAL GAME LIBRARY ===== */
         function initGameLibrary() {
           const form = $("gameLinkForm");
