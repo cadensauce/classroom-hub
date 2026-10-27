@@ -3297,6 +3297,7 @@
                   <div class="ytr-bar">
                     <button class="btn" type="button" id="ytBackResults">✕ Close player</button>
                     <button class="btn" type="button" id="saveCurrentYoutubeVideo">Save video</button>
+                    <button class="btn" type="button" id="openCurrentYoutubeVideo">Open on YouTube ↗</button>
                     <label class="yt-playlist-select-label" for="addVideoToPlaylist">Add to playlist</label><select class="select" id="addVideoToPlaylist"><option value="">Choose playlist…</option></select>
                   </div>
                   <iframe
@@ -4255,8 +4256,14 @@
                   saveYoutubeProgress(id, e.target.getCurrentTime(), e.target.getDuration());
                 }
               },
-              onError: () => {
-                if (id === activeYoutubeId) $("youtubeStatus").textContent = "This video can't be embedded. Try opening it on YouTube.";
+              onError: (e) => {
+                if (id !== activeYoutubeId) return;
+                const reason = e && (e.data === 101 || e.data === 150)
+                  ? "The uploader does not allow this video to play inside other websites."
+                  : e && e.data === 100
+                    ? "This video is unavailable or private."
+                    : "YouTube could not play this video in the embedded player.";
+                $("youtubeStatus").textContent = reason + " The player is staying open. Use “Open on YouTube” below to watch it there instead.";
               }
             }
           });
@@ -5660,6 +5667,10 @@
           playYoutube(c.dataset.vid);
         });
         $("ytMore").addEventListener("click", () => ytApiSearch(ytQuery, true));
+        $("openCurrentYoutubeVideo").addEventListener("click", () => {
+          if (!activeYoutubeId) return;
+          openNewTab("https://www.youtube.com/watch?v=" + encodeURIComponent(activeYoutubeId));
+        });
         $("ytBackResults").addEventListener("click", () => {
           saveActiveYoutubeProgress()
           stopYoutubeProgressTracking();
