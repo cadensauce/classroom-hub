@@ -568,80 +568,6 @@
       .panel-body {
         padding: 17px;
       }
-      /* ===== BROWSER ===== */
-      #view-browser { display: none !important; }
-      .browser-toolbar {
-        display: flex;
-        align-items: center;
-        gap: 7px;
-        flex-wrap: wrap;
-        padding: 12px;
-        border-bottom: 1px solid var(--border);
-        background: #0e1015;
-      }
-      .browser-address {
-        flex: 1;
-        min-width: 180px;
-        padding: 10px 12px;
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        background: #090b0f;
-        color: var(--text);
-      }
-      .browser-stage {
-        min-height: 350px;
-        display: grid;
-        place-items: center;
-        padding: 25px;
-        text-align: center;
-        background: radial-gradient(ellipse at center, rgba(var(--accent-rgb), 0.05), transparent 70%);
-      }
-      .browser-welcome {
-        max-width: 510px;
-      }
-      .browser-symbol {
-        display: grid;
-        place-items: center;
-        width: 58px;
-        height: 58px;
-        margin: 0 auto 15px;
-        border: 1px solid var(--border);
-        border-radius: 18px;
-        background: var(--panel2);
-        color: var(--accent);
-        font-size: calc(25px * var(--font-size-adjust));
-      }
-      .browser-welcome h3 {
-        font-size: calc(20px * var(--font-size-adjust));
-        margin: 0 0 8px;
-      }
-      .browser-welcome p {
-        color: var(--muted);
-        line-height: 1.7;
-        margin: 0 0 16px;
-      }
-      .browser-frame {
-        display: none;
-        width: 100%;
-        height: min(70vh, 740px);
-        border: 0;
-        background: #fff;
-      }
-      .browser-frame.visible {
-        display: block;
-      }
-      .research-results {
-        padding: 18px;
-        background: var(--panel);
-      }
-      .research-results[hidden] {
-        display: none;
-      }
-      .research-intro {
-        font-size: calc(12px * var(--font-size-adjust));
-        color: var(--muted);
-        margin: 0 0 14px;
-      }
       .research-list {
         display: grid;
         gap: 10px;
@@ -3002,8 +2928,6 @@
                   <div class="date" id="dateText">Loading date…</div>
                 </div>
               </div>
-              <!-- Web search controls removed from the home page. -->
-
             <section class="section school-timer-section" id="schoolTimerSection" aria-labelledby="schoolTimerTitle">
               <div class="school-timer panel">
                 <div class="school-timer-main">
@@ -3680,7 +3604,6 @@
         const DEFAULT_SETTINGS = {
           greeting: "",
           accent: "#9caeff",
-          engine: "duckduckgo",
           theme: "dark",
           density: "comfortable",
           width: "normal",
@@ -3797,12 +3720,6 @@
                     .filter((t) => t && typeof t.text === "string")
                     .map((t) => ({ id: String(t.id || uid()), text: safeText(t.text, 180), done: !!t.done }))
                 : [],
-            recentSearches: Array.isArray(s.recentSearches)
-              ? s.recentSearches
-                  .filter((x) => typeof x === "string")
-                  .map((x) => safeText(x, 160))
-                  .slice(0, 6)
-              : [],
             recentYoutubeSearches: Array.isArray(s.recentYoutubeSearches)
               ? s.recentYoutubeSearches.filter((x) => typeof x === "string").map((x) => safeText(x, 160)).slice(0, 10)
               : [],
@@ -3811,17 +3728,12 @@
             recentActivity: Array.isArray(s.recentActivity)
               ? s.recentActivity.filter((x) => x && typeof x.id === "string").slice(0, 8)
               : [],
-            lastBrowserInput: safeText(s.lastBrowserInput || "", 500),
             settings,
           };
         }
         let state = loadState(),
           currentView = "dashboard",
-          browserCurrent = "",
-          browserHistory = [],
-          historyIndex = -1,
-          toastTimer = null,
-          currentResearchQuery = "";
+          toastTimer = null;
         function save() {
           try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -3930,9 +3842,6 @@
           $("animationSelect").value = s.animation || "subtle";
           $("backgroundSelect").value = s.background || "plain";
           $("greetingInput").value = s.greeting;
-          $("settingsEngine").value = s.engine;
-          $("globalEngine").value = s.engine;
-          $("browserEngine").value = s.engine;
           $("startPage").value = s.startPage;
           ["sidebarCollapsed", "reducedMotion", "showClock", "showGreeting", "showDashboardLinks", "showTodo"].forEach(
             (id) => ($(id).checked = !!s[id]),
@@ -4009,242 +3918,6 @@
                 )
                 .join("")
             : '<div class="section-sub">Your opened shortcuts will appear here.</div>';
-        }
-
-        function renderSuggestions(query = "") {
-          const el = $("searchSuggestions");
-          if (!el) return;
-          const q = query.trim().toLowerCase();
-          const items = [];
-          for (const l of state.links) {
-            if ((!q || (l.name + " " + l.url).toLowerCase().includes(q)) && !items.some((x) => x.value === l.name))
-              items.push({ value: l.name, label: "Shortcut", url: l.url, icon: l.icon || "🌐" });
-            if (items.length >= 4) break;
-          }
-          for (const v of [...(state.recentSearches || []), ...(state.recentYoutubeSearches || [])])
-            if ((!q || v.toLowerCase().includes(q)) && !items.some((x) => x.value === v))
-              items.push({ value: v, label: "Recent search", icon: "⌕" });
-          const limited = items.slice(0, 6);
-          el.innerHTML = limited
-            .map(
-              (x) =>
-                `<button type="button" class="suggestion-item" role="option" data-suggest-value="${esc(x.value)}" data-suggest-url="${esc(x.url || "")}"><span>${esc(x.icon || "⌕")}</span><span>${esc(x.value)}</span><small>${esc(x.label)}</small></button>`,
-            )
-            .join("");
-          el.classList.toggle("open", limited.length > 0 && document.activeElement === $("globalSearchInput"));
-          $("globalSearchInput").setAttribute("aria-expanded", el.classList.contains("open") ? "true" : "false");
-        }
-
-        /* ===== SEARCH & SEARCH HISTORY ===== */
-        function searchUrl(raw, engine = state.settings.engine) {
-          const value = String(raw || "").trim();
-          if (!value) return "";
-          const isUrl =
-            /^(https?:\/\/|ftp:\/\/|localhost(?::\d+)?(?:\/|$)|(?:[\w-]+\.)+[a-z]{2,}(?::\d+)?(?:[/?#]|$))/i.test(
-              value,
-            );
-          if (isUrl) return cleanUrl(value);
-          const engines = {
-            google: "https://www.google.com/search?q=",
-            bing: "https://www.bing.com/search?q=",
-            duckduckgo: "https://duckduckgo.com/?q=",
-          };
-          return (engines[engine] || engines.duckduckgo) + encodeURIComponent(value);
-        }
-        function isSearchPhrase(raw) {
-          const value = String(raw || "").trim();
-          return (
-            !!value &&
-            !/^(https?:\/\/|ftp:\/\/|localhost(?::\d+)?(?:\/|$)|(?:[\w-]+\.)+[a-z]{2,}(?::\d+)?(?:[/?#]|$))/i.test(
-              value,
-            )
-          );
-        }
-        function rememberSearch(raw, kind = "web") {
-          const value = String(raw || "").trim();
-          if (!value || !isSearchPhrase(value)) return;
-          const key = kind === "youtube" ? "recentYoutubeSearches" : "recentSearches";
-          state[key] = [value, ...(state[key] || []).filter((x) => x.toLowerCase() !== value.toLowerCase())].slice(
-            0,
-            6,
-          );
-          save();
-          renderRecentSearches();
-        }
-        function renderRecentSearches() {
-          const web = $("recentSearchRow");
-          if (web) {
-            const items = state.recentSearches || [];
-            web.innerHTML = items.length
-              ? '<span class="recent-label">Recent:</span>' +
-                items
-                  .map(
-                    (q) =>
-                      `<button type="button" class="recent-chip" data-recent-web="${esc(q)}" title="Search ${esc(q)}">${esc(q)}</button>`,
-                  )
-                  .join("") +
-                '<button type="button" class="mini-btn" id="clearRecentWeb" title="Clear recent searches" aria-label="Clear recent searches">×</button>'
-              : "";
-          }
-          const yt = $("recentYoutubeRow");
-          if (yt) {
-            const items = state.recentYoutubeSearches || [];
-            yt.innerHTML = items.length
-              ? '<span class="recent-label">Recent:</span>' +
-                items
-                  .map(
-                    (q) =>
-                      `<button type="button" class="recent-chip" data-recent-youtube="${esc(q)}" title="Search YouTube for ${esc(q)}">${esc(q)}</button>`,
-                  )
-                  .join("") +
-                '<button type="button" class="mini-btn" id="clearRecentYoutube" title="Clear YouTube search history" aria-label="Clear YouTube search history">×</button>'
-              : "";
-          }
-        }
-
-        /* ===== BROWSER (address bar, history, research results) ===== */
-        function loadBrowser(raw, push = true) {
-          const input = String(raw || "").trim();
-          state.settings.engine = $("browserEngine").value || state.settings.engine;
-          const url = searchUrl(input);
-          if (!url) {
-            toast("Type a search or website address first.");
-            return;
-          }
-          if (handleYoutubeLink(url)) return;
-          state.lastBrowserInput = input;
-          save();
-          if (isSearchPhrase(input)) {
-            rememberSearch(input, "web");
-            currentResearchQuery = input;
-            browserCurrent = url;
-            $("browserNotice").style.display = "none";
-            $("browserAddress").value = input;
-            $("browserFrame").classList.remove("visible");
-            $("browserFrame").src = "about:blank";
-            $("browserStage").style.display = "none";
-            $("researchResults").hidden = false;
-            $("researchTitle").textContent = "Research results for “" + input.replace(/[<>]/g, "") + "”";
-            $("researchIntro").textContent = "Searching Wikipedia for quick reference results…";
-            $("researchList").innerHTML = '<div class="research-empty">Loading results…</div>';
-            if (push) {
-              browserHistory = browserHistory.slice(0, historyIndex + 1);
-              browserHistory.push("research:" + input);
-              historyIndex = browserHistory.length - 1;
-            }
-            updateBrowserButtons();
-            goView("browser");
-            fetchResearchResults(input);
-            return;
-          }
-          currentResearchQuery = "";
-          browserCurrent = url;
-          $("browserAddress").value = input;
-          $("researchResults").hidden = true;
-          $("browserStage").style.display = "none";
-          mountFrame(url);
-          if (push) {
-            browserHistory = browserHistory.slice(0, historyIndex + 1);
-            browserHistory.push(url);
-            historyIndex = browserHistory.length - 1;
-          }
-          updateBrowserButtons();
-          goView("browser");
-        }
-        async function fetchResearchResults(query) {
-          const list = $("researchList"),
-            intro = $("researchIntro");
-          try {
-            const endpoint =
-              "https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&list=search&srsearch=" +
-              encodeURIComponent(query) +
-              "&srlimit=8&utf8=1";
-            const response = await fetch(endpoint, { headers: { Accept: "application/json" } });
-            if (!response.ok) throw new Error("Search request failed");
-            const data = await response.json();
-            const hits = data?.query?.search || [];
-            if (!hits.length) {
-              intro.textContent = "No quick reference matches found. You can still search the full web in this tab.";
-              list.innerHTML = '<div class="research-empty">No results found for this phrase.</div>';
-              return;
-            }
-            intro.textContent =
-              "Quick reference results from Wikipedia. For broader results, use “Search full web in this tab.”";
-            list.innerHTML = hits
-              .map((hit) => {
-                const title = String(hit.title || "");
-                const snippet = String(hit.snippet || "")
-                  .replace(/<[^>]*>/g, " ")
-                  .replace(/&quot;/g, '"')
-                  .replace(/&#039;/g, "'")
-                  .replace(/&amp;/g, "&")
-                  .replace(/&lt;/g, "<")
-                  .replace(/&gt;/g, ">");
-                const url = "https://en.wikipedia.org/wiki/" + encodeURIComponent(title.replace(/ /g, "_"));
-                return (
-                  '<article class="research-card"><a href="' +
-                  esc(url) +
-                  '" data-research-open="1">' +
-                  esc(title) +
-                  "</a><p>" +
-                  esc(snippet) +
-                  "</p></article>"
-                );
-              })
-              .join("");
-          } catch (error) {
-            intro.textContent =
-              "Quick reference search could not connect. This may be due to network restrictions or unavailable service.";
-            list.innerHTML =
-              '<div class="research-empty">No results could be loaded here. Try “Search full web in this tab” to use your selected search engine directly.</div>';
-          }
-        }
-        function openFullWebSearch() {
-          const q = currentResearchQuery || $("browserAddress").value.trim();
-          if (!q) {
-            toast("Enter a search phrase first.");
-            return;
-          }
-          const url = searchUrl(q);
-          if (!url) return;
-          openNewTab(url);
-        }
-        function loadExactBrowserUrl(url, push = true) {
-          if (String(url).startsWith("research:")) {
-            const q = url.slice(9);
-            $("browserAddress").value = q;
-            currentResearchQuery = q;
-            $("researchResults").hidden = false;
-            $("browserNotice").style.display = "none";
-            $("browserFrame").classList.remove("visible");
-            $("browserStage").style.display = "none";
-            fetchResearchResults(q);
-            if (push) {
-              browserHistory = browserHistory.slice(0, historyIndex + 1);
-              browserHistory.push(url);
-              historyIndex = browserHistory.length - 1;
-            }
-            updateBrowserButtons();
-            return;
-          }
-          const safe = cleanUrl(url);
-          if (!safe) return;
-          currentResearchQuery = "";
-          browserCurrent = safe;
-          $("browserAddress").value = safe;
-          $("researchResults").hidden = true;
-          $("browserStage").style.display = "none";
-          mountFrame(safe);
-          if (push) {
-            browserHistory = browserHistory.slice(0, historyIndex + 1);
-            browserHistory.push(safe);
-            historyIndex = browserHistory.length - 1;
-          }
-          updateBrowserButtons();
-        }
-        function updateBrowserButtons() {
-          $("browserBack").disabled = historyIndex <= 0;
-          $("browserForward").disabled = historyIndex < 0 || historyIndex >= browserHistory.length - 1;
         }
 
         /* ===== YOUTUBE (pasted links & embedded player) ===== */
@@ -4512,7 +4185,6 @@
             animation: $("animationSelect").value,
             background: $("backgroundSelect").value,
             greeting: $("greetingInput").value.trim(),
-            engine: $("settingsEngine").value,
             startPage: $("startPage").value,
             sidebarCollapsed: $("sidebarCollapsed").checked,
             reducedMotion: $("reducedMotion").checked,
@@ -4545,15 +4217,6 @@
                 `<div class="todo-row ${t.done ? "done" : ""}" data-task-id="${esc(t.id)}"><input type="checkbox" data-task-action="toggle" ${t.done ? "checked" : ""} aria-label="Mark task complete"><span class="todo-text">${esc(t.text)}</span><button class="mini-btn" data-task-action="delete" title="Delete task" aria-label="Delete task">×</button></div>`,
             )
             .join("");
-        }
-        function submitSearch(e) {
-          e.preventDefault();
-          const raw = $("globalSearchInput").value.trim();
-          $("searchSuggestions").classList.remove("open");
-          if (!raw) return;
-          state.settings.engine = $("globalEngine").value;
-          save();
-          loadBrowser(raw);
         }
         // Command palette: fast keyboard navigation without adding clutter to the main UI.
 
@@ -4607,10 +4270,6 @@
             save();
             applySettings();
             toast("Theme changed.");
-          }
-          if (action === "search") {
-            goView("dashboard");
-            $("globalSearchInput").focus();
           }
         });
         $("commandPalette").addEventListener("keydown", (e) => {
@@ -4726,67 +4385,6 @@
         $("addLinkQuick").addEventListener("click", () => openModal());
         $("manageLinks").addEventListener("click", () => goView("quick"));
         $("manageFavorites").addEventListener("click", () => goView("quick"));
-        $("globalSearch").addEventListener("submit", submitSearch);
-        $("globalEngine").addEventListener("change", () => {
-          state.settings.engine = $("globalEngine").value;
-          $("browserEngine").value = state.settings.engine;
-          $("settingsEngine").value = state.settings.engine;
-          save();
-        });
-        $("browserEngine").addEventListener("change", () => {
-          state.settings.engine = $("browserEngine").value;
-          $("globalEngine").value = state.settings.engine;
-          $("settingsEngine").value = state.settings.engine;
-          save();
-        });
-        $("browserForm").addEventListener("submit", (e) => {
-          e.preventDefault();
-          loadBrowser($("browserAddress").value);
-        });
-        $("browserSearchExample").addEventListener("click", () => {
-          const q = "Minecraft PvP tips";
-          $("browserAddress").value = q;
-          loadBrowser(q);
-        });
-        $("browserRefresh").addEventListener("click", () => {
-          if (currentResearchQuery) {
-            fetchResearchResults(currentResearchQuery);
-            return;
-          }
-          if (browserCurrent) $("browserFrame").src = browserCurrent;
-        });
-        $("browserOpenSameTab").addEventListener("click", () => {
-          const raw = $("browserAddress").value.trim();
-          const url = searchUrl(raw);
-          if (url) openNewTab(url);
-          else toast("Enter a search or website address first.");
-        });
-        $("browserHome").addEventListener("click", () => {
-          browserCurrent = "";
-          browserHistory = [];
-          historyIndex = -1;
-          $("browserAddress").value = "";
-          $("browserFrame").src = "about:blank";
-          $("browserFrame").classList.remove("visible");
-          $("researchResults").hidden = true;
-          $("browserStage").style.display = "grid";
-          currentResearchQuery = "";
-          updateBrowserButtons();
-        });
-        $("browserBack").addEventListener("click", () => {
-          if (historyIndex > 0) {
-            historyIndex--;
-            loadExactBrowserUrl(browserHistory[historyIndex], false);
-            updateBrowserButtons();
-          }
-        });
-        $("browserForward").addEventListener("click", () => {
-          if (historyIndex < browserHistory.length - 1) {
-            historyIndex++;
-            loadExactBrowserUrl(browserHistory[historyIndex], false);
-            updateBrowserButtons();
-          }
-        });
         // Link grid event delegation
         document.addEventListener("click", (e) => {
           const action = e.target.closest("[data-action]");
@@ -4802,20 +4400,8 @@
             const l = state.links.find((x) => x.id === open.dataset.openLink);
             if (l) {
               recordActivity(l);
-              loadBrowser(l.url);
+              openNewTab(l.url);
             }
-          }
-          const sug = e.target.closest("[data-suggest-value]");
-          if (sug) {
-            const url = sug.dataset.suggestUrl;
-            const val = sug.dataset.suggestValue;
-            $("globalSearchInput").value = val;
-            $("searchSuggestions").classList.remove("open");
-            if (url) {
-              const l = state.links.find((x) => x.url === url);
-              if (l) recordActivity(l);
-              loadBrowser(url);
-            } else loadBrowser(val);
           }
         });
         $("linkFilter").addEventListener("input", renderLinks);
@@ -4848,13 +4434,6 @@
           if (!e.target.closest(".suggestions-wrap")) $("searchSuggestions")?.classList.remove("open");
         });
         document.addEventListener("click", (e) => {
-          const web = e.target.closest("[data-recent-web]");
-          if (web) {
-            const q = web.dataset.recentWeb;
-            $("globalSearchInput").value = q;
-            loadBrowser(q);
-            return;
-          }
           const yt = e.target.closest("[data-recent-youtube]");
           if (yt) {
             searchYoutube(yt.dataset.recentYoutube);
@@ -4863,8 +4442,7 @@
           if (e.target.closest("#clearRecentWeb")) {
             state.recentSearches = [];
             save();
-            renderRecentSearches();
-            toast("Recent web searches cleared.");
+             toast("Recent web searches cleared.");
           }
           if (e.target.closest("#clearRecentYoutube")) {
             state.recentYoutubeSearches = [];
@@ -4943,11 +4521,6 @@
             $("youtubeQuery").focus();
             return;
           }
-          if (!typing && e.key === "/") {
-            e.preventDefault();
-            goView("dashboard");
-            $("globalSearchInput").focus();
-          }
         });
         // YouTube search + player: embedded results may be blocked by YouTube itself.
         $("youtubeSearchForm").addEventListener("submit", (e) => {
@@ -4961,18 +4534,6 @@
             return;
           }
           openNewTab("https://www.youtube.com/results?search_query=" + encodeURIComponent(q));
-        });
-        $("researchFullWeb").addEventListener("click", openFullWebSearch);
-        $("researchTryAgain").addEventListener("click", () => {
-          if (currentResearchQuery) fetchResearchResults(currentResearchQuery);
-        });
-        $("researchBackHome").addEventListener("click", () => $("browserHome").click());
-        document.addEventListener("click", (e) => {
-          const a = e.target.closest("[data-research-open]");
-          if (a) {
-            e.preventDefault();
-            loadBrowser(a.href);
-          }
         });
         $("playYoutubeVideo").addEventListener("click", () => playYoutube($("youtubeVideoInput").value));
         $("youtubeVideoInput").addEventListener("keydown", (e) => {
@@ -5867,37 +5428,6 @@
               "YouTube’s website can’t be shown inside another page. Search above, or paste a video link to play it here.";
           return true;
         }
-        function mountFrame(url, force) {
-          const f = $("browserFrame"),
-            n = $("browserNotice"),
-            h = hostOf(url);
-          n.style.display = "none";
-          if (!force && FRAME_BLOCKED.some((d) => h === d || h.endsWith("." + d))) {
-            f.classList.remove("visible");
-            f.src = "about:blank";
-            $("browserStage").style.display = "none";
-            n.dataset.url = url;
-            n.innerHTML =
-              '<div class="browser-welcome"><div class="browser-symbol">!</div><h3>This site can’t be shown inside Classroom Hub</h3><p><b>' +
-              esc(h) +
-              '</b> tells browsers not to display it inside other pages (an X-Frame-Options header or a CSP frame-ancestors rule). Browsers enforce this, so “refused to connect” is expected here and can’t be fixed from a static website.</p><div class="notice-actions"><button class="btn primary" type="button" data-notice="open">Open in New Tab ↗</button><button class="btn" type="button" data-notice="force">Try embedding anyway</button><button class="btn" type="button" data-notice="home">Browser home</button></div></div>';
-            n.style.display = "grid";
-            return;
-          }
-          f.classList.add("visible");
-          f.src = url;
-        }
-        $("browserNotice").addEventListener("click", (e) => {
-          const b = e.target.closest("[data-notice]");
-          if (!b) return;
-          const u = $("browserNotice").dataset.url;
-          if (b.dataset.notice === "open") openNewTab(u);
-          else if (b.dataset.notice === "force") mountFrame(u, true);
-          else $("browserHome").click();
-        });
-        $("browserHome").addEventListener("click", () => {
-          $("browserNotice").style.display = "none";
-        });
         function ytKey() {
           try {
             return (localStorage.getItem("classroomHubYtKeyV1") || "").trim();
