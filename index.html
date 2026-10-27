@@ -3591,17 +3591,8 @@
           surfaceOpacity: 100,
           linkLayout: "grid",
         };
-        const DEFAULT_LINKS = [
-          { id: "youtube", name: "YouTube", url: "https://www.youtube.com/", icon: "▶️", star: true },
-          {
-            id: "google-classroom",
-            name: "Google Classroom",
-            url: "https://classroom.google.com/",
-            icon: "🎓",
-            star: true,
-          },
-          { id: "google-drive", name: "Google Drive", url: "https://drive.google.com/", icon: "📁", star: false },
-        ];
+        // Quick Access starts empty. Users add every shortcut themselves.
+        const DEFAULT_LINKS = [];
 
         /* ===== STATE, VALIDATION & STORAGE ===== */
         function uid() {
@@ -3653,10 +3644,16 @@
             raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
           } catch {}
           const s = raw && typeof raw === "object" ? raw : {};
+          const removeSeededDefaults = (link) =>
+            !(
+              (link.id === "youtube" && link.url === "https://www.youtube.com/") ||
+              (link.id === "google-classroom" && link.url === "https://classroom.google.com/") ||
+              (link.id === "google-drive" && link.url === "https://drive.google.com/")
+            );
           let links = Array.isArray(s.links)
-            ? s.links.map(normalizeLink).filter(Boolean).filter((link) => !["wikipedia", "coolmath", "scratch"].includes(link.id))
+            ? s.links.map(normalizeLink).filter(Boolean).filter((link) => !["wikipedia", "coolmath", "scratch"].includes(link.id)).filter(removeSeededDefaults)
             : Array.isArray(s.quickLinks)
-              ? s.quickLinks.map(normalizeLink).filter(Boolean).filter((link) => !["wikipedia", "coolmath", "scratch"].includes(link.id))
+              ? s.quickLinks.map(normalizeLink).filter(Boolean).filter((link) => !["wikipedia", "coolmath", "scratch"].includes(link.id)).filter(removeSeededDefaults)
               : DEFAULT_LINKS.map((x) => ({ ...x }));
           const settings = { ...DEFAULT_SETTINGS, ...(s.settings && typeof s.settings === "object" ? s.settings : {}) };
           if (settings.accent && !/^#[0-9a-f]{6}$/i.test(settings.accent)) settings.accent = DEFAULT_SETTINGS.accent;
