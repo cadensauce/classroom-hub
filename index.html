@@ -2851,12 +2851,7 @@
       .yt-playlist-select-label { color:var(--muted); font-size: calc(12px * var(--font-size-adjust)); }
       #youtubePlaylistForm { margin-bottom:10px; }
       @media(max-width:640px) { .yt-library-item { align-items:flex-start; flex-wrap:wrap; } .yt-library-item-actions { width:100%; } .yt-library-item img { width:76px; } }
-      /* Keep legacy browser/search code inaccessible from the interface. */
-      .search-wrap, #view-browser, #globalSearch, #searchSuggestions,
-      #browserForm, #browserAddress, #browserEngine, #settingsEngine,
-      #researchResults, .browser-toolbar, .browser-stage, .browser-frame,
-      .research-results { display: none !important; }
-</style>
+      </style>
   </head>
   <body>
     <noscript
@@ -3613,7 +3608,6 @@
           corners: "soft",
           animation: "subtle",
           background: "plain",
-          startPage: "dashboard",
           sidebarCollapsed: false,
           reducedMotion: false,
           showClock: true,
@@ -3842,7 +3836,6 @@
           $("animationSelect").value = s.animation || "subtle";
           $("backgroundSelect").value = s.background || "plain";
           $("greetingInput").value = s.greeting;
-          $("startPage").value = s.startPage;
           ["sidebarCollapsed", "reducedMotion", "showClock", "showGreeting", "showDashboardLinks", "showTodo"].forEach(
             (id) => ($(id).checked = !!s[id]),
           );
@@ -4171,7 +4164,6 @@
           }
         }
         function saveSettingsFromUI(showMessage = true) {
-          const oldEngine = state.settings.engine;
           state.settings = {
             ...state.settings,
             accent: $("accentColor").value,
@@ -4185,7 +4177,6 @@
             animation: $("animationSelect").value,
             background: $("backgroundSelect").value,
             greeting: $("greetingInput").value.trim(),
-            startPage: $("startPage").value,
             sidebarCollapsed: $("sidebarCollapsed").checked,
             reducedMotion: $("reducedMotion").checked,
             showClock: $("showClock").checked,
@@ -4198,7 +4189,6 @@
           };
           save();
           applySettings();
-          if (oldEngine !== state.settings.engine) $("globalEngine").value = state.settings.engine;
           if (showMessage) toast("Settings saved.");
         }
 
@@ -4406,48 +4396,15 @@
         });
         $("linkFilter").addEventListener("input", renderLinks);
         $("linkFolderFilter").addEventListener("change", renderLinks);
-        $("globalSearchInput").addEventListener("input", (e) => renderSuggestions(e.target.value));
-        $("globalSearchInput").addEventListener("focus", (e) => renderSuggestions(e.target.value));
-        $("globalSearchInput").addEventListener("keydown", (e) => {
-          if (e.key === "Escape") {
-            $("searchSuggestions").classList.remove("open");
-            e.stopPropagation();
-          }
-          if (e.key === "ArrowDown" && $("searchSuggestions").classList.contains("open")) {
-            $("searchSuggestions").querySelector("button")?.focus();
-            e.preventDefault();
-          }
-        });
-        $("searchSuggestions").addEventListener("keydown", (e) => {
-          if (e.key === "Escape") {
-            $("searchSuggestions").classList.remove("open");
-            $("globalSearchInput").focus();
-          }
-          if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-            const a = [...$("searchSuggestions").querySelectorAll("button")],
-              i = a.indexOf(document.activeElement);
-            a[Math.max(0, Math.min(a.length - 1, i + (e.key === "ArrowDown" ? 1 : -1)))]?.focus();
-            e.preventDefault();
-          }
-        });
-        document.addEventListener("click", (e) => {
-          if (!e.target.closest(".suggestions-wrap")) $("searchSuggestions")?.classList.remove("open");
-        });
         document.addEventListener("click", (e) => {
           const yt = e.target.closest("[data-recent-youtube]");
           if (yt) {
             searchYoutube(yt.dataset.recentYoutube);
             return;
           }
-          if (e.target.closest("#clearRecentWeb")) {
-            state.recentSearches = [];
-            save();
-             toast("Recent web searches cleared.");
-          }
           if (e.target.closest("#clearRecentYoutube")) {
             state.recentYoutubeSearches = [];
             save();
-            renderRecentSearches();
             toast("Recent YouTube searches cleared.");
           }
         });
@@ -4507,12 +4464,6 @@
             if (typing) return;
             e.preventDefault();
             openCommandPalette();
-            return;
-          }
-          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "l") {
-            e.preventDefault();
-            goView("browser");
-            $("browserAddress").focus();
             return;
           }
           if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "y") {
@@ -4830,7 +4781,6 @@
           "animationSelect",
           "backgroundSelect",
           "greetingInput",
-          "settingsEngine",
           "startPage",
           "sidebarCollapsed",
           "reducedMotion",
@@ -5688,14 +5638,10 @@
           renderLinks();
           renderTasks();
           renderActivity();
-          renderRecentSearches();
           updateClock();
           setInterval(updateClock, 30000);
           updateSchoolTimer();
           setInterval(updateSchoolTimer, 1000);
-          $("browserBack").disabled = true;
-          $("browserForward").disabled = true;
-          if (state.lastBrowserInput) $("browserAddress").value = state.lastBrowserInput;
           goView(state.settings.startPage || "dashboard");
         }
         init();
