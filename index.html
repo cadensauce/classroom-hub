@@ -374,9 +374,7 @@
         padding: 2px 5px;
         border: 1px solid var(--border);
         border-radius: 4px;
-        font:
-          10px ui-monospace,
-          monospace;
+        font: calc(10px * var(--font-size-adjust)) ui-monospace, monospace;
       }
       .search-box {
         display: flex;
@@ -1756,9 +1754,7 @@
         border: 1px solid var(--border);
         border-radius: 5px;
         color: var(--muted);
-        font:
-          10px/1.4 ui-monospace,
-          monospace;
+        font: calc(10px * var(--font-size-adjust))/1.4 ui-monospace, monospace;
       }
       .command-heading {
         padding: 12px 16px 6px;
@@ -3338,7 +3334,7 @@
                   <div class="ai-tools"><button class="btn" id="aiClear" type="button">New chat</button></div>
                 </div>
                 <div class="ai-keybox">
-                  <label for="aiApiKey" style="display: block; font-size: calc(12px * var(--font-size-adjust)); font-weight: 700; margin-bottom: 7px"
+                  <label for="aiApiKey" style="display: block; font-size: calc(12px * var(--font-size-adjust)); font-weight: clamp(100, calc(700 + var(--weight-delta, 0)), 900); margin-bottom: 7px"
                     >Gemini API key</label
                   >
                   <div class="ai-keyline">
@@ -4405,6 +4401,12 @@
             save();
           }
         }
+        let ytApiTimer = null;
+        function ytFallbackEmbed() {
+          if (!activeYoutubeId || ytPlayerApiInstance) return;
+          $("youtubePlayerFrame").src = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(activeYoutubeId) + "?autoplay=1&rel=0&playsinline=1";
+          $("youtubeStatus").textContent = "Playing in basic mode: the YouTube player API is unavailable here, so Resume can't be saved.";
+        }
         function loadYoutubeApi() {
           if (window.YT && window.YT.Player) {
             ytPlayerApiReady = true;
@@ -4428,7 +4430,7 @@
             script.dataset.youtubeIframeApi = "true";
             script.onerror = () => {
               ytPlayerApiLoading = false;
-              $("youtubeStatus").textContent = "The YouTube player API did not load, so automatic resume may not work in this browser.";
+              ytFallbackEmbed();
             };
             document.head.appendChild(script);
           }
@@ -4558,6 +4560,8 @@
           $("youtubeStatus").textContent = "Video loaded. Playback position is saved on this device when the embedded player supports it.";
           loadYoutubeApi();
           if (ytPlayerApiReady) mountYoutubePlayer(id);
+          clearTimeout(ytApiTimer);
+          if (!ytPlayerApiReady) ytApiTimer = setTimeout(ytFallbackEmbed, 6000);
           $("ytPlayer").scrollIntoView({
             behavior: state.settings.reducedMotion ? "auto" : "smooth",
             block: "nearest",
@@ -5127,7 +5131,7 @@
         });
         // School-day countdown and bell schedule. New users start with no assumed school schedule.
         const SCHOOL_SCHEDULE_KEY = "classroomHubSchoolScheduleV1";
-        let SCHOOL_START_MINUTES = 0, SCHOOL_END_MINUTES = 0, BELL_SCHEDULE = [];
+        let SCHOOL_START_MINUTES = NaN, SCHOOL_END_MINUTES = NaN, BELL_SCHEDULE = [];
         function minuteOfTime(value) {
           if (!/^([01]?\d|2[0-3]):[0-5]\d$/.test(value || "")) return NaN;
           const [h, m] = value.split(":").map(Number);
@@ -5158,7 +5162,15 @@
         }
         function saveSchoolSchedule() {
           const classes = BELL_SCHEDULE.map((p) => ({ name: p.name, startTime: timeInputValue(p.start), endTime: timeInputValue(p.end) }));
-          try { localStorage.setItem(SCHOOL_SCHEDULE_KEY, JSON.stringify({ schoolStart: $("schoolDayStart")?.value || "", schoolEnd: $("schoolDayEnd")?.value || "", classes })); } catch {}
+          let startVal = $("schoolDayStart")?.value || "", endVal = $("schoolDayEnd")?.value || "";
+          const a = minuteOfTime(startVal), b = minuteOfTime(endVal);
+          if ((startVal || endVal) && !(Number.isFinite(a) && Number.isFinite(b) && b > a)) {
+            // Never persist a half-entered or invalid school day; keep what was saved before.
+            let prev = {};
+            try { prev = JSON.parse(localStorage.getItem(SCHOOL_SCHEDULE_KEY) || "{}") || {}; } catch {}
+            startVal = prev.schoolStart || ""; endVal = prev.schoolEnd || "";
+          }
+          try { localStorage.setItem(SCHOOL_SCHEDULE_KEY, JSON.stringify({ schoolStart: startVal, schoolEnd: endVal, classes })); } catch {}
           loadSchoolSchedule();
           renderBellSchedule();
           updateSchoolTimer();
@@ -5168,20 +5180,13 @@
           if (!list) return;
           list.innerHTML = BELL_SCHEDULE.length ? BELL_SCHEDULE.map((p, i) => `
             <div class="school-class-edit" data-class-index="${i}" style="display:grid;grid-template-columns:minmax(100px,1.4fr) minmax(90px,1fr) minmax(90px,1fr) auto;gap:8px;align-items:end;margin:10px 0">
-              <label class="form-group">Class name<input class="field" data-class-name value="${escH(p.name)}" maxlength="60" required /></label>
+              <label class="form-group">Class name<input class="field" data-class-name value="${esc(p.name)}" maxlength="60" required /></label>
               <label class="form-group">Starts<input class="field" data-class-start type="time" value="${timeInputValue(p.start)}" required /></label>
               <label class="form-group">Ends<input class="field" data-class-end type="time" value="${timeInputValue(p.end)}" required /></label>
               <button type="button" class="btn danger" data-remove-class="${i}">Remove</button>
             </div>`).join("") : '<div class="note">No classes added yet. Add your own periods below to personalize the schedule.</div>';
         }
-        function renderBellSchedule() {
-          const list = $("bellScheduleList");
-          if (!list) return;
-          list.innerHTML = BELL_SCHEDULE.length ? BELL_SCHEDULE.map(
-            (p, i) => `<div class="bell-period" data-bell-index="${i}"><span class="bell-period-name">${escH(p.name)}</span><span class="bell-period-time">${p.startLabel} – ${p.endLabel}</span></div>`,
-          ).join("") : '<div class="empty"><strong>No schedule set up yet</strong>Add your class times in Settings to show your personal bell schedule.</div>';
-        }
-        $("schoolClassAdd")?.addEventListener("click", () => {
+                $("schoolClassAdd")?.addEventListener("click", () => {
           const name = $("newSchoolClassName").value.trim(), startTime = $("newSchoolClassStart").value, endTime = $("newSchoolClassEnd").value;
           const start = minuteOfTime(startTime), end = minuteOfTime(endTime);
           if (!name || !Number.isFinite(start) || !Number.isFinite(end) || end <= start) { toast("Enter a class name and valid start/end times."); return; }
@@ -5205,12 +5210,12 @@
         });
         $("schoolDayStart")?.addEventListener("change", () => {
           const start = minuteOfTime($("schoolDayStart").value), end = minuteOfTime($("schoolDayEnd").value);
-          if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) { toast("Enter a school start and end time, with the end later than the start."); return; }
+          if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) { toast("Enter a school start and end time, with the end later than the start."); loadSchoolSchedule(); return; }
           saveSchoolSchedule();
         });
         $("schoolDayEnd")?.addEventListener("change", () => {
           const start = minuteOfTime($("schoolDayStart").value), end = minuteOfTime($("schoolDayEnd").value);
-          if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) { toast("Enter a school start and end time, with the end later than the start."); return; }
+          if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) { toast("Enter a school start and end time, with the end later than the start."); loadSchoolSchedule(); return; }
           saveSchoolSchedule();
         });
         loadSchoolSchedule();
@@ -5221,7 +5226,7 @@
           if (!list) return;
           list.innerHTML = BELL_SCHEDULE.length ? BELL_SCHEDULE.map(
             (p, i) =>
-              `<div class="bell-period" data-bell-index="${i}"><span class="bell-period-name">${escH(p.name)}</span><span class="bell-period-time">${p.startLabel} – ${p.endLabel}</span></div>`,
+              `<div class="bell-period" data-bell-index="${i}"><span class="bell-period-name">${esc(p.name)}</span><span class="bell-period-time">${p.startLabel} – ${p.endLabel}</span></div>`,
           ).join("") : '<div class="empty"><strong>No schedule set up yet</strong>Add your class times in Settings to show your personal bell schedule.</div>';
         }
         function updateBellSchedule(now = new Date()) {
@@ -5275,7 +5280,7 @@
         renderBellSchedule();
         function nextSchoolStart(now) {
           const d = new Date(now);
-          if (!SCHOOL_START_MINUTES && !BELL_SCHEDULE.length) return new Date(now.getTime() + 24 * 60 * 60 * 1000);
+          if (!Number.isFinite(SCHOOL_START_MINUTES)) return new Date(now.getTime() + 24 * 60 * 60 * 1000);
           d.setHours(Math.floor(SCHOOL_START_MINUTES / 60), SCHOOL_START_MINUTES % 60, 0, 0);
           if (now.getDay() === 0 || now.getDay() === 6 || now.getTime() >= d.getTime()) {
             do {
@@ -5350,11 +5355,6 @@
         }
 
         // Settings
-        $("accentColor").addEventListener("input", (e) => {
-          state.settings.accent = e.target.value;
-          save();
-          applySettings();
-        });
         $("swatches").addEventListener("click", (e) => {
           const b = e.target.closest("[data-color]");
           if (!b) return;
@@ -5431,7 +5431,12 @@
             try {
               localStorage.setItem(STORAGE_KEY + ".preimport", JSON.stringify(state));
             } catch {}
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+            try {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+            } catch {
+              toast("Could not save the imported backup (browser storage is full or unavailable). Nothing was changed.");
+              return;
+            }
             state = loadState();
             save();
             applySettings();
@@ -5861,10 +5866,12 @@
           f[e.shiftKey ? (i <= 0 ? f.length - 1 : i - 1) : i >= f.length - 1 ? 0 : i + 1].focus();
         });
         function bellInfo(now) {
-          if (!BELL_SCHEDULE.length) return { phase: "unset" };
+          const hours = Number.isFinite(SCHOOL_START_MINUTES) && Number.isFinite(SCHOOL_END_MINUTES) && SCHOOL_END_MINUTES > SCHOOL_START_MINUTES;
+          if (!BELL_SCHEDULE.length && !hours) return { phase: "unset" };
           const day = now.getDay();
           if (day === 0 || day === 6) return { phase: "weekend" };
           const m = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
+          if (!BELL_SCHEDULE.length) return m < SCHOOL_START_MINUTES ? { phase: "hoursBefore" } : m >= SCHOOL_END_MINUTES ? { phase: "after" } : { phase: "hoursOnly" };
           const i = BELL_SCHEDULE.findIndex((p) => m >= p.start && m < p.end);
           if (i >= 0) {
             const p = BELL_SCHEDULE[i],
@@ -5878,7 +5885,7 @@
             };
           }
           const nx = BELL_SCHEDULE.find((p) => p.start > m);
-          if (!nx) return { phase: "after" };
+          if (!nx) return hours && m < SCHOOL_END_MINUTES ? { phase: "lastbell", secsLeft: Math.ceil((SCHOOL_END_MINUTES - m) * 60) } : { phase: "after" };
           return {
             phase: BELL_SCHEDULE.some((p) => p.end <= m) ? "passing" : "before",
             next: nx.name,
@@ -5898,7 +5905,7 @@
           if (!el) return;
           const b = bellInfo(now);
           el.textContent =
-            b.phase === "class"
+            b.phase === "hoursBefore" ? "School starts at " + timeLabel(SCHOOL_START_MINUTES) + " · no classes added yet" : b.phase === "hoursOnly" ? "No classes added · final bell at " + timeLabel(SCHOOL_END_MINUTES) : b.phase === "lastbell" ? "No more classes today · final bell at " + timeLabel(SCHOOL_END_MINUTES) + " (in " + fmtSecs(b.secsLeft) + ")" : b.phase === "class"
               ? b.current +
                 " · " +
                 fmtSecs(b.secsLeft) +
@@ -6413,7 +6420,7 @@
             box = $("ch-widget-toggles");
           box.querySelectorAll("label").forEach((l) => {
             const id = l.querySelector("[data-ch-widget]").dataset.chWidget,
-              n = escH(l.textContent.trim());
+              n = esc(l.textContent.trim());
             l.insertAdjacentHTML(
               "beforeend",
               '<span class="widget-move"><button type="button" class="mini-btn" data-widget-move="-1" data-w="' +
