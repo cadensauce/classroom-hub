@@ -3239,10 +3239,11 @@
                   /><button class="btn primary" type="submit">Search videos</button>
                 </form>
                 <div class="yt-actions">
-                  <button class="btn" type="button" id="youtubeOpenResults">Open results on YouTube ↗</button
-                  ><button class="btn" type="button" id="youtubeOpenHome">YouTube home ↗</button>
+                  <button class="btn" type="button" id="youtubeOpenResults">Search videos on YouTube ↗</button>
+                  <button class="btn" type="button" id="youtubeOpenChannels">Search channels ↗</button>
+                  <button class="btn" type="button" id="youtubeOpenHome">YouTube home ↗</button>
                 </div>
-                <div class="section-sub" style="margin: 8px 0 14px">On-page search uses public community services and may occasionally fail. “Open results on YouTube” is the reliable search fallback.</div>
+                <div class="section-sub" style="margin: 8px 0 14px">On-page video results use public community services, which may be unavailable. Use the YouTube search buttons for reliable video or channel results.</div>
 
                 <div class="yt-library">
                   <section class="yt-library-section">
@@ -4787,11 +4788,13 @@
         });
         $("youtubeOpenResults").addEventListener("click", () => {
           const q = ($("youtubeQuery").value || lastYtQuery).trim();
-          if (!q) {
-            toast("Search for a topic first.");
-            return;
-          }
+          if (!q) { toast("Enter something to search for first."); return; }
           openNewTab("https://www.youtube.com/results?search_query=" + encodeURIComponent(q));
+        });
+        $("youtubeOpenChannels").addEventListener("click", () => {
+          const q = ($("youtubeQuery").value || lastYtQuery).trim();
+          if (!q) { toast("Enter a channel name first."); return; }
+          openNewTab("https://www.youtube.com/results?search_query=" + encodeURIComponent(q) + "&sp=EgIQAg%253D%253D");
         });
         $("playYoutubeVideo").addEventListener("click", () => playYoutube($("youtubeVideoInput").value));
         $("youtubeVideoInput").addEventListener("keydown", (e) => {
@@ -5706,7 +5709,7 @@
               : "No video results found for “" + ytQuery + "”. Try a different search.";
           } catch (error) {
             if (!next) $("ytResults").innerHTML = "";
-            st.textContent = "Couldn’t reach the alternative search services. They can be temporarily unavailable. You can still paste a YouTube link, or open results on YouTube.";
+            st.textContent = "The community search services did not respond. Your video player is still working: use “Search videos on YouTube” or “Search channels” above to see live results.";
             if (next) $("ytMore").hidden = !ytToken;
           } finally {
             ytBusy = false;
@@ -6358,7 +6361,20 @@
           } else { frame.removeAttribute("src"); frame.hidden = true; empty.hidden = false; status("Ready. Enter a URL or search above."); }
         };
         const navigate = (raw, replaceHistory = false) => {
-          const url = safeUrl(raw);
+          const entered = String(raw || "").trim();
+          // Search-result pages commonly block iframe embedding. Open searches in a
+          // normal browser tab instead of letting the embedded frame fail or reload Hub.
+          const isSearch = entered && !/^(javascript|data|file|vbscript):/i.test(entered)
+            && !/^[a-z][a-z0-9+.-]*:\/\//i.test(entered)
+            && !/^(about:|mailto:)/i.test(entered)
+            && (/\s/.test(entered) || !entered.includes("."));
+          if (isSearch) {
+            const searchUrl = "https://www.google.com/search?q=" + encodeURIComponent(entered);
+            window.open(searchUrl, "_blank", "noopener,noreferrer");
+            status("Opened your search in a new browser tab. Classroom Hub stays open here.");
+            return;
+          }
+          const url = safeUrl(entered);
           if (!url) { status("Enter a valid http or https address, or a search phrase."); return; }
           const tab = activeTab();
           if (!replaceHistory && tab.url && tab.url !== url) {
@@ -6407,7 +6423,11 @@
             actions.append(open, remove); row.append(main, actions); host.appendChild(row);
           });
         };
-        $b("chBrowserForm")?.addEventListener("submit", (event) => { event.preventDefault(); navigate($b("chBrowserAddress").value); });
+        $b("chBrowserForm")?.addEventListener("submit", (event) => {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          navigate($b("chBrowserAddress").value);
+        }, true);
         $b("chBrowserAddress")?.addEventListener("keydown", (event) => { if (event.key === "Escape") $b("chBrowserAddress").blur(); });
         $b("chBrowserNewTab")?.addEventListener("click", () => {
           const tab = { id: "tab-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6), title: "New tab", url: "" };
