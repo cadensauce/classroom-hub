@@ -4794,7 +4794,7 @@
         $("youtubeOpenChannels").addEventListener("click", () => {
           const q = ($("youtubeQuery").value || lastYtQuery).trim();
           if (!q) { toast("Enter a channel name first."); return; }
-          openNewTab("https://www.youtube.com/results?search_query=" + encodeURIComponent(q) + "&sp=EgIQAg%253D%253D");
+          openNewTab("https://www.youtube.com/results?search_query=" + encodeURIComponent(q) + "&sp=EgIQAg%3D%3D");
         });
         $("playYoutubeVideo").addEventListener("click", () => playYoutube($("youtubeVideoInput").value));
         $("youtubeVideoInput").addEventListener("keydown", (e) => {
