@@ -4400,7 +4400,7 @@
           const frame = $("youtubePlayerFrame");
           panel.hidden = false;
           $("ytBackResults").textContent = ytResults.length ? "← Back to results" : "✕ Close player";
-          ytPlayerMode = "alt";
+          ytPlayerMode = "youtube";
           if (frame) {
             frame.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
             frame.src = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(id) + "?autoplay=1&rel=0&playsinline=1";
