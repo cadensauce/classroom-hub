@@ -2992,7 +2992,254 @@
         .browser-saved-actions .btn { padding:6px 9px; font-size:12px; }
         .browser-disclaimer { color:var(--muted); font-size:12px; line-height:1.5; margin:12px 2px 0; }
         @media(max-width:720px) { .browser-library-grid { grid-template-columns:1fr; } .browser-frame-wrap { height:58vh; min-height:340px; } .browser-toolbar { gap:6px; } .browser-toolbar > .btn { flex:1; } .browser-footer { align-items:flex-start; } }
-      </style>
+      
+/* ===== ACHROMA-INSPIRED INTERFACE LAYER =====
+   Keeps Classroom Hub's existing views and storage while updating its shell.
+   No remote loader, proxy, or third-party application code is executed. */
+:root {
+  --bg: #050505;
+  --panel: rgba(10, 10, 10, .78);
+  --panel2: rgba(255, 255, 255, .055);
+  --panel3: rgba(255, 255, 255, .095);
+  --border: rgba(255, 255, 255, .12);
+  --text: #f5f5f5;
+  --muted: rgba(255, 255, 255, .52);
+  --accent: #f5f5f5;
+  --accent-rgb: 245, 245, 245;
+  --radius: 13px;
+  --sidebar: 240px;
+  --speed: 180ms;
+  --content: 1420px;
+}
+html { background: #050505; }
+body {
+  background:
+    radial-gradient(ellipse at 76% 8%, rgba(255,255,255,.055), transparent 38%),
+    radial-gradient(ellipse at 14% 88%, rgba(255,255,255,.025), transparent 42%),
+    #050505;
+  color: var(--text);
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(255,255,255,.12) .55px, transparent .55px);
+  background-size: 4px 4px;
+  opacity: .12;
+}
+.sidebar {
+  width: var(--sidebar);
+  padding: 17px 12px 13px;
+  background: rgba(0,0,0,.76);
+  border-right: 1px solid rgba(255,255,255,.10);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+}
+.brand { gap: 10px; padding: 4px 8px 22px; }
+.brand-mark {
+  flex-basis: 36px;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 10px;
+  background: rgba(255,255,255,.09);
+  color: #fff;
+  font-size: 17px;
+}
+.brand-name { color: #fff; font-size: 13px; letter-spacing: .01em; }
+.brand-sub {
+  color: rgba(255,255,255,.42);
+  font-size: 9px;
+  letter-spacing: 1.35px;
+}
+.nav { gap: 3px; }
+.nav-group-label {
+  padding: 16px 10px 7px;
+  color: rgba(255,255,255,.36);
+  font-size: 10px;
+  letter-spacing: 1.25px;
+}
+.nav-btn {
+  min-height: 36px;
+  padding: 0 10px;
+  gap: 10px;
+  border-radius: 9px;
+  color: rgba(255,255,255,.66);
+  font-size: 13px;
+  font-weight: 500;
+  transition: color .15s, background .15s, transform .15s;
+}
+.nav-btn:hover {
+  color: #fff;
+  background: rgba(255,255,255,.09);
+  transform: none;
+}
+.nav-btn.active {
+  color: #090909;
+  background: #f2f2f2;
+  border-color: #f2f2f2;
+  box-shadow: 0 2px 14px rgba(0,0,0,.16);
+}
+.nav-btn.active .nav-icon { color: #090909; }
+.nav-icon { color: rgba(255,255,255,.75); font-size: 16px; }
+.sidebar-bottom { gap: 8px; }
+.collapse-btn {
+  min-height: 36px;
+  padding: 0 10px;
+  border-color: rgba(255,255,255,.12);
+  border-radius: 9px;
+  color: rgba(255,255,255,.55);
+}
+.collapse-btn:hover { color: #fff; background: rgba(255,255,255,.07); }
+.main {
+  margin-left: var(--sidebar);
+  min-height: 100vh;
+  padding: 0 30px 36px;
+}
+.topbar {
+  position: fixed;
+  z-index: 25;
+  top: 0;
+  left: var(--sidebar);
+  right: 0;
+  max-width: none;
+  height: 48px;
+  margin: 0;
+  padding: 0 18px;
+  background: rgba(0,0,0,.78);
+  border-bottom: 1px solid rgba(255,255,255,.10);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+}
+.page-label {
+  color: rgba(255,255,255,.52);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+}
+.btn, .icon-btn, .field, .select {
+  color: #f4f4f4;
+  background: rgba(255,255,255,.055);
+  border-color: rgba(255,255,255,.14);
+  border-radius: 9px;
+}
+.btn { padding: 8px 12px; font-size: 12px; }
+.btn:hover, .icon-btn:hover {
+  background: rgba(255,255,255,.12);
+  border-color: rgba(255,255,255,.25);
+}
+.btn.primary {
+  color: #080808;
+  background: #f2f2f2;
+  border-color: #f2f2f2;
+}
+.icon-btn { width: 35px; height: 35px; }
+.content {
+  max-width: var(--content);
+  padding-top: 72px;
+}
+.hero { padding: 26px 0 18px; }
+h1 {
+  font-size: clamp(30px, 4vw, 46px);
+  letter-spacing: -1.9px;
+  font-weight: 650;
+}
+h1 .accent-text { color: #fff; }
+.eyebrow, .section-sub, .date, .card-url { color: rgba(255,255,255,.48); }
+.section { margin-top: 25px; }
+.section-title { font-size: 15px; font-weight: 600; }
+.panel, .card, .setting-card {
+  background: rgba(12,12,12,.74);
+  border-color: rgba(255,255,255,.11);
+  border-radius: 13px;
+  box-shadow: 0 8px 28px rgba(0,0,0,.12);
+}
+.card {
+  padding: 14px;
+  background: rgba(255,255,255,.045);
+}
+.card:hover {
+  background: rgba(255,255,255,.085);
+  border-color: rgba(255,255,255,.25);
+  box-shadow: 0 10px 30px rgba(0,0,0,.22);
+}
+.card-icon {
+  background: rgba(255,255,255,.075);
+  border-color: rgba(255,255,255,.12);
+  color: #fff;
+}
+.card-name, .panel-title, .section-title { color: #f5f5f5; }
+.empty { border-color: rgba(255,255,255,.2); color: rgba(255,255,255,.5); }
+.search-box {
+  background: rgba(8,8,8,.86);
+  border-color: rgba(255,255,255,.17);
+  border-radius: 12px;
+  box-shadow: 0 12px 38px rgba(0,0,0,.28);
+}
+.search-box:focus-within {
+  border-color: rgba(255,255,255,.55);
+  box-shadow: 0 0 0 3px rgba(255,255,255,.06);
+}
+.search-box input { color: #fff; }
+.search-box select { color: rgba(255,255,255,.58); }
+.school-timer, .weather-panel { background: rgba(10,10,10,.76); }
+.browser-shell, .ai-panel, .game-library-panel {
+  border-color: rgba(255,255,255,.13);
+  border-radius: 13px;
+  background: rgba(8,8,8,.8);
+}
+.browser-toolbar, .browser-tab-strip, .browser-footer {
+  background: rgba(255,255,255,.035);
+  border-color: rgba(255,255,255,.10);
+}
+.browser-tab.active {
+  background: rgba(255,255,255,.12);
+  border-color: rgba(255,255,255,.18);
+}
+.browser-address-form input, .field, .select, textarea {
+  color: #f5f5f5;
+  background: rgba(255,255,255,.045);
+  border-color: rgba(255,255,255,.14);
+}
+.setting-card h3 { color: #f5f5f5; }
+.settings-autosave {
+  color: #f5f5f5;
+  background: rgba(8,8,8,.92);
+  border-color: rgba(255,255,255,.14);
+}
+.command-search, .command-palette {
+  background: rgba(8,8,8,.96);
+  border-color: rgba(255,255,255,.18);
+}
+.action-toast, .toast {
+  background: rgba(12,12,12,.96);
+  border-color: rgba(255,255,255,.18);
+}
+.mobile-nav-backdrop { background: rgba(0,0,0,.7); }
+@media (max-width: 1000px) {
+  .main { padding-left: 22px; padding-right: 22px; }
+}
+@media (max-width: 760px) {
+  .main { margin-left: 0; padding: 0 16px 28px; }
+  .topbar { left: 0; padding: 0 12px; }
+  .content { padding-top: 66px; }
+  .hero { padding-top: 18px; }
+  .top-actions { gap: 6px; }
+  .top-actions .btn { padding: 7px 9px; }
+}
+@media (max-width: 430px) {
+  .topbar { height: 46px; }
+  .page-label { letter-spacing: 1px; }
+  .top-actions .btn:first-child { display: none; }
+  .main { padding-left: 12px; padding-right: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+/* ===== END ACHROMA-INSPIRED INTERFACE LAYER ===== */
+
+</style>
   </head>
   <body>
     <noscript
