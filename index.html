@@ -6606,6 +6606,8 @@ body.game-open { overflow: hidden; }
           } catch {}
           // Built-in starter games (official game portal pages), added once per browser.
           const PRESET_GAMES = [
+            ["Slope", "https://www.y8.com/embed/slope", "🟢"],
+            ["Color Tunnel", "https://www.y8.com/embed/color_tunnel", "🌀"],
             ["Run 3", "https://poki.com/en/g/run-3", "🏃"],
             ["Smash Karts", "https://smashkarts.io/", "🏎️"],
             ["Shell Shockers", "https://shellshock.io/", "🥚"],
@@ -6637,6 +6639,12 @@ body.game-open { overflow: hidden; }
               localStorage.setItem(storageKey, JSON.stringify(games));
               localStorage.setItem("classroomHubGamesSeededV1", "1");
               localStorage.setItem("classroomHubGamesSeededV2", "1");
+            }
+            if (!localStorage.getItem("classroomHubGamesSeededV3")) {
+              const have = new Set(games.map(g => g.url));
+              PRESET_GAMES.forEach(([name, url, icon]) => { if (!have.has(url)) games.unshift({ id: uid(), name, url, icon }); });
+              localStorage.setItem(storageKey, JSON.stringify(games));
+              localStorage.setItem("classroomHubGamesSeededV3", "1");
             }
           } catch {}
           // In-site play: sites known to allow embedding, plus official embed links.
