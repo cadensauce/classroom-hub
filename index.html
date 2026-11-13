@@ -3657,6 +3657,9 @@ html[data-look-gold="off"] .section-title, html[data-look-gold="off"] .school-ti
 .chat-form textarea { flex: 1; resize: none; min-height: 46px; max-height: 180px; padding: 12px 14px !important; line-height: 1.5; }
 .chat-send { width: 46px; height: 46px; min-height: 46px !important; padding: 0 !important; font-size: 18px; flex: none; }
 .chat-send:disabled { opacity: .5; }
+.chat-notice { margin: 0 14px; padding: 9px 12px; border: 1px solid rgba(255, 200, 61, .25); background: rgba(255, 200, 61, .06); color: #e8d9a8; border-radius: 10px; font-size: 12.5px; line-height: 1.5; }
+.chat-notice strong { color: var(--p-gold); }
+.chat-form { border-top: 0 !important; }
 /* ===== END PANEL UI LAYER ===== */
 
 </style>
@@ -3995,7 +3998,7 @@ html[data-look-gold="off"] .section-title, html[data-look-gold="off"] .school-ti
             <div class="section-head">
               <div>
                 <h1 style="font-size: calc(34px * var(--font-size-adjust)); margin: 0 0 5px; letter-spacing: -1.3px">AI</h1>
-                <div class="section-sub">Free and ready to go. No sign-in or key needed. Don't share personal info.</div>
+                <div class="section-sub">Free and ready to go. No sign-in or key needed. Powered by a third-party service.</div>
               </div>
               <button class="btn" type="button" id="chatNew">＋ New chat</button>
             </div>
@@ -4012,6 +4015,7 @@ html[data-look-gold="off"] .section-title, html[data-look-gold="off"] .school-ti
                   </div>
                 </div>
               </div>
+              <div class="chat-notice" role="note"><strong>Third-party AI.</strong> Answers come from Pollinations.ai, a free outside service. Your messages are sent to them, so don't share personal info (names, passwords, addresses). AI can be wrong, so double-check important facts.</div>
               <form class="chat-form" id="chatForm">
                 <textarea id="chatInput" rows="1" placeholder="Ask anything…" aria-label="Message the AI" maxlength="4000"></textarea>
                 <button class="btn primary chat-send" type="submit" id="chatSend" aria-label="Send">↑</button>
