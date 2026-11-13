@@ -3341,6 +3341,8 @@ h1, #greeting, .school-timer-count, .clock, .brand-name, .weather-temp {
 }
 .school-timer-times span { text-transform: uppercase; font-size: 11px; letter-spacing: .6px; color: var(--muted); }
 .school-timer-times strong { font-family: var(--p-display); font-weight: 400; font-size: 20px; }
+.school-timer-times > div { padding: 10px 14px !important; }
+@media (min-width: 901px) and (max-width: 1240px) { #openCommands { display: none !important; } .sidebar .nav-btn { padding: 8px 12px !important; } .brand-name { display: none !important; } }
 .command-palette, .command-search, .settings-autosave, .toast, .action-toast {
   background: #161a23 !important;
   border: 1px solid var(--p-line-hi) !important;
@@ -3436,14 +3438,14 @@ html { scroll-behavior: smooth; }
   .brand { padding: 0 !important; margin: 0 !important; flex: 0 0 auto; }
   .brand-mark { width: 32px !important; height: 32px !important; flex-basis: 32px !important; border-radius: 10px !important; background: var(--accent) !important; color: #0c0f14 !important; border: 0 !important; font-family: var(--p-display); }
   .brand-name { font-size: 18px !important; white-space: nowrap; }
-  .brand-sub, .nav-group-label, .sidebar-bottom, .sidebar-note, .mobile-menu, .page-label, #topSettings { display: none !important; }
+  .brand-sub, .nav-group-label, .sidebar-bottom, .sidebar-note, .mobile-menu, .page-label { display: none !important; }
   .sidebar .nav {
     display: flex !important; flex-direction: row !important; align-items: center !important; gap: 2px !important;
     margin: 0 !important; padding: 4px !important;
     background: #10131a; border: 1px solid var(--p-line); border-radius: 999px;
     position: relative;
   }
-  .sidebar .nav + .nav { display: none !important; }
+  .sidebar .nav + .nav .nav-btn.active { background: #232937 !important; box-shadow: inset 0 0 0 1px var(--p-line-hi) !important; }
   .sidebar .nav-btn {
     position: relative; z-index: 1;
     width: auto !important; margin: 0 !important; padding: 8px 18px !important;
