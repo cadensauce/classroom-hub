@@ -3497,6 +3497,65 @@ html { scroll-behavior: smooth; }
   .view.active > *, .view.active .hero > * { animation: none !important; }
   .nav-pill { transition: none !important; }
 }
+/* ---- Reset leftover typography settings so text stays crisp ---- */
+:root { --font-size-adjust: 1 !important; --font-weight-adjust: 600 !important; --weight-delta: 0 !important; }
+
+/* ---- Clutter removed ---- */
+#openCommands, #topAdd, .browser-library-grid,
+.setting-card:has(#densitySelect), .setting-card:has(#fontScaleSelect), .setting-card:has(> .note),
+.toggle-row:has(#sidebarCollapsed), .shortcut-hint { display: none !important; }
+
+/* ---- Pressed state (added by script while the mouse button is held) ---- */
+.is-pressed { transform: scale(.94) !important; transition: transform .12s ease !important; filter: brightness(.92); }
+.view.active > *, .view.active .hero > * { animation-fill-mode: backwards !important; }
+
+/* ---- Hold-to-rearrange on Home ---- */
+body.arranging #view-dashboard [id] > .panel, body.arranging #view-dashboard .section { cursor: grab; }
+@keyframes p-wiggle { 0%, 100% { transform: rotate(-.25deg); } 50% { transform: rotate(.25deg); } }
+body.arranging #view-dashboard > .section:not(.arrange-lifted),
+body.arranging #view-dashboard .hero > .section:not(.arrange-lifted) { animation: p-wiggle .5s ease-in-out infinite !important; }
+body.arranging #view-dashboard .section { outline: 1px dashed rgba(140, 157, 255, .35); outline-offset: 6px; border-radius: var(--p-radius); user-select: none; }
+.arrange-lifted { position: relative; z-index: 30; cursor: grabbing !important; filter: drop-shadow(0 22px 40px rgba(0, 0, 0, .55)); }
+.arrange-done { position: fixed !important; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 90; padding: 12px 22px !important; }
+.arrange-done.is-pressed { transform: translateX(-50%) scale(.94) !important; }
+
+/* ---- Minimal Settings ---- */
+#view-settings .settings-grid { display: flex !important; flex-direction: column !important; gap: 14px !important; max-width: 720px; margin: 0 auto; counter-reset: pset; }
+#view-settings .setting-card { padding: 22px 24px !important; grid-column: auto !important; }
+#view-settings .setting-card > h3 {
+  font-family: var(--p-display) !important; font-weight: 400 !important; font-size: 15px !important;
+  letter-spacing: .6px; text-transform: uppercase; color: var(--p-gold) !important; margin: 0 0 4px !important;
+}
+#view-settings .setting-card > h3::before { counter-increment: pset; content: counter(pset, decimal-leading-zero) " / "; }
+#view-settings .setting-card > p { font-size: 13px; margin: 0 0 16px !important; }
+#view-settings .toggle-row { padding: 14px 0 !important; border-top: 1px solid var(--p-line) !important; margin: 0 !important; }
+#view-settings .toggle-row:first-of-type { border-top: 0 !important; }
+#view-settings .form-group { margin-bottom: 14px; }
+#view-settings label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+#view-settings .section-head { max-width: 720px; margin-left: auto; margin-right: auto; }
+
+/* ---- Empty states ---- */
+.empty-state, .game-library-empty { padding: 22px !important; border-radius: 14px !important; border: 1px dashed var(--p-line-hi) !important; background: transparent !important; color: var(--muted) !important; box-shadow: none !important; }
+
+/* ---- Game library ---- */
+#view-gaming .section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.game-search { max-width: 280px; }
+.game-library-plain { background: transparent !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; }
+.game-library-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)) !important; gap: 12px !important; }
+.game-library-card { position: relative; display: flex !important; align-items: center !important; gap: 12px !important; padding: 14px 14px !important; cursor: pointer; }
+.game-tile-link { position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
+.game-library-icon { width: 44px; height: 44px; flex: 0 0 44px; display: grid; place-items: center; font-size: 22px; border-radius: 12px; background: #10131a; border: 1px solid var(--p-line); }
+.game-library-info { min-width: 0; flex: 1; }
+.game-library-title { font-family: var(--p-display); font-size: 17px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.game-library-url { color: var(--muted); font-size: 12px; }
+.game-library-actions { position: relative; z-index: 2; display: flex; gap: 4px; opacity: 0; transition: opacity .2s ease; }
+.game-library-card:hover .game-library-actions, .game-library-card:focus-within .game-library-actions { opacity: 1; }
+.game-library-actions .mini-btn { width: 28px; height: 28px; padding: 0 !important; display: grid; place-items: center; }
+.game-add { margin-top: 18px; }
+.game-add > summary { list-style: none; display: inline-flex; cursor: pointer; }
+.game-add > summary::-webkit-details-marker { display: none; }
+.game-add[open] > summary { margin-bottom: 14px; }
+.game-add .game-link-form { background: var(--panel); border: 1px solid var(--p-line); border-radius: var(--p-radius); padding: 18px; }
 /* ===== END PANEL UI LAYER ===== */
 
 </style>
@@ -3844,16 +3903,14 @@ html { scroll-behavior: smooth; }
             <div class="section-head">
               <div>
                 <h1 style="font-size: calc(34px * var(--font-size-adjust)); margin: 0 0 5px; letter-spacing: -1.3px">Game Library</h1>
-                <div class="section-sub">A central place for the games you choose to save.</div>
+                <div class="section-sub"><span id="gameLibraryCount">0 games</span></div>
               </div>
+              <input class="field game-search" id="gameSearch" type="search" placeholder="Search games…" aria-label="Search games" />
             </div>
-            <section class="panel game-library-panel" aria-labelledby="gameLibraryHeading">
-              <div class="game-library-header">
-                <div>
-                  <h2 id="gameLibraryHeading">Saved games</h2>
-                  <p class="section-sub" style="margin:5px 0 0">Add a title and web address for each game. Your library starts empty.</p>
-                </div>
-              </div>
+            <section class="game-library-panel game-library-plain" aria-label="Games">
+              <div class="game-library-grid" id="gameLibraryGrid" aria-live="polite"></div>
+              <details class="game-add" id="gameAddDetails">
+                <summary class="btn">＋ Add a game</summary>
               <form id="gameLinkForm" class="game-link-form">
                 <div class="form-group">
                   <label for="gameLinkName">Game title</label>
@@ -3872,13 +3929,7 @@ html { scroll-behavior: smooth; }
                   <button class="btn" id="gameLinkCancel" type="button" hidden>Cancel</button>
                 </div>
               </form>
-              <div class="game-library-divider"></div>
-              <div class="game-library-list-head">
-                <h3>Your games</h3>
-                <span class="section-sub" id="gameLibraryCount">0 saved</span>
-              </div>
-              <div class="game-library-grid" id="gameLibraryGrid" aria-live="polite"></div>
-              <p class="game-library-footnote">Game links are saved in this browser and are separate from Quick Access.</p>
+              </details>
             </section>
           </section>
           <!-- ===== VIEW: SETTINGS ===== -->
@@ -6517,6 +6568,38 @@ html { scroll-behavior: smooth; }
             const stored = JSON.parse(localStorage.getItem(storageKey) || "[]");
             if (Array.isArray(stored)) games = stored.filter(g => g && typeof g.id === "string" && typeof g.name === "string" && typeof g.url === "string");
           } catch {}
+          // Built-in starter games (official game portal pages), added once per browser.
+          const PRESET_GAMES = [
+            ["Slope", "https://poki.com/en/g/slope", "🟢"],
+            ["Retro Bowl", "https://poki.com/en/g/retro-bowl", "🏈"],
+            ["Tunnel Rush", "https://poki.com/en/g/tunnel-rush", "🌀"],
+            ["Run 3", "https://poki.com/en/g/run-3", "🏃"],
+            ["Subway Surfers", "https://poki.com/en/g/subway-surfers", "🛹"],
+            ["Moto X3M", "https://poki.com/en/g/moto-x3m", "🏍️"],
+            ["Drift Boss", "https://poki.com/en/g/drift-boss", "🚗"],
+            ["Temple Run 2", "https://poki.com/en/g/temple-run-2", "🏛️"],
+            ["Stickman Hook", "https://poki.com/en/g/stickman-hook", "🪝"],
+            ["Basketball Stars", "https://poki.com/en/g/basketball-stars", "🏀"],
+            ["Crossy Road", "https://poki.com/en/g/crossy-road", "🐔"],
+            ["Getaway Shootout", "https://poki.com/en/g/getaway-shootout", "🔫"],
+            ["Bob the Robber 2", "https://poki.com/en/g/bob-the-robber-2", "🕵️"],
+            ["Smash Karts", "https://smashkarts.io/", "🏎️"],
+            ["Shell Shockers", "https://shellshock.io/", "🥚"],
+            ["Krunker", "https://krunker.io/", "🎯"],
+            ["Slither.io", "https://slither.io/", "🐍"],
+            ["Paper.io 2", "https://paper-io.com/", "🟦"],
+            ["2048", "https://play2048.co/", "🔢"],
+          ];
+          try {
+            if (!localStorage.getItem("classroomHubGamesSeededV1")) {
+              const have = new Set(games.map(g => g.url));
+              PRESET_GAMES.forEach(([name, url, icon]) => { if (!have.has(url)) games.push({ id: uid(), name, url, icon }); });
+              localStorage.setItem(storageKey, JSON.stringify(games));
+              localStorage.setItem("classroomHubGamesSeededV1", "1");
+            }
+          } catch {}
+          let gameFilter = "";
+          $("gameSearch")?.addEventListener("input", (e) => { gameFilter = e.target.value.trim().toLowerCase(); render(); });
           function persist() {
             try { localStorage.setItem(storageKey, JSON.stringify(games)); }
             catch { toast("Could not save your game library in this browser."); }
@@ -6532,21 +6615,22 @@ html { scroll-behavior: smooth; }
             } catch { return ""; }
           }
           function render() {
-            if (count) count.textContent = games.length + " saved";
-            if (!games.length) {
-              grid.innerHTML = '<div class="game-library-empty"><strong>No games saved yet</strong>Add a game using the form above. Saved games will appear here.</div>';
+            if (count) count.textContent = games.length + (games.length === 1 ? " game" : " games");
+            const shown = gameFilter ? games.filter(g => g.name.toLowerCase().includes(gameFilter)) : games;
+            if (!shown.length) {
+              grid.innerHTML = '<div class="game-library-empty"><strong>' + (games.length ? "No matches" : "No games yet") + '</strong>' + (games.length ? "Try a different search." : "Use ＋ Add a game below.") + '</div>';
               return;
             }
-            grid.innerHTML = games.map(game => {
+            grid.innerHTML = shown.map(game => {
               let host = "";
-              try { host = new URL(game.url).hostname; } catch {}
+              try { host = new URL(game.url).hostname.replace(/^www\./, ""); } catch {}
               return '<article class="game-library-card" data-game-id="' + esc(game.id) + '">' +
-                '<div class="game-library-icon">' + esc(game.icon || "◈") + '</div>' +
+                '<a class="game-tile-link" href="' + esc(game.url) + '" target="_blank" rel="noopener noreferrer" aria-label="Play ' + esc(game.name) + '"></a>' +
+                '<div class="game-library-icon">' + esc(game.icon || "🎮") + '</div>' +
                 '<div class="game-library-info"><div class="game-library-title">' + esc(game.name) + '</div>' +
-                '<div class="game-library-url" title="' + esc(game.url) + '">' + esc(host) + '</div>' +
-                '<div class="game-library-actions"><a class="btn primary" href="' + esc(game.url) + '" target="_blank" rel="noopener noreferrer">Launch ↗</a>' +
-                '<button class="btn" type="button" data-game-edit="' + esc(game.id) + '">Edit</button>' +
-                '<button class="btn" type="button" data-game-delete="' + esc(game.id) + '">Remove</button></div></div></article>';
+                '<div class="game-library-url" title="' + esc(game.url) + '">' + esc(host) + '</div></div>' +
+                '<div class="game-library-actions"><button class="mini-btn" type="button" data-game-edit="' + esc(game.id) + '" aria-label="Edit ' + esc(game.name) + '">✎</button>' +
+                '<button class="mini-btn" type="button" data-game-delete="' + esc(game.id) + '" aria-label="Remove ' + esc(game.name) + '">×</button></div></article>';
             }).join("");
           }
           function clearForm() {
@@ -6587,6 +6671,8 @@ html { scroll-behavior: smooth; }
               iconInput.value = game.icon || "🎮";
               submit.textContent = "Save changes";
               cancel.hidden = false;
+              const details = $("gameAddDetails");
+              if (details) details.open = true;
               nameInput.focus();
               form.scrollIntoView({behavior:"smooth", block:"nearest"});
             } else if (remove) {
@@ -7163,6 +7249,122 @@ html { scroll-behavior: smooth; }
         place();
       })();
     </script>
+    <script>
+      /* Hold interactions:
+         1) Anything clickable sinks while the left mouse button is held.
+         2) Hold a Home section for half a second to pick it up and drag it
+            into a new position; the order is saved for next time. */
+      (() => {
+        const PRESSABLE = ".btn, .icon-btn, .mini-btn, .nav-btn, .browser-tab, .command-item, .card, .ytr-card, .yt-library-item, .game-library-card, .swatch, .switch, summary";
+        let pressed = null;
+        const release = () => { if (pressed) { pressed.classList.remove("is-pressed"); pressed = null; } };
+        document.addEventListener("pointerdown", (e) => {
+          if (e.button !== 0) return;
+          const el = e.target.closest(PRESSABLE);
+          if (!el) return;
+          pressed = el;
+          el.classList.add("is-pressed");
+        });
+        ["pointerup", "pointercancel", "dragstart", "blur"].forEach((t) => window.addEventListener(t, release));
+        document.addEventListener("pointerleave", release);
+
+        const ORDER_KEY = "classroomHubDashboardOrderV1";
+        const dash = document.getElementById("view-dashboard");
+        if (!dash) return;
+        const sectionIds = () => [...document.querySelectorAll("[data-ch-widget]")].map((i) => i.dataset.chWidget);
+        const sections = () => sectionIds().map((id) => document.getElementById(id))
+          .filter((el) => el && dash.contains(el) && el.offsetParent !== null);
+        const done = document.createElement("button");
+        done.type = "button";
+        done.className = "btn primary arrange-done";
+        done.textContent = "Done arranging";
+        done.hidden = true;
+        document.body.appendChild(done);
+
+        let holdTimer = 0, arranging = false, drag = null;
+        const save = () => {
+          const ids = [...dash.querySelectorAll(sectionIds().map((id) => "#" + CSS.escape(id)).join(","))].map((el) => el.id);
+          try { localStorage.setItem(ORDER_KEY, JSON.stringify(ids)); } catch {}
+        };
+        const enter = () => {
+          arranging = true;
+          document.body.classList.add("arranging");
+          done.hidden = false;
+          if (navigator.vibrate) navigator.vibrate(15);
+        };
+        const exit = () => {
+          arranging = false;
+          document.body.classList.remove("arranging");
+          done.hidden = true;
+          save();
+          window.chToast && window.chToast("Home layout saved.");
+        };
+        done.addEventListener("click", exit);
+        document.addEventListener("keydown", (e) => { if (e.key === "Escape" && arranging) exit(); });
+
+        // FLIP animation so other sections glide into their new places.
+        const flip = (mutate) => {
+          const list = sections();
+          const before = new Map(list.map((el) => [el, el.getBoundingClientRect().top]));
+          mutate();
+          list.forEach((el) => {
+            if (drag && el === drag.el) return;
+            const dy = before.get(el) - el.getBoundingClientRect().top;
+            if (!dy) return;
+            el.animate([{ transform: "translateY(" + dy + "px)" }, { transform: "none" }], { duration: 320, easing: "cubic-bezier(.22,1,.36,1)" });
+          });
+        };
+
+        dash.addEventListener("pointerdown", (e) => {
+          if (e.button !== 0) return;
+          const sec = e.target.closest(sectionIds().map((id) => "#" + CSS.escape(id)).join(",") || "#__none");
+          if (!sec || !dash.contains(sec)) return;
+          if (!arranging && e.target.closest("button, a, input, select, textarea, label, summary")) return;
+          const startX = e.clientX, startY = e.clientY;
+          const begin = () => {
+            if (!arranging) enter();
+            const rect = sec.getBoundingClientRect();
+            drag = { el: sec, offsetY: startY - rect.top, lastY: startY };
+            sec.classList.add("arrange-lifted");
+            sec.setPointerCapture && sec.setPointerCapture(e.pointerId);
+          };
+          if (arranging) { e.preventDefault(); begin(); return; }
+          holdTimer = setTimeout(begin, 450);
+          const cancelHold = (ev) => {
+            if (Math.abs(ev.clientX - startX) > 8 || Math.abs(ev.clientY - startY) > 8) clearTimeout(holdTimer);
+          };
+          dash.addEventListener("pointermove", cancelHold);
+          window.addEventListener("pointerup", () => { clearTimeout(holdTimer); dash.removeEventListener("pointermove", cancelHold); }, { once: true });
+        });
+        window.addEventListener("pointermove", (e) => {
+          if (!drag) return;
+          e.preventDefault();
+          const el = drag.el;
+          const list = sections();
+          const idx = list.indexOf(el);
+          const prev = list[idx - 1], next = list[idx + 1];
+          if (next && e.clientY > next.getBoundingClientRect().top + next.offsetHeight / 2) flip(() => next.after(el));
+          else if (prev && e.clientY < prev.getBoundingClientRect().top + prev.offsetHeight / 2) flip(() => prev.before(el));
+          const rect = el.getBoundingClientRect();
+          el.style.transform = "translateY(" + (e.clientY - drag.offsetY - (rect.top - (parseFloat(el.dataset.dy) || 0))) + "px) scale(1.015)";
+          el.dataset.dy = String(e.clientY - drag.offsetY - (rect.top - (parseFloat(el.dataset.dy) || 0)));
+          if (e.clientY < 90) window.scrollBy(0, -12);
+          else if (e.clientY > innerHeight - 60) window.scrollBy(0, 12);
+        }, { passive: false });
+        window.addEventListener("pointerup", () => {
+          if (!drag) return;
+          const el = drag.el;
+          drag = null;
+          el.classList.remove("arrange-lifted");
+          el.style.transition = "transform .35s cubic-bezier(.22,1,.36,1)";
+          el.style.transform = "";
+          delete el.dataset.dy;
+          setTimeout(() => { el.style.transition = ""; }, 360);
+          save();
+        });
+      })();
+    </script>
+
 
   </body>
 </html>
