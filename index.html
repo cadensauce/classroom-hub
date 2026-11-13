@@ -32,6 +32,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lilita+One&display=swap" rel="stylesheet" />
     <style>
       /* ===== THEME VARIABLES & BASE ===== */
       :root {
@@ -3247,6 +3248,253 @@ h1 .accent-text { color: #fff; }
 }
 /* ===== END ACHROMA-INSPIRED INTERFACE LAYER ===== */
 
+/* ===== PANEL UI LAYER =====
+   Dark navy cards, top navigation pill bar, numbered gold section headers,
+   chunky display headings, smooth view transitions and tactile press feedback.
+   Loaded last so it overrides every earlier style layer. */
+:root, .light, body {
+  --bg: #0c0f14 !important;
+  --panel: #141821 !important;
+  --panel2: #1a1f29 !important;
+  --panel3: #212733 !important;
+  --border: #252b36 !important;
+  --text: #eef1f6 !important;
+  --muted: #8e97a8 !important;
+  --accent: #8c9dff !important;
+  --accent-rgb: 140, 157, 255 !important;
+}
+:root {
+  --p-gold: #ffc83d;
+  --p-green: #5fd39a;
+  --p-red: #ff6b6b;
+  --p-line: #252b36;
+  --p-line-hi: #353d4b;
+  --p-radius: 18px;
+  --p-radius-sm: 12px;
+  --p-ease: cubic-bezier(.22, 1, .36, 1);
+  --p-display: "Lilita One", "Arial Rounded MT Bold", system-ui, sans-serif;
+  --p-body: Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+/* Appearance options replaced by this design are hidden from Settings. */
+.form-group:has(#accentColor), .custom-color-grid,
+.form-group:has(#themeSelect), .form-group:has(#backgroundSelect),
+.form-group:has(#fontFamilySelect) { display: none !important; }
+
+html { background: var(--bg) !important; }
+body {
+  font-family: var(--p-body) !important;
+  color: var(--text) !important;
+  background: radial-gradient(1200px 600px at 50% -200px, rgba(140, 157, 255, .07), transparent 70%), var(--bg) !important;
+  -webkit-font-smoothing: antialiased;
+}
+body::before { display: none !important; }
+button, input, select, textarea { font-family: inherit !important; }
+select option { background: #141821; color: #eef1f6; }
+
+/* ---- Display type ---- */
+h1, #greeting, .school-timer-count, .clock, .brand-name, .weather-temp {
+  font-family: var(--p-display) !important;
+  font-weight: 400 !important;
+  letter-spacing: .2px !important;
+}
+.accent-text { color: var(--accent) !important; }
+
+/* ---- Numbered section headers: "01 / BELL SCHEDULE" ---- */
+.view { counter-reset: psec; }
+.section-title, .school-timer-eyebrow {
+  font-family: var(--p-display) !important;
+  font-weight: 400 !important;
+  font-size: 15px !important;
+  letter-spacing: .6px !important;
+  text-transform: uppercase;
+  color: var(--p-gold) !important;
+}
+.section-title::before, .school-timer-eyebrow::before {
+  counter-increment: psec;
+  content: counter(psec, decimal-leading-zero) " / ";
+}
+.section-sub, .card-url, .brand-sub, .setting-card p, .school-timer-status, .school-progress-label { color: var(--muted) !important; }
+
+/* ---- Cards ---- */
+.panel, .setting-card, .browser-shell, .game-library-panel, .school-timer, .weather-panel, .clock-box,
+.empty-state, .note, .empty, .hero-top {
+  background: var(--panel) !important;
+  border: 1px solid var(--p-line) !important;
+  border-radius: var(--p-radius) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .03) inset, 0 10px 30px rgba(0, 0, 0, .25) !important;
+  backdrop-filter: none !important;
+}
+.hero-top { padding: 22px 26px !important; align-items: center !important; }
+.hero-top .clock-box { background: var(--panel2) !important; box-shadow: none !important; }
+.card, .game-library-card, .ytr-card, .yt-library-item, .browser-saved-item, .school-timer-times > div {
+  background: var(--panel2) !important;
+  border: 1px solid var(--p-line) !important;
+  border-radius: var(--p-radius-sm) !important;
+  box-shadow: none !important;
+  transition: transform .35s var(--p-ease), border-color .25s ease, background .25s ease, box-shadow .35s var(--p-ease) !important;
+}
+.card:hover, .game-library-card:hover, .ytr-card:hover, .yt-library-item:hover, .browser-saved-item:hover {
+  border-color: var(--p-line-hi) !important;
+  background: var(--panel3) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 26px rgba(0, 0, 0, .3) !important;
+}
+.school-timer-times span { text-transform: uppercase; font-size: 11px; letter-spacing: .6px; color: var(--muted); }
+.school-timer-times strong { font-family: var(--p-display); font-weight: 400; font-size: 20px; }
+.command-palette, .command-search, .settings-autosave, .toast, .action-toast {
+  background: #161a23 !important;
+  border: 1px solid var(--p-line-hi) !important;
+  border-radius: var(--p-radius) !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .5) !important;
+}
+
+/* ---- Buttons & inputs ---- */
+.btn, .icon-btn, .mini-btn, .collapse-btn, .browser-tab, .command-item {
+  background: var(--panel2) !important;
+  border: 1px solid var(--p-line) !important;
+  border-radius: 999px !important;
+  color: var(--text) !important;
+  box-shadow: none !important;
+  font-weight: 600;
+  transition: background .2s ease, border-color .2s ease, transform .35s var(--p-ease), box-shadow .3s ease !important;
+}
+.command-item { border-radius: 12px !important; }
+.btn:hover, .icon-btn:hover, .mini-btn:hover, .collapse-btn:hover, .browser-tab:hover,
+.command-item:hover, .command-item:focus-visible { background: var(--panel3) !important; border-color: var(--p-line-hi) !important; }
+.btn.primary {
+  background: var(--accent) !important;
+  border-color: transparent !important;
+  color: #0c0f14 !important;
+  box-shadow: 0 6px 18px rgba(140, 157, 255, .25) !important;
+}
+.btn.primary:hover { background: #a2b0ff !important; }
+.browser-tab.active { background: var(--panel3) !important; border-color: var(--p-line-hi) !important; color: #fff !important; }
+.field, .select, .browser-address-form input, .search-box, textarea {
+  background: #10131a !important;
+  border: 1px solid var(--p-line) !important;
+  border-radius: 12px !important;
+  color: var(--text) !important;
+  box-shadow: none !important;
+  transition: border-color .2s ease, box-shadow .2s ease !important;
+}
+.field:focus, .select:focus, textarea:focus, .browser-address-form input:focus, .search-box:focus-within {
+  outline: none !important;
+  border-color: rgba(140, 157, 255, .6) !important;
+  box-shadow: 0 0 0 3px rgba(140, 157, 255, .14) !important;
+}
+.search-box input { background: transparent !important; border: 0 !important; box-shadow: none !important; }
+::placeholder { color: #5f6878 !important; }
+input[type="range"] { accent-color: var(--accent); }
+.switch { background: #232936 !important; border: 1px solid var(--p-line-hi) !important; }
+.switch:before { background: #c9d0dc !important; transition: transform .3s var(--p-ease) !important; }
+.switch:checked { background: var(--p-green) !important; border-color: transparent !important; }
+.switch:checked:before { background: #0c0f14 !important; }
+.school-progress-track { background: #10131a !important; border: 1px solid var(--p-line) !important; height: 8px !important; }
+.school-progress-fill { background: linear-gradient(90deg, var(--accent), #b7c2ff) !important; }
+.bell-now { color: var(--p-gold) !important; font-weight: 600; }
+
+/* ---- Hold-to-press: anything clickable sinks while the mouse button is held ---- */
+.btn:active, .icon-btn:active, .mini-btn:active, .nav-btn:active, .browser-tab:active, .command-item:active,
+.card:active, .ytr-card:active, .yt-library-item:active, .game-library-card:active, .swatch:active, .switch:active {
+  transform: scale(.95) !important;
+  transition-duration: .12s !important;
+}
+.panel:active:not(:has(:active)) { transform: scale(.995); }
+.panel { transition: transform .4s var(--p-ease), border-color .25s ease !important; }
+
+/* ---- Smooth view transitions ---- */
+@keyframes p-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.view.active > * { animation: p-rise .55s var(--p-ease) both; }
+.view.active > *:nth-child(2) { animation-delay: .05s; }
+.view.active > *:nth-child(3) { animation-delay: .1s; }
+.view.active > *:nth-child(4) { animation-delay: .15s; }
+.view.active > *:nth-child(5) { animation-delay: .2s; }
+.view.active > *:nth-child(n+6) { animation-delay: .25s; }
+.view.active .hero > * { animation: p-rise .55s var(--p-ease) both; }
+.view.active .hero > *:nth-child(2) { animation-delay: .06s; }
+.view.active .hero > *:nth-child(3) { animation-delay: .12s; }
+.view.active .hero > *:nth-child(4) { animation-delay: .18s; }
+.view.active .hero > *:nth-child(n+5) { animation-delay: .24s; }
+html { scroll-behavior: smooth; }
+
+/* ---- Top navigation bar (desktop) ---- */
+@media (min-width: 901px) {
+  .sidebar {
+    position: fixed !important;
+    top: 0 !important; left: 0 !important; right: 0 !important; bottom: auto !important;
+    width: auto !important; height: 64px !important;
+    display: flex !important; flex-direction: row !important; align-items: center !important; gap: 14px;
+    padding: 0 22px !important;
+    background: rgba(12, 15, 20, .82) !important;
+    border: 0 !important; border-bottom: 1px solid var(--p-line) !important;
+    backdrop-filter: blur(16px) saturate(140%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(140%) !important;
+    overflow: visible !important;
+    transform: none !important;
+    z-index: 60 !important;
+  }
+  .brand { padding: 0 !important; margin: 0 !important; flex: 0 0 auto; }
+  .brand-mark { width: 32px !important; height: 32px !important; flex-basis: 32px !important; border-radius: 10px !important; background: var(--accent) !important; color: #0c0f14 !important; border: 0 !important; font-family: var(--p-display); }
+  .brand-name { font-size: 18px !important; white-space: nowrap; }
+  .brand-sub, .nav-group-label, .sidebar-bottom, .sidebar-note, .mobile-menu, .page-label, #topSettings { display: none !important; }
+  .sidebar .nav {
+    display: flex !important; flex-direction: row !important; align-items: center !important; gap: 2px !important;
+    margin: 0 !important; padding: 4px !important;
+    background: #10131a; border: 1px solid var(--p-line); border-radius: 999px;
+    position: relative;
+  }
+  .sidebar .nav + .nav { display: none !important; }
+  .sidebar .nav-btn {
+    position: relative; z-index: 1;
+    width: auto !important; margin: 0 !important; padding: 8px 18px !important;
+    border: 0 !important; border-radius: 999px !important;
+    background: transparent !important; box-shadow: none !important;
+    color: var(--muted) !important; font-weight: 700 !important;
+    transition: color .25s ease, transform .35s var(--p-ease) !important;
+  }
+  .sidebar .nav-btn:hover { color: var(--text) !important; }
+  .sidebar .nav-btn.active { color: #fff !important; }
+  .sidebar .nav-icon { display: none !important; }
+  .sidebar .nav-text { display: inline !important; opacity: 1 !important; }
+  .nav-pill {
+    position: absolute; top: 4px; bottom: 4px; left: 0; width: 0; z-index: 0;
+    border-radius: 999px; background: #232937; border: 1px solid var(--p-line-hi);
+    transition: transform .45s var(--p-ease), width .45s var(--p-ease), opacity .2s ease;
+    pointer-events: none;
+  }
+  .main { margin-left: 0 !important; padding-top: 0 !important; }
+  .topbar {
+    position: fixed !important; top: 0 !important; right: 22px !important; left: auto !important;
+    height: 64px !important; width: auto !important; padding: 0 !important; margin: 0 !important;
+    background: transparent !important; border: 0 !important; backdrop-filter: none !important;
+    z-index: 61 !important; display: flex !important; align-items: center !important;
+  }
+  .content { padding-top: 88px !important; max-width: 1080px !important; margin: 0 auto !important; }
+  .collapsed .main { margin-left: 0 !important; }
+}
+@media (max-width: 900px) {
+  .sidebar { background: #10131a !important; border-right: 1px solid var(--p-line) !important; }
+  .nav-btn { border-radius: 12px !important; }
+  .nav-btn.active { background: var(--panel3) !important; color: #fff !important; }
+}
+
+/* ---- Browser & media ---- */
+.browser-toolbar, .browser-tab-strip, .browser-footer { background: transparent !important; border-color: var(--p-line) !important; }
+.browser-frame-wrap { background: transparent !important; }
+#chBrowserFrame, .video-frame { border-radius: 12px !important; }
+
+/* ---- Scrollbars ---- */
+* { scrollbar-width: thin; scrollbar-color: #2a303c transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: #2a303c; border-radius: 999px; border: 2px solid var(--bg); }
+::-webkit-scrollbar-track { background: transparent; }
+
+@media (prefers-reduced-motion: reduce) {
+  .view.active > *, .view.active .hero > * { animation: none !important; }
+  .nav-pill { transition: none !important; }
+}
+/* ===== END PANEL UI LAYER ===== */
+
 </style>
   </head>
   <body>
@@ -3277,10 +3525,7 @@ h1 .accent-text { color: #fff; }
             <span class="nav-icon">◎</span><span class="nav-text">Browser</span>
           </button>
           <button class="nav-btn" data-view="youtube">
-            <span class="nav-icon">▷</span><span class="nav-text">YouTube</span></button
-          ><button class="nav-btn" data-view="ai">
-            <span class="nav-icon">✦</span><span class="nav-text">AI Assistant</span>
-          </button>
+            <span class="nav-icon">▷</span><span class="nav-text">YouTube</span></button>
           <div class="nav-group-label" aria-hidden="true">Games</div>
           <button class="nav-btn" data-view="gaming">
             <span class="nav-icon">▣</span><span class="nav-text">Game Library</span>
@@ -3579,79 +3824,6 @@ h1 .accent-text { color: #fff; }
               </div>
             </div>
           </section>
-          <!-- ===== VIEW: AI ASSISTANT ===== -->
-          <section class="view" id="view-ai">
-            <div class="section-head">
-              <div><h1 style="font-size: calc(34px * var(--font-size-adjust)); margin: 0 0 5px; letter-spacing: -1.3px">AI Assistant</h1></div>
-            </div>
-            <div class="ai-layout">
-              <div class="ai-panel">
-                <div class="ai-head">
-                  <div class="ai-orb">✦</div>
-                  <div>
-                    <h2>Gemini for Classroom Hub</h2>
-                    <p>Powered by Google Gemini</p>
-                  </div>
-                  <div class="ai-tools"><button class="btn" id="aiClear" type="button">New chat</button></div>
-                </div>
-                <div class="ai-keybox">
-                  <label for="aiApiKey" style="display: block; font-size: calc(12px * var(--font-size-adjust)); font-weight: clamp(100, calc(700 + var(--weight-delta, 0)), 900); margin-bottom: 7px"
-                    >Gemini API key</label
-                  >
-                  <div class="ai-keyline">
-                    <input
-                      class="field"
-                      id="aiApiKey"
-                      type="password"
-                      autocomplete="off"
-                      placeholder="Paste your Gemini API key here"
-                    /><button class="btn" id="aiShowKey" type="button">Show</button
-                    ><button class="btn" id="aiForgetKey" type="button">Clear key</button>
-                  </div>
-                  <div class="ai-status" id="aiKeyStatus">
-                    Your key stays in this page's memory and is not saved to the site's settings. Get a key from Google
-                    AI Studio.
-                  </div>
-                </div>
-                <div class="ai-messages" id="aiMessages" aria-live="polite">
-                  <div class="ai-empty" id="aiEmpty">
-                    <strong>What can I help you with?</strong>Ask for a clear explanation, a study guide, ideas for a
-                    project, or help understanding a topic.
-                    <div class="ai-suggestions">
-                      <button class="btn" type="button" data-ai-prompt="Explain photosynthesis in simple terms.">
-                        Explain a topic</button
-                      ><button class="btn" type="button" data-ai-prompt="Help me make a study guide for a test.">
-                        Make a study guide</button
-                      ><button
-                        class="btn"
-                        type="button"
-                        data-ai-prompt="Help me solve this step by step, and explain why each step works."
-                      >
-                        Walk me through a problem
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div class="ai-compose">
-                  <form id="aiForm">
-                    <textarea
-                      id="aiPrompt"
-                      maxlength="8000"
-                      rows="2"
-                      placeholder="Message Gemini…"
-                      aria-label="Message Gemini"
-                    ></textarea
-                    ><button class="btn primary" id="aiSend" type="submit">Send ↗</button>
-                  </form>
-                  <p class="ai-footnote">
-                    Usage isn't unlimited: Google's free quota and rate limits apply, and they can change. Don't paste
-                    passwords, private information, or anything you wouldn't want sent to Google. This page sends your
-                    message and chat context to Google's Gemini API.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
           <!-- ===== VIEW: FAVORITES ===== -->
           <section class="view" id="view-favorites">
             <div class="section-head">
@@ -3713,7 +3885,7 @@ h1 .accent-text { color: #fff; }
             <div class="settings-grid">
               <div class="setting-card">
                 <h3>Appearance</h3>
-                <p>Choose the color and overall feel.</p>
+                <p>Spacing, motion, and layout.</p>
                 <div class="form-group">
                   <label for="accentColor">Accent color</label>
                   <div class="color-row">
@@ -4006,8 +4178,6 @@ h1 .accent-text { color: #fff; }
             <span>⌂</span><span>Home</span></button
           ><button class="command-item" type="button" data-command-view="quick">
             <span>▦</span><span>Quick Access</span></button
-          ><button class="command-item" type="button" data-command-view="ai">
-            <span>✳</span><span>AI Assistant</span></button
           ><button class="command-item" type="button" data-command-view="youtube">
             <span>▶</span><span>YouTube</span><kbd>Ctrl ⇧ Y</kbd></button
           ><button class="command-item" type="button" data-command-view="favorites">
@@ -6465,7 +6635,7 @@ h1 .accent-text { color: #fff; }
           initGameLibrary();
           renderStreak();
           setTimeout(maybeRemindBackup, 6000);
-          initAi();
+          if (document.getElementById("aiForm")) initAi();
           renderLinks();
           renderTasks();
           renderActivity();
@@ -6967,5 +7137,28 @@ h1 .accent-text { color: #fff; }
         renderTabs(); renderBookmarks(); renderSessions(); showActive();
       })();
     </script>
+    <script>
+      /* Sliding highlight behind the active top-nav item. */
+      (() => {
+        const nav = document.querySelector(".sidebar .nav");
+        if (!nav) return;
+        const pill = document.createElement("span");
+        pill.className = "nav-pill";
+        pill.setAttribute("aria-hidden", "true");
+        nav.prepend(pill);
+        const place = () => {
+          const active = nav.querySelector(".nav-btn.active");
+          if (!active || getComputedStyle(nav).flexDirection !== "row") { pill.style.opacity = "0"; return; }
+          pill.style.opacity = "1";
+          pill.style.width = active.offsetWidth + "px";
+          pill.style.transform = "translateX(" + active.offsetLeft + "px)";
+        };
+        new MutationObserver(place).observe(nav, { subtree: true, attributes: true, attributeFilter: ["class"] });
+        window.addEventListener("resize", place);
+        document.fonts && document.fonts.ready.then(place);
+        place();
+      })();
+    </script>
+
   </body>
 </html>
