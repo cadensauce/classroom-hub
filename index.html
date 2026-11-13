@@ -3556,6 +3556,28 @@ body.arranging #view-dashboard .section { outline: 1px dashed rgba(140, 157, 255
 .game-add > summary::-webkit-details-marker { display: none; }
 .game-add[open] > summary { margin-bottom: 14px; }
 .game-add .game-link-form { background: var(--panel); border: 1px solid var(--p-line); border-radius: var(--p-radius); padding: 18px; }
+/* ---- In-site game player ---- */
+.game-tile-link { background: transparent !important; border: 0 !important; padding: 0 !important; cursor: pointer; }
+.game-badge { color: var(--p-green); font-weight: 700; }
+.game-player {
+  position: fixed; inset: 64px 0 0 0; z-index: 55;
+  display: flex; flex-direction: column; gap: 12px;
+  padding: 16px 22px 22px; background: rgba(12, 15, 20, .96);
+  opacity: 0; transform: translateY(16px) scale(.99);
+  transition: opacity .28s ease, transform .4s var(--p-ease);
+}
+.game-player.open { opacity: 1; transform: none; }
+.game-player:fullscreen { inset: 0; padding: 12px; }
+.game-player-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.game-player-name { display: flex; align-items: center; gap: 10px; font-family: var(--p-display); font-size: 20px; color: #fff; min-width: 0; }
+.game-player-name span:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.game-player-actions { display: flex; gap: 8px; }
+.game-player-stage { flex: 1; min-height: 0; border: 1px solid var(--p-line); border-radius: var(--p-radius); overflow: hidden; background: #000; }
+#gamePlayerFrame { width: 100%; height: 100%; border: 0; display: block; background: #000; }
+.game-player-hint { text-align: center; color: var(--muted); font-size: 13px; }
+.game-player-hint a { color: var(--accent); }
+body.game-open { overflow: hidden; }
+@media (max-width: 900px) { .game-player { inset: 0; padding: 12px; } }
 /* ===== END PANEL UI LAYER ===== */
 
 </style>
@@ -3909,6 +3931,20 @@ body.arranging #view-dashboard .section { outline: 1px dashed rgba(140, 157, 255
             </div>
             <section class="game-library-panel game-library-plain" aria-label="Games">
               <div class="game-library-grid" id="gameLibraryGrid" aria-live="polite"></div>
+              <div class="game-player" id="gamePlayer" role="dialog" aria-modal="true" aria-labelledby="gamePlayerTitle" hidden>
+                <div class="game-player-bar">
+                  <button class="btn" type="button" id="gamePlayerClose">← Back</button>
+                  <div class="game-player-name"><span id="gamePlayerIcon">🎮</span><span id="gamePlayerTitle">Game</span></div>
+                  <div class="game-player-actions">
+                    <button class="icon-btn" type="button" id="gamePlayerReload" aria-label="Restart game" title="Restart">↻</button>
+                    <button class="btn" type="button" id="gamePlayerFullscreen">⛶ Full screen</button>
+                  </div>
+                </div>
+                <div class="game-player-stage">
+                  <iframe id="gamePlayerFrame" title="Game" allow="autoplay; fullscreen; gamepad; pointer-lock; clipboard-write" allowfullscreen></iframe>
+                </div>
+                <div class="game-player-hint" id="gamePlayerHint" hidden>Not loading? This game may block being shown inside other sites. <a id="gamePlayerExternal" href="#" target="_blank" rel="noopener noreferrer">Open it in a new tab ↗</a></div>
+              </div>
               <details class="game-add" id="gameAddDetails">
                 <summary class="btn">＋ Add a game</summary>
               <form id="gameLinkForm" class="game-link-form">
@@ -6598,6 +6634,58 @@ body.arranging #view-dashboard .section { outline: 1px dashed rgba(140, 157, 255
               localStorage.setItem("classroomHubGamesSeededV1", "1");
             }
           } catch {}
+          // In-site play: sites known to allow embedding, plus official embed links.
+          // Sites that refuse embedding (e.g. Poki, 2048, http-only sites) open in a new tab.
+          const GAME_EMBEDS = {
+            "https://poki.com/en/g/run-3": "https://www.crazygames.com/embed/run-3",
+            "https://smashkarts.io/": "https://smashkarts.io/",
+            "https://shellshock.io/": "https://shellshock.io/",
+            "https://krunker.io/": "https://krunker.io/",
+            "https://paper-io.com/": "https://paper-io.com/",
+          };
+          const NO_EMBED_HOSTS = ["poki.com", "play2048.co", "slither.io"];
+          function gameEmbedUrl(url) {
+            if (GAME_EMBEDS[url]) return GAME_EMBEDS[url];
+            try {
+              const u = new URL(url);
+              const host = u.hostname.replace(/^www\./, "");
+              if (u.protocol !== "https:" || NO_EMBED_HOSTS.some(h => host === h || host.endsWith("." + h))) return "";
+              // Custom games the user added: try playing them in the site.
+              return PRESET_GAMES.some(([, presetUrl]) => presetUrl === url) ? "" : url;
+            } catch { return ""; }
+          }
+          const player = $("gamePlayer"), playerFrame = $("gamePlayerFrame");
+          let playerHintTimer = 0;
+          function openGame(game) {
+            const embed = gameEmbedUrl(game.url);
+            if (!embed || !player) { window.open(game.url, "_blank", "noopener,noreferrer"); return; }
+            $("gamePlayerTitle").textContent = game.name;
+            $("gamePlayerIcon").textContent = game.icon || "🎮";
+            $("gamePlayerExternal").href = game.url;
+            $("gamePlayerHint").hidden = true;
+            playerFrame.src = embed;
+            player.hidden = false;
+            requestAnimationFrame(() => player.classList.add("open"));
+            document.body.classList.add("game-open");
+            clearTimeout(playerHintTimer);
+            playerHintTimer = setTimeout(() => { $("gamePlayerHint").hidden = false; }, 8000);
+            playerFrame.focus();
+          }
+          function closeGame() {
+            if (!player || player.hidden) return;
+            if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+            player.classList.remove("open");
+            document.body.classList.remove("game-open");
+            clearTimeout(playerHintTimer);
+            setTimeout(() => { player.hidden = true; playerFrame.src = "about:blank"; }, 280);
+          }
+          $("gamePlayerClose")?.addEventListener("click", closeGame);
+          $("gamePlayerReload")?.addEventListener("click", () => { const s = playerFrame.src; playerFrame.src = "about:blank"; setTimeout(() => { playerFrame.src = s; }, 50); });
+          $("gamePlayerFullscreen")?.addEventListener("click", () => {
+            if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+            else player.requestFullscreen?.().catch(() => toast("Full screen was blocked by this browser."));
+          });
+          document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !document.fullscreenElement) closeGame(); });
           let gameFilter = "";
           $("gameSearch")?.addEventListener("input", (e) => { gameFilter = e.target.value.trim().toLowerCase(); render(); });
           function persist() {
@@ -6624,11 +6712,12 @@ body.arranging #view-dashboard .section { outline: 1px dashed rgba(140, 157, 255
             grid.innerHTML = shown.map(game => {
               let host = "";
               try { host = new URL(game.url).hostname.replace(/^www\./, ""); } catch {}
+              const inSite = !!gameEmbedUrl(game.url);
               return '<article class="game-library-card" data-game-id="' + esc(game.id) + '">' +
-                '<a class="game-tile-link" href="' + esc(game.url) + '" target="_blank" rel="noopener noreferrer" aria-label="Play ' + esc(game.name) + '"></a>' +
+                '<button class="game-tile-link" type="button" data-game-play="' + esc(game.id) + '" aria-label="Play ' + esc(game.name) + '"></button>' +
                 '<div class="game-library-icon">' + esc(game.icon || "🎮") + '</div>' +
                 '<div class="game-library-info"><div class="game-library-title">' + esc(game.name) + '</div>' +
-                '<div class="game-library-url" title="' + esc(game.url) + '">' + esc(host) + '</div></div>' +
+                '<div class="game-library-url" title="' + esc(game.url) + '">' + (inSite ? '<span class="game-badge">▶ Plays here</span>' : esc(host) + ' ↗') + '</div></div>' +
                 '<div class="game-library-actions"><button class="mini-btn" type="button" data-game-edit="' + esc(game.id) + '" aria-label="Edit ' + esc(game.name) + '">✎</button>' +
                 '<button class="mini-btn" type="button" data-game-delete="' + esc(game.id) + '" aria-label="Remove ' + esc(game.name) + '">×</button></div></article>';
             }).join("");
@@ -6660,6 +6749,12 @@ body.arranging #view-dashboard .section { outline: 1px dashed rgba(140, 157, 255
           });
           cancel.addEventListener("click", clearForm);
           grid.addEventListener("click", event => {
+            const play = event.target.closest("[data-game-play]");
+            if (play) {
+              const game = games.find(item => item.id === play.dataset.gamePlay);
+              if (game) openGame(game);
+              return;
+            }
             const edit = event.target.closest("[data-game-edit]");
             const remove = event.target.closest("[data-game-delete]");
             if (edit) {
