@@ -3278,7 +3278,8 @@ h1 .accent-text { color: #fff; }
 /* Appearance options replaced by this design are hidden from Settings. */
 .form-group:has(#accentColor), .custom-color-grid,
 .form-group:has(#themeSelect), .form-group:has(#backgroundSelect),
-.form-group:has(#fontFamilySelect) { display: none !important; }
+.form-group:has(#fontFamilySelect),
+.form-group:has([data-preset]), .form-group:has(#sidebarWidthRange), .form-group:has(#surfaceOpacityRange), .form-group:has(#cornerSelect) { display: none !important; }
 
 html { background: var(--bg) !important; }
 body {
