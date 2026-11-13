@@ -27,7 +27,7 @@
     <title>Classroom Hub</title>
     <link
       rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27%230b0d11%27/%3E%3Ctext x=%2732%27 y=%2744%27 font-size=%2740%27 font-family=%27sans-serif%27 font-weight=%27700%27 text-anchor=%27middle%27 fill=%27%239caeff%27%3EC%3C/text%3E%3C/svg%3E"
+      href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%279%27 fill=%27%230c0f14%27/%3E%3Crect x=%276%27 y=%276%27 width=%2720%27 height=%2720%27 rx=%277%27 fill=%27none%27 stroke=%27%238c9dff%27 stroke-width=%272.4%27/%3E%3Ccircle cx=%2716%27 cy=%2716%27 r=%273.6%27 fill=%27%238c9dff%27/%3E%3C/svg%3E"
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -3578,6 +3578,49 @@ body.arranging #view-dashboard .section { outline: 1px dashed rgba(140, 157, 255
 .game-player-hint a { color: var(--accent); }
 body.game-open { overflow: hidden; }
 @media (max-width: 900px) { .game-player { inset: 0; padding: 12px; } }
+/* ---- Minimal logo ---- */
+.brand-mark { background: transparent !important; border: 0 !important; color: var(--accent) !important; display: grid !important; place-items: center; }
+.brand-name { font-family: var(--p-body) !important; font-weight: 700 !important; font-size: 16px !important; letter-spacing: -.2px !important; }
+
+/* ---- Look customization ---- */
+.look-swatches { display: flex; flex-wrap: wrap; gap: 10px; }
+.look-swatch { width: 32px; height: 32px; border-radius: 50%; border: 2px solid transparent; background: var(--sw); cursor: pointer; box-shadow: 0 0 0 1px rgba(255, 255, 255, .08); transition: transform .3s var(--p-ease), box-shadow .2s ease; }
+.look-swatch:hover { transform: scale(1.08); }
+.look-swatch.selected { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--sw); }
+.look-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; }
+@media (max-width: 600px) { .look-grid { grid-template-columns: 1fr; } }
+
+html[data-look-headline="clean"] h1, html[data-look-headline="clean"] #greeting, html[data-look-headline="clean"] .school-timer-count,
+html[data-look-headline="clean"] .clock, html[data-look-headline="clean"] .section-title, html[data-look-headline="clean"] .school-timer-eyebrow,
+html[data-look-headline="clean"] .game-library-title, html[data-look-headline="clean"] #view-settings .setting-card > h3, html[data-look-headline="clean"] .game-player-name {
+  font-family: var(--p-body) !important; font-weight: 800 !important; letter-spacing: -.3px !important;
+}
+html[data-look-headline="mono"] h1, html[data-look-headline="mono"] #greeting, html[data-look-headline="mono"] .school-timer-count,
+html[data-look-headline="mono"] .clock, html[data-look-headline="mono"] .section-title, html[data-look-headline="mono"] .school-timer-eyebrow,
+html[data-look-headline="mono"] .game-library-title, html[data-look-headline="mono"] #view-settings .setting-card > h3, html[data-look-headline="mono"] .game-player-name {
+  font-family: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace !important; font-weight: 700 !important; letter-spacing: -.2px !important;
+}
+html[data-look-corners="soft"] { --p-radius: 12px; --p-radius-sm: 8px; }
+html[data-look-corners="sharp"] { --p-radius: 6px; --p-radius-sm: 4px; }
+html[data-look-corners="sharp"] .btn, html[data-look-corners="sharp"] .icon-btn, html[data-look-corners="sharp"] .mini-btn,
+html[data-look-corners="sharp"] .field, html[data-look-corners="sharp"] .select, html[data-look-corners="sharp"] .sidebar .nav,
+html[data-look-corners="sharp"] .sidebar .nav-btn, html[data-look-corners="sharp"] .nav-pill, html[data-look-corners="sharp"] .browser-tab { border-radius: 6px !important; }
+html[data-look-corners="soft"] .btn, html[data-look-corners="soft"] .icon-btn, html[data-look-corners="soft"] .sidebar .nav,
+html[data-look-corners="soft"] .sidebar .nav-btn, html[data-look-corners="soft"] .nav-pill, html[data-look-corners="soft"] .browser-tab { border-radius: 10px !important; }
+html[data-look-background="plain"] body { background: var(--bg) !important; }
+html[data-look-background="dots"] body { background: radial-gradient(rgba(255, 255, 255, .06) 1px, transparent 1px) 0 0 / 18px 18px, var(--bg) !important; }
+html[data-look-background="aurora"] body {
+  background: radial-gradient(900px 500px at 15% -10%, rgba(var(--accent-rgb), .16), transparent 70%),
+              radial-gradient(800px 500px at 100% 10%, rgba(95, 211, 154, .08), transparent 70%), var(--bg) !important;
+  background-attachment: fixed !important;
+}
+html[data-look-background="glow"] body { background: radial-gradient(1200px 600px at 50% -200px, rgba(var(--accent-rgb), .09), transparent 70%), var(--bg) !important; }
+html[data-look-density="compact"] .section { margin-bottom: 14px !important; }
+html[data-look-density="compact"] .panel, html[data-look-density="compact"] .setting-card { padding: 16px 18px !important; }
+html[data-look-density="compact"] .content { padding-top: 78px !important; }
+html[data-look-numbers="off"] .section-title::before, html[data-look-numbers="off"] .school-timer-eyebrow::before,
+html[data-look-numbers="off"] #view-settings .setting-card > h3::before { content: none !important; }
+html[data-look-gold="off"] .section-title, html[data-look-gold="off"] .school-timer-eyebrow, html[data-look-gold="off"] #view-settings .setting-card > h3 { color: #fff !important; }
 /* ===== END PANEL UI LAYER ===== */
 
 </style>
@@ -3592,7 +3635,7 @@ body.game-open { overflow: hidden; }
       <!-- ===== SIDEBAR (main navigation) ===== -->
       <aside id="sidebar" class="sidebar">
         <div class="brand">
-          <div class="brand-mark">C</div>
+          <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32" width="22" height="22"><rect x="3.5" y="3.5" width="25" height="25" rx="8.5" fill="none" stroke="currentColor" stroke-width="2.6"/><circle cx="16" cy="16" r="4.2" fill="currentColor"/></svg></div>
           <div class="brand-name">Classroom Hub<span class="brand-sub">YOUR SPACE, YOUR FLOW</span></div>
         </div>
         <nav class="nav" aria-label="Main navigation">
@@ -4081,6 +4124,41 @@ body.game-open { overflow: hidden; }
                     <option value="glow">Soft glow</option>
                     <option value="grid">Faint grid</option>
                   </select>
+                </div>
+              </div>
+              <div class="setting-card" id="lookCard">
+                <h3>Look</h3>
+                <p>Make Classroom Hub yours. Changes apply instantly.</p>
+                <div class="form-group">
+                  <label>Accent color</label>
+                  <div class="look-swatches" id="lookAccent">
+                    <button type="button" class="look-swatch" data-look-accent="#8c9dff" style="--sw:#8c9dff" aria-label="Periwinkle"></button>
+                    <button type="button" class="look-swatch" data-look-accent="#5fd39a" style="--sw:#5fd39a" aria-label="Mint"></button>
+                    <button type="button" class="look-swatch" data-look-accent="#4fc3f7" style="--sw:#4fc3f7" aria-label="Sky"></button>
+                    <button type="button" class="look-swatch" data-look-accent="#b18cff" style="--sw:#b18cff" aria-label="Violet"></button>
+                    <button type="button" class="look-swatch" data-look-accent="#ff8fb1" style="--sw:#ff8fb1" aria-label="Pink"></button>
+                    <button type="button" class="look-swatch" data-look-accent="#ff8a65" style="--sw:#ff8a65" aria-label="Coral"></button>
+                    <button type="button" class="look-swatch" data-look-accent="#ffc83d" style="--sw:#ffc83d" aria-label="Gold"></button>
+                    <button type="button" class="look-swatch" data-look-accent="#e9edf5" style="--sw:#e9edf5" aria-label="White"></button>
+                  </div>
+                </div>
+                <div class="look-grid">
+                  <div class="form-group"><label for="lookHeadline">Headline font</label>
+                    <select class="select" id="lookHeadline" data-look="headline"><option value="bold">Bold &amp; playful</option><option value="clean">Clean</option><option value="mono">Mono</option></select></div>
+                  <div class="form-group"><label for="lookCorners">Corners</label>
+                    <select class="select" id="lookCorners" data-look="corners"><option value="round">Rounded</option><option value="soft">Soft</option><option value="sharp">Sharp</option></select></div>
+                  <div class="form-group"><label for="lookBackground">Background</label>
+                    <select class="select" id="lookBackground" data-look="background"><option value="glow">Soft glow</option><option value="plain">Plain</option><option value="dots">Dots</option><option value="aurora">Aurora</option></select></div>
+                  <div class="form-group"><label for="lookDensity">Spacing</label>
+                    <select class="select" id="lookDensity" data-look="density"><option value="comfy">Comfortable</option><option value="compact">Compact</option></select></div>
+                </div>
+                <div class="toggle-row">
+                  <div class="toggle-label"><strong>Numbered section headers</strong><span>Show “01 /” before each section title.</span></div>
+                  <input class="switch" type="checkbox" id="lookNumbers" data-look-toggle="numbers" checked />
+                </div>
+                <div class="toggle-row">
+                  <div class="toggle-label"><strong>Colored section headers</strong><span>Use gold for section titles instead of white.</span></div>
+                  <input class="switch" type="checkbox" id="lookGold" data-look-toggle="gold" checked />
                 </div>
               </div>
               <div class="setting-card">
@@ -6607,45 +6685,38 @@ body.game-open { overflow: hidden; }
           // Built-in starter games (official game portal pages), added once per browser.
           const PRESET_GAMES = [
             ["Rocket Goal", "https://rocketgoal.io/", "🚀"],
+            ["Tunnel Run", "https://www.y8.com/embed/tunnel_run", "🌀"],
             ["Slope", "https://www.y8.com/embed/slope", "🟢"],
-            ["Color Tunnel", "https://www.y8.com/embed/color_tunnel", "🌀"],
-            ["Run 3", "https://poki.com/en/g/run-3", "🏃"],
             ["Smash Karts", "https://smashkarts.io/", "🏎️"],
-            ["Shell Shockers", "https://shellshock.io/", "🥚"],
             ["Krunker", "https://krunker.io/", "🎯"],
-            ["Narrow One", "https://narrow.one/", "🏹"],
             ["ZombsRoyale.io", "https://zombsroyale.io/", "🧟"],
-            ["Diep.io", "https://diep.io/", "🔵"],
             ["Hole.io", "https://hole-io.com/", "🕳️"],
             ["Bonk.io", "https://bonk.io/", "⚪"],
-            ["Powerline.io", "https://powerline.io/", "⚡"],
-            ["EvoWars.io", "https://evowars.io/", "⚔️"],
-            ["Wormate.io", "https://wormate.io/", "🐛"],
-            ["YoHoHo.io", "https://yohoho.io/", "🏴‍☠️"],
+            ["Moto X3M", "https://www.y8.com/embed/moto_x3m", "🏍️"],
             ["Paper.io 2", "https://paper-io.com/", "🟦"],
           ];
-          // Earlier presets whose sites block being shown inside other pages.
-          const RETIRED_PRESETS = [
+          // Every game Classroom Hub has ever pre-added. On upgrade, presets no longer in the list
+          // are removed; games the user added themselves are always kept.
+          const ALL_PAST_PRESETS = [
             "https://poki.com/en/g/slope", "https://poki.com/en/g/retro-bowl", "https://poki.com/en/g/tunnel-rush",
             "https://poki.com/en/g/subway-surfers", "https://poki.com/en/g/moto-x3m", "https://poki.com/en/g/drift-boss",
             "https://poki.com/en/g/temple-run-2", "https://poki.com/en/g/stickman-hook", "https://poki.com/en/g/basketball-stars",
             "https://poki.com/en/g/crossy-road", "https://poki.com/en/g/getaway-shootout", "https://poki.com/en/g/bob-the-robber-2",
-            "https://slither.io/", "https://play2048.co/",
+            "https://slither.io/", "https://play2048.co/", "https://poki.com/en/g/run-3", "https://shellshock.io/",
+            "https://narrow.one/", "https://diep.io/", "https://powerline.io/", "https://evowars.io/", "https://wormate.io/",
+            "https://yohoho.io/", "https://www.y8.com/embed/color_tunnel",
           ];
           try {
-            if (!localStorage.getItem("classroomHubGamesSeededV2")) {
-              games = games.filter(g => !RETIRED_PRESETS.includes(g.url));
+            if (localStorage.getItem("classroomHubGamesVersion") !== "6") {
+              const keep = new Set(PRESET_GAMES.map(([, url]) => url));
+              games = games.filter(g => keep.has(g.url) || !ALL_PAST_PRESETS.includes(g.url));
               const have = new Set(games.map(g => g.url));
-              PRESET_GAMES.forEach(([name, url, icon]) => { if (!have.has(url)) games.push({ id: uid(), name, url, icon }); });
+              const added = PRESET_GAMES.filter(([, url]) => !have.has(url)).map(([name, url, icon]) => ({ id: uid(), name, url, icon }));
+              games = [...added, ...games];
+              const order = PRESET_GAMES.map(([, url]) => url);
+              games.sort((a, b) => (order.indexOf(a.url) + 1 || 999) - (order.indexOf(b.url) + 1 || 999));
               localStorage.setItem(storageKey, JSON.stringify(games));
-              localStorage.setItem("classroomHubGamesSeededV1", "1");
-              localStorage.setItem("classroomHubGamesSeededV2", "1");
-            }
-            if (!localStorage.getItem("classroomHubGamesSeededV4")) {
-              const have = new Set(games.map(g => g.url));
-              PRESET_GAMES.forEach(([name, url, icon]) => { if (!have.has(url)) games.unshift({ id: uid(), name, url, icon }); });
-              localStorage.setItem(storageKey, JSON.stringify(games));
-              localStorage.setItem("classroomHubGamesSeededV4", "1");
+              localStorage.setItem("classroomHubGamesVersion", "6");
             }
           } catch {}
           // In-site play: sites known to allow embedding, plus official embed links.
@@ -6690,7 +6761,8 @@ body.game-open { overflow: hidden; }
           // Some embeds (e.g. Y8) draw a fixed-size game; scale those to fill the player.
           const GAME_SIZES = {
             "https://www.y8.com/embed/slope": [960, 640],
-            "https://www.y8.com/embed/color_tunnel": [960, 640],
+            "https://www.y8.com/embed/tunnel_run": [960, 640],
+            "https://www.y8.com/embed/moto_x3m": [960, 640],
           };
           let gameSize = null;
           function fitGameFrame(size) {
@@ -6718,6 +6790,8 @@ body.game-open { overflow: hidden; }
             else player.requestFullscreen?.().catch(() => toast("Full screen was blocked by this browser."));
           });
           document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !document.fullscreenElement) closeGame(); });
+          // Switching pages from the top nav closes the game.
+          document.addEventListener("click", (e) => { if (e.target.closest("[data-view], [data-command-view]")) closeGame(); }, true);
           let gameFilter = "";
           $("gameSearch")?.addEventListener("input", (e) => { gameFilter = e.target.value.trim().toLowerCase(); render(); });
           function persist() {
@@ -7491,6 +7565,45 @@ body.game-open { overflow: hidden; }
         });
       })();
     </script>
+    <script>
+      /* Look customization: accent, headline font, corners, background, spacing, header style.
+         Saved in this browser and applied before the page paints where possible. */
+      (() => {
+        const KEY = "classroomHubLookV1";
+        const DEFAULTS = { accent: "#8c9dff", headline: "bold", corners: "round", background: "glow", density: "comfy", numbers: true, gold: true };
+        let look = { ...DEFAULTS };
+        try { look = { ...DEFAULTS, ...(JSON.parse(localStorage.getItem(KEY) || "{}") || {}) }; } catch {}
+        const root = document.documentElement;
+        const apply = () => {
+          const hex = /^#[0-9a-f]{6}$/i.test(look.accent) ? look.accent : DEFAULTS.accent;
+          const rgb = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(", ");
+          root.style.setProperty("--accent", hex, "important");
+          root.style.setProperty("--accent-rgb", rgb, "important");
+          root.dataset.lookHeadline = look.headline;
+          root.dataset.lookCorners = look.corners;
+          root.dataset.lookBackground = look.background;
+          root.dataset.lookDensity = look.density;
+          root.dataset.lookNumbers = look.numbers ? "on" : "off";
+          root.dataset.lookGold = look.gold ? "on" : "off";
+          document.querySelectorAll("[data-look-accent]").forEach((b) => b.classList.toggle("selected", b.dataset.lookAccent.toLowerCase() === hex.toLowerCase()));
+          document.querySelectorAll("[data-look]").forEach((s) => { s.value = look[s.dataset.look]; });
+          document.querySelectorAll("[data-look-toggle]").forEach((t) => { t.checked = !!look[t.dataset.lookToggle]; });
+        };
+        const save = () => { try { localStorage.setItem(KEY, JSON.stringify(look)); } catch {} apply(); };
+        document.addEventListener("click", (e) => {
+          const sw = e.target.closest("[data-look-accent]");
+          if (sw) { look.accent = sw.dataset.lookAccent; save(); }
+        });
+        document.addEventListener("change", (e) => {
+          const s = e.target.closest("[data-look]");
+          if (s) { look[s.dataset.look] = s.value; save(); }
+          const t = e.target.closest("[data-look-toggle]");
+          if (t) { look[t.dataset.lookToggle] = t.checked; save(); }
+        });
+        apply();
+      })();
+    </script>
+
 
 
   </body>
