@@ -2976,6 +2976,11 @@
         .browser-frame-wrap { min-height:420px; height:min(68vh,760px); background:var(--bg); position:relative; }
         #chBrowserFrame { width:100%; height:100%; min-height:420px; border:0; background:#fff; }
         .browser-empty { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:12px; padding:24px; color:var(--muted); }
+        .browser-empty[hidden], #chBrowserFrame[hidden] { display:none !important; }
+        #chBrowserShell:fullscreen { display:flex; flex-direction:column; width:100vw; height:100vh; border-radius:0; border:0; margin:0; background:var(--panel, var(--bg)); }
+        #chBrowserShell:fullscreen .browser-frame-wrap { flex:1 1 auto; height:auto; min-height:0; }
+        #chBrowserShell:fullscreen #chBrowserFrame { min-height:0; }
+        #chBrowserShell:fullscreen .browser-footer { display:none; }
         .browser-empty h2 { color:var(--text); margin:0; font-size:22px; }
         .browser-empty p { max-width:560px; margin:0; line-height:1.6; }
         .browser-empty-mark { display:grid; place-items:center; width:54px; height:54px; border:1px solid var(--border); border-radius:16px; font-size:28px; color:var(--text); }
@@ -3423,16 +3428,17 @@ h1 .accent-text { color: #fff; }
                 <div class="section-sub">A simple browsing workspace with tabs, bookmarks, and saved sessions.</div>
               </div>
             </div>
-            <div class="browser-shell panel">
+            <div class="browser-shell panel" id="chBrowserShell">
               <div class="browser-toolbar">
                 <button class="icon-btn" id="chBrowserBack" type="button" aria-label="Go back" title="Back">←</button>
                 <button class="icon-btn" id="chBrowserForward" type="button" aria-label="Go forward" title="Forward">→</button>
                 <button class="icon-btn" id="chBrowserReload" type="button" aria-label="Reload page" title="Reload">↻</button>
                 <form id="chBrowserForm" class="browser-address-form">
-                  <input class="field" id="chBrowserAddress" type="text" placeholder="Search or enter a website address…" aria-label="Search or enter a website address" autocomplete="url" />
+                  <input class="field" id="chBrowserAddress" type="text" placeholder="Search DuckDuckGo or enter a website address…" aria-label="Search DuckDuckGo or enter a website address" autocomplete="url" />
                   <button class="btn primary" type="submit">Go</button>
                 </form>
                 <button class="btn" id="chBrowserNewTab" type="button">＋ Tab</button>
+                <button class="btn" id="chBrowserFullscreen" type="button" title="Full screen (Esc to exit)">⛶ Full screen</button>
                 <button class="btn" id="chBrowserOpenExternal" type="button">Open externally ↗</button>
               </div>
               <div class="browser-tab-strip" id="chBrowserTabs" aria-label="Browser tabs"></div>
@@ -3442,9 +3448,17 @@ h1 .accent-text { color: #fff; }
                   <h2>Your browsing space</h2>
                   <p>Enter a website address or search above. Some websites don't allow embedding and may need to be opened in a regular browser tab.</p>
                   <div class="browser-shortcuts">
-                    <button class="btn" type="button" data-browser-shortcut="https://www.google.com">Google</button>
+                    <button class="btn" type="button" data-browser-shortcut="https://duckduckgo.com">DuckDuckGo</button>
                     <button class="btn" type="button" data-browser-shortcut="https://www.wikipedia.org">Wikipedia</button>
                     <button class="btn" type="button" data-browser-shortcut="https://www.youtube.com">YouTube</button>
+                  </div>
+                </div>
+                <div class="browser-empty" id="chBrowserBlocked" hidden>
+                  <div class="browser-empty-mark">↗</div>
+                  <h2 id="chBrowserBlockedTitle">This site can't be shown here</h2>
+                  <p>This website doesn't allow itself to be displayed inside other pages, so it has to open in a regular browser tab.</p>
+                  <div class="browser-shortcuts">
+                    <button class="btn primary" type="button" id="chBrowserBlockedOpen">Open in new tab ↗</button>
                   </div>
                 </div>
                 <iframe id="chBrowserFrame" title="Browser content" referrerpolicy="no-referrer" loading="lazy" allow="fullscreen; autoplay; encrypted-media; picture-in-picture" hidden></iframe>
@@ -6773,7 +6787,7 @@ h1 .accent-text { color: #fff; }
           if (!value) return "";
           if (/^(javascript|data|file|vbscript):/i.test(value)) return "";
           if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(value) && !/^(about:|mailto:)/i.test(value)) {
-            value = /\s/.test(value) || !value.includes(".") ? "https://www.google.com/search?q=" + encodeURIComponent(value) : "https://" + value;
+            value = /\s/.test(value) || !value.includes(".") ? "https://duckduckgo.com/?q=" + encodeURIComponent(value) : "https://" + value;
           }
           try { const parsed = new URL(value); return ["http:", "https:"].includes(parsed.protocol) ? parsed.href : ""; } catch { return ""; }
         };
@@ -6792,33 +6806,65 @@ h1 .accent-text { color: #fff; }
           });
         };
         const forwardByTab = {};
+        // Sites that refuse to be shown inside another page (X-Frame-Options / CSP frame-ancestors).
+        const BLOCKED_HOSTS = [
+          "facebook.com", "instagram.com", "x.com", "twitter.com", "tiktok.com", "reddit.com",
+          "github.com", "discord.com", "netflix.com", "amazon.com", "linkedin.com", "bing.com",
+          "duckduckgo.com", "chatgpt.com", "openai.com", "claude.ai", "twitch.tv", "pinterest.com",
+          "accounts.google.com", "mail.google.com", "classroom.google.com", "drive.google.com",
+          "docs.google.com", "outlook.live.com", "office.com", "microsoft365.com", "canvas.instructure.com",
+        ];
+        const hostOf = (url) => { try { return new URL(url).hostname.toLowerCase().replace(/^www\./, ""); } catch { return ""; } };
+        const matchesHost = (host, list) => list.some((h) => host === h || host.endsWith("." + h));
+        const isBlocked = (url) => matchesHost(hostOf(url), BLOCKED_HOSTS);
+        const isYoutube = (url) => matchesHost(hostOf(url), ["youtube.com", "youtu.be", "youtube-nocookie.com"]);
+        // Google's home and search pages can be embedded when igu=1 is set.
+        const frameUrl = (url) => {
+          try {
+            const u = new URL(url);
+            if (/^(www\.)?google\.[a-z.]+$/i.test(u.hostname) && (u.pathname === "/" || u.pathname === "/search" || u.pathname === "/webhp")) {
+              u.searchParams.set("igu", "1");
+              return u.href;
+            }
+          } catch {}
+          return url;
+        };
+        // YouTube can't be embedded as a site, so send it to Classroom Hub's YouTube page.
+        const openInYoutubeView = (url) => {
+          let query = url;
+          try { const u = new URL(url); if (u.pathname === "/results") query = u.searchParams.get("search_query") || ""; else if (u.pathname === "/" ) query = ""; } catch {}
+          document.querySelector('.nav-btn[data-view="youtube"]')?.click();
+          const input = document.getElementById("youtubeQuery");
+          const form = document.getElementById("youtubeSearchForm");
+          if (query && input && form) { input.value = query; form.requestSubmit(); }
+          else input?.focus();
+        };
         const showActive = () => {
           const tab = activeTab(); if (!tab) return;
           $b("chBrowserAddress").value = tab.url || "";
-          const frame = $b("chBrowserFrame"), empty = $b("chBrowserEmpty");
-          if (tab.url) {
-            frame.hidden = false; empty.hidden = true;
+          const frame = $b("chBrowserFrame"), empty = $b("chBrowserEmpty"), blocked = $b("chBrowserBlocked");
+          if (tab.url && isBlocked(tab.url)) {
+            frame.removeAttribute("src"); frame.hidden = true; empty.hidden = true; blocked.hidden = false;
+            $b("chBrowserBlockedTitle").textContent = titleFor(tab.url) + " can't be shown here";
+            status(titleFor(tab.url) + " blocks being shown inside other pages. Use Open in new tab.");
+          } else if (tab.url) {
+            frame.hidden = false; empty.hidden = true; blocked.hidden = true;
             // Switching between Classroom Hub tabs should not reload the same page.
-            if (frame.getAttribute("src") !== tab.url) frame.src = tab.url;
-            status("Trying to load " + titleFor(tab.url) + ". If it refuses to display, use Open externally.");
-          } else { frame.removeAttribute("src"); frame.hidden = true; empty.hidden = false; status("Ready. Enter a URL or search above."); }
+            const src = frameUrl(tab.url);
+            if (frame.getAttribute("src") !== src) frame.src = src;
+            status("Loading " + titleFor(tab.url) + ". If the page stays blank or shows an error, the site blocks embedding: use Open externally.");
+          } else { frame.removeAttribute("src"); frame.hidden = true; empty.hidden = false; blocked.hidden = true; status("Ready. Enter a URL or search above."); }
         };
         const navigate = (raw, replaceHistory = false) => {
           const entered = String(raw || "").trim();
-          // Search-result pages commonly block iframe embedding. Open searches in a
-          // normal browser tab instead of letting the embedded frame fail or reload Hub.
-          const isSearch = entered && !/^(javascript|data|file|vbscript):/i.test(entered)
-            && !/^[a-z][a-z0-9+.-]*:\/\//i.test(entered)
-            && !/^(about:|mailto:)/i.test(entered)
-            && (/\s/.test(entered) || !entered.includes("."));
-          if (isSearch) {
-            const searchUrl = "https://www.google.com/search?q=" + encodeURIComponent(entered);
-            window.open(searchUrl, "_blank", "noopener,noreferrer");
-            status("Opened your search in a new browser tab. Classroom Hub stays open here.");
-            return;
-          }
           const url = safeUrl(entered);
           if (!url) { status("Enter a valid http or https address, or a search phrase."); return; }
+          if (isYoutube(url)) { openInYoutubeView(url); return; }
+          // DuckDuckGo is the search engine, but it refuses to load inside other pages,
+          // so open it in a real browser tab straight from the user's click.
+          if (!replaceHistory && hostOf(url) === "duckduckgo.com") {
+            window.open(url, "_blank", "noopener,noreferrer");
+          }
           const tab = activeTab();
           if (!replaceHistory && tab.url && tab.url !== url) {
             (historyByTab[tab.id] ||= []).push(tab.url);
@@ -6876,7 +6922,21 @@ h1 .accent-text { color: #fff; }
           const tab = { id: "tab-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6), title: "New tab", url: "" };
           tabs.push(tab); activeId = tab.id; persist(); renderTabs(); showActive(); $b("chBrowserAddress").focus();
         });
-        $b("chBrowserReload")?.addEventListener("click", () => { const frame = $b("chBrowserFrame"); if (activeTab().url) { frame.src = activeTab().url; status("Reloading page…"); } });
+        $b("chBrowserFullscreen")?.addEventListener("click", () => {
+          const shell = $b("chBrowserShell");
+          if (document.fullscreenElement) { document.exitFullscreen().catch(() => {}); return; }
+          if (!shell.requestFullscreen) { status("Full screen isn't supported in this browser."); return; }
+          shell.requestFullscreen().catch(() => status("Full screen was blocked by this browser."));
+        });
+        document.addEventListener("fullscreenchange", () => {
+          const button = $b("chBrowserFullscreen");
+          if (button) button.textContent = document.fullscreenElement === $b("chBrowserShell") ? "✕ Exit full screen" : "⛶ Full screen";
+        });
+        $b("chBrowserBlockedOpen")?.addEventListener("click", () => {
+          const url = activeTab().url;
+          if (url) window.open(url, "_blank", "noopener,noreferrer");
+        });
+        $b("chBrowserReload")?.addEventListener("click", () => { const frame = $b("chBrowserFrame"); if (activeTab().url && !isBlocked(activeTab().url)) { frame.src = frameUrl(activeTab().url); status("Reloading page…"); } });
         $b("chBrowserBack")?.addEventListener("click", () => {
           const tab = activeTab(), history = historyByTab[tab.id] || [];
           const previous = history.pop();
