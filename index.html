@@ -3560,7 +3560,7 @@ body.arranging #view-dashboard .section { outline: 1px dashed rgba(140, 157, 255
 .game-tile-link { background: transparent !important; border: 0 !important; padding: 0 !important; cursor: pointer; }
 .game-badge { color: var(--p-green); font-weight: 700; }
 .game-player {
-  position: fixed; inset: 64px 0 0 0; z-index: 55;
+  position: fixed; inset: 64px 0 0 0; z-index: 55; background: #0c0f14 !important;
   display: flex; flex-direction: column; gap: 12px;
   padding: 16px 22px 22px; background: rgba(12, 15, 20, .96);
   opacity: 0; transform: translateY(16px) scale(.99);
@@ -6655,6 +6655,7 @@ body.game-open { overflow: hidden; }
             } catch { return ""; }
           }
           const player = $("gamePlayer"), playerFrame = $("gamePlayerFrame");
+          if (player) document.body.appendChild(player);
           let playerHintTimer = 0;
           function openGame(game) {
             const embed = gameEmbedUrl(game.url);
