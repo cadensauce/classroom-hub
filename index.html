@@ -7688,16 +7688,25 @@ html[data-look-gold="off"] .section-title, html[data-look-gold="off"] .school-ti
               .replace(/`([^`]+)`/g, "<code>$1</code>")
               .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
               .replace(/(^|[^*])\*([^*\n]+)\*/g, "$1<em>$2</em>")
-              .split(/\n{2,}/).map((p) => {
-                p = p.trim();
-                if (!p) return "";
-                const lines = p.split("\n");
-                if (lines.every((l) => /^\s*[-*•] /.test(l))) return "<ul>" + lines.map((l) => "<li>" + l.replace(/^\s*[-*•] /, "") + "</li>").join("") + "</ul>";
-                if (lines.every((l) => /^\s*\d+[.)] /.test(l))) return "<ol>" + lines.map((l) => "<li>" + l.replace(/^\s*\d+[.)] /, "") + "</li>").join("") + "</ol>";
-                const h = p.match(/^#{1,4} (.*)$/);
-                if (h && lines.length === 1) return "<h3>" + h[1] + "</h3>";
-                return "<p>" + p.replace(/\n/g, "<br>") + "</p>";
-              }).join("");
+              .split("\n").reduce((acc, raw) => {
+                const l = raw.trim();
+                const last = acc[acc.length - 1];
+                const ul = l.match(/^[-*•] (.*)$/), ol = l.match(/^\d+[.)] (.*)$/), h = l.match(/^#{1,6} (.*)$/);
+                if (!l) acc.push({ t: "gap" });
+                else if (h) acc.push({ t: "h", v: h[1] });
+                else if (ul) { if (last && last.t === "ul") last.v.push(ul[1]); else acc.push({ t: "ul", v: [ul[1]] }); }
+                else if (ol) { if (last && last.t === "ol") last.v.push(ol[1]); else acc.push({ t: "ol", v: [ol[1]] }); }
+                else if (/^(-{3,}|\*{3,})$/.test(l)) acc.push({ t: "hr" });
+                else if (last && last.t === "p") last.v.push(l);
+                else acc.push({ t: "p", v: [l] });
+                return acc;
+              }, []).map((b) =>
+                b.t === "h" ? "<h3>" + b.v + "</h3>" :
+                b.t === "ul" ? "<ul>" + b.v.map((x) => "<li>" + x + "</li>").join("") + "</ul>" :
+                b.t === "ol" ? "<ol>" + b.v.map((x) => "<li>" + x + "</li>").join("") + "</ol>" :
+                b.t === "hr" ? "<hr>" :
+                b.t === "p" ? "<p>" + b.v.join("<br>") + "</p>" : ""
+              ).join("");
           }).join("");
         };
         const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(history.slice(-30))); } catch {} };
