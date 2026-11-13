@@ -3434,21 +3434,20 @@ h1 .accent-text { color: #fff; }
                 <button class="icon-btn" id="chBrowserForward" type="button" aria-label="Go forward" title="Forward">→</button>
                 <button class="icon-btn" id="chBrowserReload" type="button" aria-label="Reload page" title="Reload">↻</button>
                 <form id="chBrowserForm" class="browser-address-form">
-                  <input class="field" id="chBrowserAddress" type="text" placeholder="Search DuckDuckGo or enter a website address…" aria-label="Search DuckDuckGo or enter a website address" autocomplete="url" />
+                  <input class="field" id="chBrowserAddress" type="text" placeholder="Search Google or enter a website address…" aria-label="Search Google or enter a website address" autocomplete="url" />
                   <button class="btn primary" type="submit">Go</button>
                 </form>
                 <button class="btn" id="chBrowserNewTab" type="button">＋ Tab</button>
                 <button class="btn" id="chBrowserFullscreen" type="button" title="Full screen (Esc to exit)">⛶ Full screen</button>
-                <button class="btn" id="chBrowserOpenExternal" type="button">Open externally ↗</button>
               </div>
               <div class="browser-tab-strip" id="chBrowserTabs" aria-label="Browser tabs"></div>
               <div class="browser-frame-wrap">
                 <div class="browser-empty" id="chBrowserEmpty">
                   <div class="browser-empty-mark">◎</div>
                   <h2>Your browsing space</h2>
-                  <p>Enter a website address or search above. Some websites don't allow embedding and may need to be opened in a regular browser tab.</p>
+                  <p>Search Google or enter a website address above. Use ＋ Tab to open more pages side by side.</p>
                   <div class="browser-shortcuts">
-                    <button class="btn" type="button" data-browser-shortcut="https://duckduckgo.com">DuckDuckGo</button>
+                    <button class="btn" type="button" data-browser-shortcut="https://www.google.com">Google</button>
                     <button class="btn" type="button" data-browser-shortcut="https://www.wikipedia.org">Wikipedia</button>
                     <button class="btn" type="button" data-browser-shortcut="https://www.youtube.com">YouTube</button>
                   </div>
@@ -3456,10 +3455,7 @@ h1 .accent-text { color: #fff; }
                 <div class="browser-empty" id="chBrowserBlocked" hidden>
                   <div class="browser-empty-mark">↗</div>
                   <h2 id="chBrowserBlockedTitle">This site can't be shown here</h2>
-                  <p>This website doesn't allow itself to be displayed inside other pages, so it has to open in a regular browser tab.</p>
-                  <div class="browser-shortcuts">
-                    <button class="btn primary" type="button" id="chBrowserBlockedOpen">Open in new tab ↗</button>
-                  </div>
+                  <p>This website doesn't allow itself to be displayed inside other pages. Try searching for another site with the same information.</p>
                 </div>
                 <iframe id="chBrowserFrame" title="Browser content" referrerpolicy="no-referrer" loading="lazy" allow="fullscreen; autoplay; encrypted-media; picture-in-picture" hidden></iframe>
               </div>
@@ -6787,7 +6783,7 @@ h1 .accent-text { color: #fff; }
           if (!value) return "";
           if (/^(javascript|data|file|vbscript):/i.test(value)) return "";
           if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(value) && !/^(about:|mailto:)/i.test(value)) {
-            value = /\s/.test(value) || !value.includes(".") ? "https://duckduckgo.com/?q=" + encodeURIComponent(value) : "https://" + value;
+            value = /\s/.test(value) || !value.includes(".") ? "https://www.google.com/search?igu=1&q=" + encodeURIComponent(value) : "https://" + value;
           }
           try { const parsed = new URL(value); return ["http:", "https:"].includes(parsed.protocol) ? parsed.href : ""; } catch { return ""; }
         };
@@ -6846,13 +6842,13 @@ h1 .accent-text { color: #fff; }
           if (tab.url && isBlocked(tab.url)) {
             frame.removeAttribute("src"); frame.hidden = true; empty.hidden = true; blocked.hidden = false;
             $b("chBrowserBlockedTitle").textContent = titleFor(tab.url) + " can't be shown here";
-            status(titleFor(tab.url) + " blocks being shown inside other pages. Use Open in new tab.");
+            status(titleFor(tab.url) + " blocks being shown inside other pages.");
           } else if (tab.url) {
             frame.hidden = false; empty.hidden = true; blocked.hidden = true;
             // Switching between Classroom Hub tabs should not reload the same page.
             const src = frameUrl(tab.url);
             if (frame.getAttribute("src") !== src) frame.src = src;
-            status("Loading " + titleFor(tab.url) + ". If the page stays blank or shows an error, the site blocks embedding: use Open externally.");
+            status("Loading " + titleFor(tab.url) + ". If the page stays blank or shows an error, that site blocks being shown inside other pages.");
           } else { frame.removeAttribute("src"); frame.hidden = true; empty.hidden = false; blocked.hidden = true; status("Ready. Enter a URL or search above."); }
         };
         const navigate = (raw, replaceHistory = false) => {
@@ -6860,11 +6856,6 @@ h1 .accent-text { color: #fff; }
           const url = safeUrl(entered);
           if (!url) { status("Enter a valid http or https address, or a search phrase."); return; }
           if (isYoutube(url)) { openInYoutubeView(url); return; }
-          // DuckDuckGo is the search engine, but it refuses to load inside other pages,
-          // so open it in a real browser tab straight from the user's click.
-          if (!replaceHistory && hostOf(url) === "duckduckgo.com") {
-            window.open(url, "_blank", "noopener,noreferrer");
-          }
           const tab = activeTab();
           if (!replaceHistory && tab.url && tab.url !== url) {
             (historyByTab[tab.id] ||= []).push(tab.url);
@@ -6931,10 +6922,6 @@ h1 .accent-text { color: #fff; }
         document.addEventListener("fullscreenchange", () => {
           const button = $b("chBrowserFullscreen");
           if (button) button.textContent = document.fullscreenElement === $b("chBrowserShell") ? "✕ Exit full screen" : "⛶ Full screen";
-        });
-        $b("chBrowserBlockedOpen")?.addEventListener("click", () => {
-          const url = activeTab().url;
-          if (url) window.open(url, "_blank", "noopener,noreferrer");
         });
         $b("chBrowserReload")?.addEventListener("click", () => { const frame = $b("chBrowserFrame"); if (activeTab().url && !isBlocked(activeTab().url)) { frame.src = frameUrl(activeTab().url); status("Reloading page…"); } });
         $b("chBrowserBack")?.addEventListener("click", () => {
