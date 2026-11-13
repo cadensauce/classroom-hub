@@ -6606,32 +6606,37 @@ body.game-open { overflow: hidden; }
           } catch {}
           // Built-in starter games (official game portal pages), added once per browser.
           const PRESET_GAMES = [
-            ["Slope", "https://poki.com/en/g/slope", "🟢"],
-            ["Retro Bowl", "https://poki.com/en/g/retro-bowl", "🏈"],
-            ["Tunnel Rush", "https://poki.com/en/g/tunnel-rush", "🌀"],
             ["Run 3", "https://poki.com/en/g/run-3", "🏃"],
-            ["Subway Surfers", "https://poki.com/en/g/subway-surfers", "🛹"],
-            ["Moto X3M", "https://poki.com/en/g/moto-x3m", "🏍️"],
-            ["Drift Boss", "https://poki.com/en/g/drift-boss", "🚗"],
-            ["Temple Run 2", "https://poki.com/en/g/temple-run-2", "🏛️"],
-            ["Stickman Hook", "https://poki.com/en/g/stickman-hook", "🪝"],
-            ["Basketball Stars", "https://poki.com/en/g/basketball-stars", "🏀"],
-            ["Crossy Road", "https://poki.com/en/g/crossy-road", "🐔"],
-            ["Getaway Shootout", "https://poki.com/en/g/getaway-shootout", "🔫"],
-            ["Bob the Robber 2", "https://poki.com/en/g/bob-the-robber-2", "🕵️"],
             ["Smash Karts", "https://smashkarts.io/", "🏎️"],
             ["Shell Shockers", "https://shellshock.io/", "🥚"],
             ["Krunker", "https://krunker.io/", "🎯"],
-            ["Slither.io", "https://slither.io/", "🐍"],
+            ["Narrow One", "https://narrow.one/", "🏹"],
+            ["ZombsRoyale.io", "https://zombsroyale.io/", "🧟"],
+            ["Diep.io", "https://diep.io/", "🔵"],
+            ["Hole.io", "https://hole-io.com/", "🕳️"],
+            ["Bonk.io", "https://bonk.io/", "⚪"],
+            ["Powerline.io", "https://powerline.io/", "⚡"],
+            ["EvoWars.io", "https://evowars.io/", "⚔️"],
+            ["Wormate.io", "https://wormate.io/", "🐛"],
+            ["YoHoHo.io", "https://yohoho.io/", "🏴‍☠️"],
             ["Paper.io 2", "https://paper-io.com/", "🟦"],
-            ["2048", "https://play2048.co/", "🔢"],
+          ];
+          // Earlier presets whose sites block being shown inside other pages.
+          const RETIRED_PRESETS = [
+            "https://poki.com/en/g/slope", "https://poki.com/en/g/retro-bowl", "https://poki.com/en/g/tunnel-rush",
+            "https://poki.com/en/g/subway-surfers", "https://poki.com/en/g/moto-x3m", "https://poki.com/en/g/drift-boss",
+            "https://poki.com/en/g/temple-run-2", "https://poki.com/en/g/stickman-hook", "https://poki.com/en/g/basketball-stars",
+            "https://poki.com/en/g/crossy-road", "https://poki.com/en/g/getaway-shootout", "https://poki.com/en/g/bob-the-robber-2",
+            "https://slither.io/", "https://play2048.co/",
           ];
           try {
-            if (!localStorage.getItem("classroomHubGamesSeededV1")) {
+            if (!localStorage.getItem("classroomHubGamesSeededV2")) {
+              games = games.filter(g => !RETIRED_PRESETS.includes(g.url));
               const have = new Set(games.map(g => g.url));
               PRESET_GAMES.forEach(([name, url, icon]) => { if (!have.has(url)) games.push({ id: uid(), name, url, icon }); });
               localStorage.setItem(storageKey, JSON.stringify(games));
               localStorage.setItem("classroomHubGamesSeededV1", "1");
+              localStorage.setItem("classroomHubGamesSeededV2", "1");
             }
           } catch {}
           // In-site play: sites known to allow embedding, plus official embed links.
@@ -6650,8 +6655,7 @@ body.game-open { overflow: hidden; }
               const u = new URL(url);
               const host = u.hostname.replace(/^www\./, "");
               if (u.protocol !== "https:" || NO_EMBED_HOSTS.some(h => host === h || host.endsWith("." + h))) return "";
-              // Custom games the user added: try playing them in the site.
-              return PRESET_GAMES.some(([, presetUrl]) => presetUrl === url) ? "" : url;
+              return url;
             } catch { return ""; }
           }
           const player = $("gamePlayer"), playerFrame = $("gamePlayerFrame");
