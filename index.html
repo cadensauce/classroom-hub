@@ -636,7 +636,10 @@
         line-height: 1.65;
         margin: 10px 2px 0;
       }
-      /* ===== YOUTUBE ===== */
+      /* ===== YOUTUBE AD-FREE PLAYER ===== */
+      #ytAdFreeVideo { background: #000; }
+      .yt-player [hidden] { display: none !important; }
+/* ===== YOUTUBE ===== */
       .yt-search {
         display: flex;
         gap: 9px;
@@ -3508,7 +3511,7 @@ h1 .accent-text { color: #fff; }
                   </section>
                 </div>
                 <div class="note">
-                  Without an API key, YouTube search opens in a new tab because YouTube does not provide a reliable, unrestricted way for a static webpage to fetch its search results. Video playback and search may still be limited by school network policies or YouTube's embedding rules.
+                  Search uses free community servers, which are sometimes down. For reliable search, add a free YouTube API key below. Video playback may still be limited by school network policies or YouTube's embedding rules.
                 </div>
                 <details class="yt-key">
                   <summary>Play a video by link (optional)</summary>
@@ -3521,6 +3524,16 @@ h1 .accent-text { color: #fff; }
                         placeholder="Paste a YouTube video link…"
                       /><button class="btn" type="button" id="playYoutubeVideo">Play here</button>
                     </div>
+                  </div>
+                </details>
+                <details class="yt-key">
+                  <summary>Reliable search with a YouTube API key (optional)</summary>
+                  <div class="form-group" style="margin-top: 14px">
+                    <label for="youtubeApiKey">YouTube Data API key</label>
+                    <div class="yt-search">
+                      <input class="field" id="youtubeApiKey" type="password" autocomplete="off" spellcheck="false" placeholder="Paste your API key&hellip;" /><button class="btn" type="button" id="saveYoutubeApiKey">Save key</button><button class="btn" type="button" id="clearYoutubeApiKey">Remove</button>
+                    </div>
+                    <div class="section-sub" style="margin-top: 8px">Create a free key in Google Cloud Console with &ldquo;YouTube Data API v3&rdquo; enabled (about 100 searches a day). The key is saved only in this browser and is never exported.</div>
                   </div>
                 </details>
                 <div class="yt-player" id="ytPlayer" hidden>
@@ -3547,6 +3560,8 @@ h1 .accent-text { color: #fff; }
                     referrerpolicy="strict-origin-when-cross-origin"
                     allowfullscreen
                   ></iframe>
+                  <video class="video-frame" id="ytAdFreeVideo" controls playsinline preload="auto" hidden></video>
+                  <audio id="ytAdFreeAudio" preload="auto" hidden></audio>
                 </div>
                 <div class="yt-status" id="youtubeStatus" role="status" aria-live="polite">Paste a YouTube link to play it with YouTube’s embedded player. On-page search depends on public community services and may occasionally be unavailable.</div>
                 <div class="ytr-grid" id="ytResults"></div>
@@ -4589,7 +4604,7 @@ h1 .accent-text { color: #fff; }
             return;
           }
           lastYtQuery = q;
-          rememberSearch(q, "youtube");
+          if (typeof rememberSearch === "function") rememberSearch(q, "youtube");
           state.recentYoutubeSearches = [q, ...state.recentYoutubeSearches.filter(x => x.toLowerCase() !== q.toLowerCase())].slice(0, 10);
           save();
           renderYoutubeLibrary();
@@ -4658,6 +4673,12 @@ h1 .accent-text { color: #fff; }
           clearTimeout(ytApiTimer);
           $("youtubeStatus").textContent =
             "Using YouTube’s official embedded player. It is the most reliable option, but YouTube may show ads or restrict some videos. The alternative community player is available if needed.";
+          if (ytAdFreeEnabled()) ytPlayAdFree(id);
+          else {
+            ytStopAdFree();
+            if (frame) frame.hidden = false;
+            if (toggle) toggle.textContent = "Switch to ad-free player";
+          }
           panel.scrollIntoView({
             behavior: state.settings.reducedMotion ? "auto" : "smooth",
             block: "nearest",
@@ -4738,6 +4759,7 @@ h1 .accent-text { color: #fff; }
         /* ===== TO-DO LIST ===== */
         function renderTasks() {
           const list = $("todoList");
+          if (!list || !$("todoEmpty")) return;
           if (!state.tasks.length) {
             list.innerHTML = "";
             $("todoEmpty").style.display = "block";
@@ -5844,8 +5866,8 @@ h1 .accent-text { color: #fff; }
         // Community search is best-effort only. The first instance previously used
         // an anti-bot challenge, so try the other public instances first.
         const ytSearchInstances = [
-          "https://invidious.nerdvpn.de",
           "https://yt.chocolatemoo53.com",
+          "https://invidious.nerdvpn.de",
           "https://invidious.tiekoetter.com",
           "https://inv.nadeko.net"
         ];
@@ -5893,6 +5915,86 @@ h1 .accent-text { color: #fff; }
                     ? "YouTube’s API returned an error (" + e.status + "). Try again shortly."
                     : "Couldn’t reach YouTube’s API. Check your connection; this network may block it.";
         }
+        const YT_KEY_STORE = "classroomHubYtKeyV1";
+        let ytSource = "community";
+        function getYtKey() {
+          try { return (localStorage.getItem(YT_KEY_STORE) || "").trim(); } catch { return ""; }
+        }
+        // Official YouTube Data API v3 search (used only when the user saved a key).
+        async function ytKeySearch(key, q, pageToken) {
+          const u = new URL("https://www.googleapis.com/youtube/v3/search");
+          u.searchParams.set("part", "snippet");
+          u.searchParams.set("type", "video");
+          u.searchParams.set("maxResults", "20");
+          u.searchParams.set("safeSearch", "moderate");
+          u.searchParams.set("videoEmbeddable", "true");
+          u.searchParams.set("q", q);
+          u.searchParams.set("key", key);
+          if (pageToken) u.searchParams.set("pageToken", pageToken);
+          let response;
+          try { response = await fetch(u); } catch { throw {}; }
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok) {
+            const err = (data && data.error) || {};
+            const first = Array.isArray(err.errors) && err.errors[0];
+            throw { status: response.status, reason: (first && first.reason) || "" };
+          }
+          const items = (Array.isArray(data.items) ? data.items : [])
+            .filter(item => item && item.id && item.id.videoId && item.snippet)
+            .map(item => ({
+              id: item.id.videoId,
+              title: ytDecode(item.snippet.title),
+              channel: ytDecode(item.snippet.channelTitle || "YouTube"),
+              thumb: "https://i.ytimg.com/vi/" + item.id.videoId + "/mqdefault.jpg"
+            }));
+          return { items, next: data.nextPageToken || "" };
+        }
+        // Free community (Invidious) search: ask every server at once, use the first good answer.
+        async function ytCommunitySearch(q, page) {
+          const attempts = ytSearchInstances.map(async (base) => {
+            const u = new URL(base + "/api/v1/search");
+            u.searchParams.set("q", q);
+            u.searchParams.set("type", "video");
+            u.searchParams.set("page", String(page));
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 8000);
+            try {
+              const response = await fetch(u, { signal: controller.signal, headers: { "Accept": "application/json" } });
+              if (!response.ok) throw new Error("Search service returned " + response.status);
+              const data = await response.json();
+              if (!Array.isArray(data)) throw new Error("Unexpected search response");
+              return { base, data };
+            } finally {
+              clearTimeout(timer);
+            }
+          });
+          const found = await Promise.any(attempts);
+          ytSearchInstance = found.base;
+          return found.data
+            .filter(item => item && item.type === "video" && item.videoId && item.title)
+            .map(item => ({
+              id: item.videoId,
+              title: ytDecode(item.title),
+              channel: ytDecode(item.author || "YouTube"),
+              thumb: "https://i.ytimg.com/vi/" + item.videoId + "/mqdefault.jpg"
+            }));
+        }
+        (function setupYoutubeKeyForm() {
+          const field = $("youtubeApiKey");
+          if (!field) return;
+          field.value = getYtKey();
+          $("saveYoutubeApiKey").addEventListener("click", () => {
+            const value = field.value.trim();
+            if (!value) { toast("Paste a YouTube API key first."); return; }
+            try { localStorage.setItem(YT_KEY_STORE, value); toast("YouTube API key saved in this browser."); }
+            catch { toast("Couldn’t save the key in this browser."); }
+          });
+          $("clearYoutubeApiKey").addEventListener("click", () => {
+            try { localStorage.removeItem(YT_KEY_STORE); } catch {}
+            field.value = "";
+            toast("YouTube API key removed.");
+          });
+        })();
         async function ytApiSearch(q, next) {
           if (ytBusy) return;
           ytBusy = true;
@@ -5904,79 +6006,173 @@ h1 .accent-text { color: #fff; }
             ytResults = [];
             $("ytResults").innerHTML = '<div class="ytr-card ytr-skel"></div>'.repeat(8);
           }
-          const page = next && ytToken ? Number(ytToken) : 1;
-          st.textContent = next ? "Loading more results…" : "Trying community search services…";
+          st.textContent = next ? "Loading more results…" : "Searching…";
           try {
-            let found = null;
-            let lastError = null;
-            for (const base of ytSearchInstances) {
+            let incoming = [], nextToken = "", keyError = null, usedKey = false;
+            const key = getYtKey();
+            if (key && (!next || ytSource === "api")) {
               try {
-                const u = new URL(base + "/api/v1/search");
-                u.searchParams.set("q", ytQuery);
-                u.searchParams.set("type", "video");
-                u.searchParams.set("page", String(page));
-                const controller = new AbortController();
-                const timeout = setTimeout(() => controller.abort(), 4500);
-                let response;
-                try {
-                  response = await fetch(u, { signal: controller.signal, headers: { "Accept": "application/json" } });
-                } finally {
-                  clearTimeout(timeout);
-                }
-                if (!response.ok) throw new Error("Search service returned " + response.status);
-                const data = await response.json();
-                if (!Array.isArray(data)) throw new Error("Unexpected search response");
-                found = { base, data };
-                break;
-              } catch (error) {
-                lastError = error;
-              }
+                const res = await ytKeySearch(key, ytQuery, next ? ytToken : "");
+                incoming = res.items; nextToken = res.next; usedKey = true;
+              } catch (err) { keyError = err; }
             }
-            if (!found) throw lastError || new Error("No search services responded");
-            ytSearchInstance = found.base;
-            const incoming = found.data
-              .filter(item => item && item.type === "video" && item.videoId && item.title)
-              .map(item => {
-                const thumbs = Array.isArray(item.videoThumbnails) ? item.videoThumbnails : [];
-                const thumb = thumbs.find(t => t.quality === "medium") || thumbs.find(t => t.quality === "high") || thumbs[0];
-                return {
-                  id: item.videoId,
-                  title: ytDecode(item.title),
-                  channel: ytDecode(item.author || "YouTube"),
-                  thumb: thumb && thumb.url ? thumb.url : "https://i.ytimg.com/vi/" + item.videoId + "/mqdefault.jpg"
-                };
-              });
+            if (!usedKey) {
+              const page = next && /^\d+$/.test(ytToken) ? Number(ytToken) : 1;
+              incoming = await ytCommunitySearch(ytQuery, page);
+              nextToken = incoming.length >= 10 ? String(page + 1) : "";
+            }
+            ytSource = usedKey ? "api" : "community";
             const existingIds = new Set(ytResults.map(item => item.id));
             ytResults = ytResults.concat(incoming.filter(item => !existingIds.has(item.id)));
-            ytToken = incoming.length >= 10 ? String(page + 1) : "";
+            ytToken = nextToken;
             ytRender();
             renderYoutubeLibrary();
             st.textContent = ytResults.length
-              ? "Showing " + ytResults.length + " results for “" + ytQuery + "”. Select one to try the alternative player. Search is provided by a community-run service; if one is unavailable, Classroom Hub tries another."
+              ? "Showing " + ytResults.length + " results for “" + ytQuery + "”. Select a video to play it here." +
+                (keyError ? " (Your YouTube API key didn’t work: " + ytErr(keyError) + " Used the free backup search instead.)" : "")
               : "No video results found for “" + ytQuery + "”. Try a different search.";
           } catch (error) {
             if (!next) $("ytResults").innerHTML = "";
-            st.textContent = "The community search services did not respond. Your video player is still working: use “Search videos on YouTube” or “Search channels” above to see live results.";
+            st.textContent = "Search isn’t available right now because the free search servers didn’t respond. Add a YouTube API key below for reliable search, or use “Search videos on YouTube ↗”.";
             if (next) $("ytMore").hidden = !ytToken;
           } finally {
             ytBusy = false;
           }
         }
+        /* Ad-free player: plays the video and audio streams through a community
+           (Invidious) proxy in normal <video>/<audio> elements, so YouTube's ads never load.
+           Falls back to YouTube's own embedded player if that fails. */
+        const YT_ADFREE_STORE = "classroomHubYtAdFreeV1";
+        let ytAdFreeToken = 0;
+        let ytAdFreeLastSave = 0;
+        let ytAudioStalled = false;
+        function ytAdFreeEnabled() {
+          try { return localStorage.getItem(YT_ADFREE_STORE) !== "0"; } catch { return true; }
+        }
+        function ytStopAdFree() {
+          ytAdFreeToken++;
+          ytAudioStalled = false;
+          [$("ytAdFreeVideo"), $("ytAdFreeAudio")].forEach((m) => {
+            if (!m) return;
+            m.onerror = null;
+            m.onloadedmetadata = null;
+            try { m.pause(); } catch {}
+            if (m.getAttribute("src")) { m.removeAttribute("src"); try { m.load(); } catch {} }
+          });
+          const video = $("ytAdFreeVideo");
+          if (video) video.hidden = true;
+        }
+        function ytUseEmbed(id, message) {
+          ytStopAdFree();
+          ytPlayerMode = "youtube";
+          const frame = $("youtubePlayerFrame");
+          frame.hidden = false;
+          frame.src = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(id) + "?autoplay=1&rel=0&playsinline=1";
+          $("youtubePlayerToggle").textContent = "Switch to ad-free player";
+          if (message) $("youtubeStatus").textContent = message;
+        }
+        function ytFindStreams(id) {
+          const attempts = ytSearchInstances.map(async (base) => {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 9000);
+            try {
+              const r = await fetch(base + "/api/v1/videos/" + encodeURIComponent(id), { signal: controller.signal });
+              if (!r.ok) throw new Error("Video lookup returned " + r.status);
+              const d = await r.json();
+              const formats = Array.isArray(d.adaptiveFormats) ? d.adaptiveFormats : [];
+              const has = (itag) => formats.some((fmt) => String(fmt.itag) === itag);
+              // H.264 video up to 720p, plus AAC audio: plays in every major browser.
+              const videoItag = ["298", "136", "135", "134", "133", "160"].find(has);
+              const audioItag = ["140", "139"].find(has);
+              if (!videoItag || !audioItag) throw new Error("No playable formats");
+              return { base, videoItag, audioItag };
+            } finally {
+              clearTimeout(timer);
+            }
+          });
+          return Promise.any(attempts);
+        }
+        async function ytPlayAdFree(id) {
+          const video = $("ytAdFreeVideo");
+          const audio = $("ytAdFreeAudio");
+          const frame = $("youtubePlayerFrame");
+          if (!video || !audio) { ytUseEmbed(id); return; }
+          ytStopAdFree();
+          const token = ytAdFreeToken;
+          ytPlayerMode = "adfree";
+          frame.src = "about:blank";
+          frame.hidden = true;
+          video.hidden = false;
+          $("youtubePlayerToggle").textContent = "Use YouTube player";
+          $("youtubeStatus").textContent = "Loading the ad-free player...";
+          let streams;
+          try {
+            streams = await ytFindStreams(id);
+          } catch {
+            if (token !== ytAdFreeToken) return;
+            ytUseEmbed(id, "The ad-free player isn't available for this video right now, so YouTube's player is being used instead (it may show ads).");
+            return;
+          }
+          if (token !== ytAdFreeToken) return;
+          const failed = () => {
+            if (token !== ytAdFreeToken) return;
+            ytUseEmbed(id, "The ad-free player couldn't load this video, so YouTube's player is being used instead (it may show ads).");
+          };
+          video.onerror = failed;
+          audio.onerror = failed;
+          const saved = (getYoutubeProgress()[id] || {}).seconds || 0;
+          video.onloadedmetadata = () => {
+            if (token !== ytAdFreeToken) return;
+            if (saved > 5 && saved < video.duration - 10) {
+              video.currentTime = saved;
+              $("youtubeStatus").textContent = "Ad-free player. Resuming near " + fmtSecs(saved) + ".";
+            } else {
+              $("youtubeStatus").textContent = "Ad-free player: no YouTube ads. Use the button above to switch to YouTube's player if a video won't play.";
+            }
+            video.play().catch(() => {});
+          };
+          const src = (itag) => streams.base + "/latest_version?id=" + encodeURIComponent(id) + "&itag=" + itag + "&local=true";
+          audio.src = src(streams.audioItag);
+          video.src = src(streams.videoItag);
+        }
+        (function setupAdFreeSync() {
+          const video = $("ytAdFreeVideo");
+          const audio = $("ytAdFreeAudio");
+          if (!video || !audio) return;
+          const sync = () => {
+            if (Math.abs(audio.currentTime - video.currentTime) > 0.4) audio.currentTime = video.currentTime;
+          };
+          const startAudio = () => { sync(); audio.play().catch(() => {}); };
+          video.addEventListener("play", startAudio);
+          video.addEventListener("playing", startAudio);
+          video.addEventListener("pause", () => { if (!ytAudioStalled) audio.pause(); });
+          video.addEventListener("waiting", () => audio.pause());
+          video.addEventListener("ended", () => audio.pause());
+          video.addEventListener("seeking", () => { audio.currentTime = video.currentTime; });
+          video.addEventListener("ratechange", () => { audio.playbackRate = video.playbackRate; });
+          video.addEventListener("volumechange", () => { audio.volume = video.volume; audio.muted = video.muted; });
+          video.addEventListener("timeupdate", () => {
+            if (!video.paused && !audio.paused) sync();
+            if (activeYoutubeId && ytPlayerMode === "adfree" && Date.now() - ytAdFreeLastSave > 5000 && video.currentTime > 0) {
+              ytAdFreeLastSave = Date.now();
+              saveYoutubeProgress(activeYoutubeId, video.currentTime, video.duration);
+            }
+          });
+          audio.addEventListener("waiting", () => {
+            if (!video.paused) { ytAudioStalled = true; video.pause(); }
+          });
+          audio.addEventListener("canplay", () => {
+            if (ytAudioStalled) { ytAudioStalled = false; video.play().catch(() => {}); }
+          });
+        })();
         $("youtubePlayerToggle").addEventListener("click", () => {
           if (!activeYoutubeId) return;
-          const frame = $("youtubePlayerFrame");
-          if (ytPlayerMode === "youtube") {
-            ytPlayerMode = "alt";
-            frame.src = ytSearchInstance + "/embed/" + encodeURIComponent(activeYoutubeId) + "?autoplay=1";
-            $("youtubePlayerToggle").textContent = "Use YouTube player ↗";
-            $("youtubeStatus").textContent = "Trying a community-run alternative player. These public services can be unavailable or show verification pages.";
-          } else {
-            ytPlayerMode = "youtube";
-            frame.src = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(activeYoutubeId) + "?autoplay=1&rel=0&playsinline=1";
-            $("youtubePlayerToggle").textContent = "Try alternative player ↗";
-            $("youtubeStatus").textContent = "Using YouTube’s official embedded player. YouTube may show ads or restrict some videos.";
-          }
+          const useAdFree = ytPlayerMode !== "adfree";
+          try { localStorage.setItem(YT_ADFREE_STORE, useAdFree ? "1" : "0"); } catch {}
+          if (useAdFree) ytPlayAdFree(activeYoutubeId);
+          else ytUseEmbed(activeYoutubeId, "Using YouTube's official player. YouTube may show ads.");
         });
+        $("ytBackResults").addEventListener("click", ytStopAdFree);
         $("ytResults").addEventListener("click", (e) => {
           const c = e.target.closest("[data-vid]");
           if (!c) return;
