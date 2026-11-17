@@ -3803,6 +3803,21 @@ html[data-look-gold="off"] .section-title, html[data-look-gold="off"] .school-ti
                 <button type="button" class="btn primary" id="streakCheckIn">Mark today complete</button>
               </div></div>
             </section>
+            <section class="section" id="quoteSection">
+              <div class="section-head"><div><h2 class="section-title">Quote of the day</h2><div class="section-sub">A new one every day.</div></div></div>
+              <div class="panel"><div class="panel-body">
+                <blockquote id="dailyQuote" style="margin:0;font-size:22px;font-weight:650;letter-spacing:-.4px;line-height:1.35"></blockquote>
+                <div class="section-sub" id="dailyQuoteBy" style="margin-top:10px"></div>
+              </div></div>
+              <script>
+              (function(){
+                var Q=[["The secret of getting ahead is getting started.","Mark Twain"],["It always seems impossible until it's done.","Nelson Mandela"],["Don't watch the clock; do what it does. Keep going.","Sam Levenson"],["Believe you can and you're halfway there.","Theodore Roosevelt"],["Success is the sum of small efforts, repeated day in and day out.","Robert Collier"],["The expert in anything was once a beginner.","Helen Hayes"],["You don't have to be great to start, but you have to start to be great.","Zig Ziglar"],["Quality is not an act, it is a habit.","Aristotle"],["Act as if what you do makes a difference. It does.","William James"],["Start where you are. Use what you have. Do what you can.","Arthur Ashe"],["Education is the most powerful weapon which you can use to change the world.","Nelson Mandela"],["The beautiful thing about learning is that no one can take it away from you.","B.B. King"],["Hard work beats talent when talent doesn't work hard.","Tim Notke"],["Strive for progress, not perfection.","Unknown"],["Small steps every day add up to big results.","Unknown"],["Do something today that your future self will thank you for.","Sean Patrick Flanery"],["Fall seven times, stand up eight.","Japanese proverb"],["What you do today can improve all your tomorrows.","Ralph Marston"],["The only way to do great work is to love what you do.","Steve Jobs"],["Don't let what you cannot do interfere with what you can do.","John Wooden"],["Mistakes are proof that you are trying.","Unknown"],["Learning never exhausts the mind.","Leonardo da Vinci"],["Push yourself, because no one else is going to do it for you.","Unknown"],["Great things never come from comfort zones.","Unknown"],["You are capable of more than you know.","Unknown"],["Discipline is choosing between what you want now and what you want most.","Abraham Lincoln (attributed)"],["Dream big. Start small. Act now.","Robin Sharma"],["If you can dream it, you can do it.","Walt Disney (attributed)"],["Success doesn't come from what you do occasionally, but what you do consistently.","Marie Forleo"],["Every accomplishment starts with the decision to try.","John F. Kennedy (attributed)"],["The future depends on what you do today.","Mahatma Gandhi"]];
+                var d=new Date(),day=Math.floor((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()))/864e5),q=Q[day%Q.length];
+                document.getElementById('dailyQuote').textContent='“'+q[0]+'”';
+                document.getElementById('dailyQuoteBy').textContent='— '+q[1];
+              })();
+              </script>
+            </section>
             <section class="section" id="dashboardLinksSection">
               <div class="section-head">
                 <div><h2 class="section-title">Quick Access</h2></div>
