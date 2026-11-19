@@ -6781,6 +6781,7 @@ html[data-look-gold="off"] .section-title, html[data-look-gold="off"] .school-ti
             ["Bonk.io", "https://bonk.io/", "⚪"],
             ["Moto X3M", "https://www.y8.com/embed/moto_x3m", "🏍️"],
             ["Paper.io 2", "https://paper-io.com/", "🟦"],
+            ["Krillion", "https://www.krillion.org/play/", "🧠"],
           ];
           // Every game Classroom Hub has ever pre-added. On upgrade, presets no longer in the list
           // are removed; games the user added themselves are always kept.
@@ -6794,7 +6795,7 @@ html[data-look-gold="off"] .section-title, html[data-look-gold="off"] .school-ti
             "https://yohoho.io/", "https://www.y8.com/embed/color_tunnel",
           ];
           try {
-            if (localStorage.getItem("classroomHubGamesVersion") !== "6") {
+            if (localStorage.getItem("classroomHubGamesVersion") !== "7") {
               const keep = new Set(PRESET_GAMES.map(([, url]) => url));
               games = games.filter(g => keep.has(g.url) || !ALL_PAST_PRESETS.includes(g.url));
               const have = new Set(games.map(g => g.url));
@@ -6803,7 +6804,7 @@ html[data-look-gold="off"] .section-title, html[data-look-gold="off"] .school-ti
               const order = PRESET_GAMES.map(([, url]) => url);
               games.sort((a, b) => (order.indexOf(a.url) + 1 || 999) - (order.indexOf(b.url) + 1 || 999));
               localStorage.setItem(storageKey, JSON.stringify(games));
-              localStorage.setItem("classroomHubGamesVersion", "6");
+              localStorage.setItem("classroomHubGamesVersion", "7");
             }
           } catch {}
           // In-site play: sites known to allow embedding, plus official embed links.
