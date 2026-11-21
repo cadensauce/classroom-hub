@@ -3670,14 +3670,13 @@ html[data-look-gold="off"] .section-title, html[data-look-gold="off"] .school-ti
   --p-gold: #ffc83d; --p-green: #8fd9b0; --p-red: #f0a0a8;
   --p-line: rgba(255,255,255,.07); --p-line-hi: rgba(255,255,255,.12);
   --p-radius: 20px; --p-radius-sm: 14px;
-  --p-display: Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
 }
 html:not([data-look-background]) body { background: #101012 !important; }
 body, button, input, select, textarea { font-family: Inter, "Segoe UI", system-ui, sans-serif !important; }
-h1, h2, h3, .hero h1, .hero-title, .game-library-title, .game-player-name, .chat-empty h2, .school-timer-times strong {
+html[data-look-headline="clean"] :is(h1, h2, h3, .hero h1, .hero-title, .game-library-title, .game-player-name, .chat-empty h2, .school-timer-times strong) {
   font-family: Inter, "Segoe UI", system-ui, sans-serif !important; font-weight: 650 !important; letter-spacing: -.02em !important;
 }
-.section-title, #view-settings h2, #view-settings h3 {
+html[data-look-headline="clean"] :is(.section-title, #view-settings h2, #view-settings h3) {
   text-transform: none !important; letter-spacing: -.01em !important; font-size: 18px !important;
   font-weight: 650 !important; font-family: Inter, system-ui, sans-serif !important;
 }
@@ -3700,6 +3699,7 @@ h1, h2, h3, .hero h1, .hero-title, .game-library-title, .game-player-name, .chat
 .nav-btn.active, .sidebar .nav-btn.active { color: #101012 !important; }
 .nav-pill, .nav-btn.active:not(:has(~ .nav-pill)) { background: #ececee !important; }
 .sidebar .nav { background: #18181b !important; border: 1px solid rgba(255,255,255,.07) !important; }
+.sidebar .nav + .nav .nav-btn.active { background: #ececee !important; color: #101012 !important; box-shadow: none !important; }
 .bell-now, .chat-notice strong { color: #ececee !important; }
 a { color: #ececee; }
 ::selection { background: rgba(255,255,255,.18); }
@@ -4271,7 +4271,7 @@ a { color: #ececee; }
                 </div>
                 <div class="look-grid">
                   <div class="form-group"><label for="lookHeadline">Headline font</label>
-                    <select class="select" id="lookHeadline" data-look="headline"><option value="bold">Bold &amp; playful</option><option value="clean">Clean</option><option value="mono">Mono</option></select></div>
+                    <select class="select" id="lookHeadline" data-look="headline"><option value="clean">Clean</option><option value="bold">Bold &amp; playful</option><option value="mono">Mono</option></select></div>
                   <div class="form-group"><label for="lookCorners">Corners</label>
                     <select class="select" id="lookCorners" data-look="corners"><option value="round">Rounded</option><option value="soft">Soft</option><option value="sharp">Sharp</option></select></div>
                   <div class="form-group"><label for="lookBackground">Background</label>
@@ -7700,10 +7700,10 @@ a { color: #ececee; }
          Saved in this browser and applied before the page paints where possible. */
       (() => {
         const KEY = "classroomHubLookV1";
-        const DEFAULTS = { accent: "#ececee", headline: "bold", corners: "round", background: "plain", density: "comfy", numbers: false, gold: false, v: 2 };
+        const DEFAULTS = { accent: "#ececee", corners: "round", background: "plain", density: "comfy", numbers: false, gold: false, headline: "clean", v: 2 };
         let look = { ...DEFAULTS };
         try { look = { ...DEFAULTS, ...(JSON.parse(localStorage.getItem(KEY) || "{}") || {}) }; } catch {}
-        if (look.v !== 2) { look = { ...look, accent: "#ececee", background: "plain", numbers: false, gold: false, v: 2 }; try { localStorage.setItem(KEY, JSON.stringify(look)); } catch {} }
+        if (look.v !== 2) { look = { ...look, accent: "#ececee", background: "plain", numbers: false, gold: false, headline: "clean", v: 2 }; try { localStorage.setItem(KEY, JSON.stringify(look)); } catch {} }
         const root = document.documentElement;
         const apply = () => {
           const hex = /^#[0-9a-f]{6}$/i.test(look.accent) ? look.accent : DEFAULTS.accent;
