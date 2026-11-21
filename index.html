@@ -3703,6 +3703,13 @@ html[data-look-headline="clean"] :is(.section-title, #view-settings h2, #view-se
 .bell-now, .chat-notice strong { color: #ececee !important; }
 a { color: #ececee; }
 ::selection { background: rgba(255,255,255,.18); }
+/* YouTube tab layout */
+.yt-main { margin-bottom: 16px; }
+.yt-status:empty { display: none; }
+.yt-library-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 16px; }
+.yt-library-cols .yt-library-section { margin: 0 !important; }
+.yt-more { padding: 14px 18px; border: 1px solid rgba(255,255,255,.07); border-radius: 20px; background: #18181b; }
+.yt-more summary { cursor: pointer; color: #8e8e95; font-weight: 600; }
 /* Quick Access removed */
 #dashboardLinksSection, #view-quick, .toggle-row:has(#showDashboardLinks), label:has([data-ch-widget="dashboardLinksSection"]) { display: none !important; }
 /* ===== END MONO LAYER ===== */
@@ -3953,99 +3960,61 @@ a { color: #ececee; }
             <div class="section-head">
               <div>
                 <h1 style="font-size: calc(34px * var(--font-size-adjust)); margin: 0 0 5px; letter-spacing: -1.3px">YouTube</h1>
-                <div class="section-sub">Search for videos, open results here when community search is available, or paste a YouTube link to play it with YouTube’s embedded player.</div>
+                <div class="section-sub">Search for a video or paste a link.</div>
               </div>
             </div>
-            <div class="panel">
+            <div class="panel yt-main">
               <div class="panel-body">
-                <form class="yt-search" id="youtubeSearchForm">
-                  <input
-                    class="field"
-                    id="youtubeQuery"
-                    placeholder="Search YouTube or paste a video link…"
-                    aria-label="Search YouTube"
-                  /><button class="btn primary" type="submit">Search videos</button>
+                <form class="yt-search" id="youtubeSearchForm" autocomplete="off">
+                  <input class="field" id="youtubeQuery" type="search" autocomplete="off" spellcheck="false" placeholder="Search YouTube or paste a video link…" aria-label="Search YouTube" /><button class="btn primary" type="submit">Search</button>
                 </form>
-                <div class="yt-actions">
-                  <button class="btn" type="button" id="youtubeOpenResults">Search videos on YouTube ↗</button>
-                  <button class="btn" type="button" id="youtubeOpenChannels">Search channels ↗</button>
-                  <button class="btn" type="button" id="youtubeOpenHome">YouTube home ↗</button>
-                </div>
-                <div class="section-sub" style="margin: 8px 0 14px">On-page video results use public community services, which may be unavailable. Use the YouTube search buttons for reliable video or channel results.</div>
-
-                <div class="yt-library">
-                  <section class="yt-library-section">
-                    <div class="yt-library-heading"><h2>Recent searches</h2><button class="btn" type="button" id="clearYoutubeSearches">Clear</button></div>
-                    <div class="recent-row" id="recentYoutubeRow" aria-label="Recent YouTube searches"></div>
-                  </section>
-                  <section class="yt-library-section">
-                    <div class="yt-library-heading"><h2>Continue watching</h2><button class="btn" type="button" id="clearYoutubeHistory">Clear</button></div>
-                    <div class="yt-library-list" id="youtubeWatchHistory"></div>
-                  </section>
-                  <section class="yt-library-section">
-                    <div class="yt-library-heading"><h2>Saved playlists</h2></div>
-                    <form class="yt-search" id="youtubePlaylistForm"><input class="field" id="youtubePlaylistName" maxlength="50" placeholder="New playlist name" aria-label="New playlist name"><button class="btn" type="submit">Create playlist</button></form>
-                    <div id="youtubePlaylists" class="yt-library-list"></div>
-                  </section>
-                </div>
-                <div class="note">
-                  Search uses free community servers, which are sometimes down. For reliable search, add a free YouTube API key below. Video playback may still be limited by school network policies or YouTube's embedding rules.
-                </div>
-                <details class="yt-key">
-                  <summary>Play a video by link (optional)</summary>
-                  <div class="form-group" style="margin-top: 14px">
-                    <label for="youtubeVideoInput">YouTube video URL</label>
-                    <div class="yt-search">
-                      <input
-                        class="field"
-                        id="youtubeVideoInput"
-                        placeholder="Paste a YouTube video link…"
-                      /><button class="btn" type="button" id="playYoutubeVideo">Play here</button>
-                    </div>
-                  </div>
-                </details>
-                <details class="yt-key">
-                  <summary>Reliable search with a YouTube API key (optional)</summary>
-                  <div class="form-group" style="margin-top: 14px">
-                    <label for="youtubeApiKey">YouTube Data API key</label>
-                    <div class="yt-search">
-                      <input class="field" id="youtubeApiKey" type="password" autocomplete="off" spellcheck="false" placeholder="Paste your API key&hellip;" /><button class="btn" type="button" id="saveYoutubeApiKey">Save key</button><button class="btn" type="button" id="clearYoutubeApiKey">Remove</button>
-                    </div>
-                    <div class="section-sub" style="margin-top: 8px">Create a free key in Google Cloud Console with &ldquo;YouTube Data API v3&rdquo; enabled (about 100 searches a day). The key is saved only in this browser and is never exported.</div>
-                  </div>
-                </details>
+                <div class="yt-status" id="youtubeStatus" role="status" aria-live="polite"></div>
                 <div class="yt-player" id="ytPlayer" hidden>
                   <div class="ytr-bar">
-                    <button class="btn" type="button" id="ytBackResults">✕ Close player</button>
-                    <button class="btn" type="button" id="saveCurrentYoutubeVideo">Save video</button>
+                    <button class="btn" type="button" id="ytBackResults">✕ Close</button>
+                    <button class="btn" type="button" id="saveCurrentYoutubeVideo">Save</button>
+                    <label class="yt-playlist-select-label" for="addVideoToPlaylist">Add to playlist</label><select class="select" id="addVideoToPlaylist"><option value="">Add to playlist…</option></select>
+                    <button class="btn" type="button" id="youtubePlayerToggle">Use YouTube player</button>
                     <button class="btn" type="button" id="openCurrentYoutubeVideo">Open on YouTube ↗</button>
-                    <button class="btn" type="button" id="youtubePlayerToggle">Use YouTube player ↗</button>
-                    <label class="yt-playlist-select-label" for="addVideoToPlaylist">Add to playlist</label><select class="select" id="addVideoToPlaylist"><option value="">Choose playlist…</option></select>
                   </div>
-                  <iframe
-                    class="video-frame"
-                    id="youtubePlayerFrame"
-                    title="YouTube video player"
-                    allow="
-                      accelerometer;
-                      autoplay;
-                      clipboard-write;
-                      encrypted-media;
-                      gyroscope;
-                      picture-in-picture;
-                      web-share;
-                    "
-                    referrerpolicy="strict-origin-when-cross-origin"
-                    allowfullscreen
-                  ></iframe>
+                  <iframe class="video-frame" id="youtubePlayerFrame" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                   <video class="video-frame" id="ytAdFreeVideo" controls playsinline preload="auto" hidden></video>
                   <audio id="ytAdFreeAudio" preload="auto" hidden></audio>
                 </div>
-                <div class="yt-status" id="youtubeStatus" role="status" aria-live="polite">Paste a YouTube link to play it with YouTube’s embedded player. On-page search depends on public community services and may occasionally be unavailable.</div>
                 <div class="ytr-grid" id="ytResults"></div>
                 <button class="btn ytr-more" type="button" id="ytMore" hidden>Load more</button>
               </div>
             </div>
+            <div class="yt-library yt-library-cols">
+              <section class="yt-library-section panel"><div class="panel-body">
+                <div class="yt-library-heading"><h2>Continue watching</h2><button class="btn" type="button" id="clearYoutubeHistory">Clear</button></div>
+                <div class="yt-library-list" id="youtubeWatchHistory"></div>
+              </div></section>
+              <section class="yt-library-section panel"><div class="panel-body">
+                <div class="yt-library-heading"><h2>Playlists</h2></div>
+                <form class="yt-search" id="youtubePlaylistForm" autocomplete="off"><input class="field" id="youtubePlaylistName" maxlength="50" autocomplete="off" placeholder="New playlist name" aria-label="New playlist name"><button class="btn" type="submit">Create</button></form>
+                <div id="youtubePlaylists" class="yt-library-list"></div>
+              </div></section>
+            </div>
+            <details class="yt-key yt-more">
+              <summary>More options</summary>
+              <div class="yt-actions" style="margin-top: 14px">
+                <button class="btn" type="button" id="youtubeOpenResults">Search on YouTube ↗</button>
+                <button class="btn" type="button" id="youtubeOpenChannels">Search channels ↗</button>
+                <button class="btn" type="button" id="youtubeOpenHome">YouTube home ↗</button>
+              </div>
+              <div class="form-group" style="margin-top: 14px">
+                <label for="youtubeApiKey">YouTube API key (optional, for more reliable search)</label>
+                <div class="yt-search">
+                  <input class="field" id="youtubeApiKey" type="password" autocomplete="off" spellcheck="false" placeholder="Paste your API key&hellip;" /><button class="btn" type="button" id="saveYoutubeApiKey">Save</button><button class="btn" type="button" id="clearYoutubeApiKey">Remove</button>
+                </div>
+                <div class="section-sub" style="margin-top: 8px">Search normally uses free community servers, which are sometimes down. A free key from Google Cloud Console (&ldquo;YouTube Data API v3&rdquo;) gives about 100 searches a day. It's saved only in this browser.</div>
+              </div>
+              <div hidden>
+                <input id="youtubeVideoInput" /><button type="button" id="playYoutubeVideo"></button>
+                <button type="button" id="clearYoutubeSearches"></button><div id="recentYoutubeRow"></div>
+              </div>
+            </details>
           </section>
           <!-- ===== VIEW: AI ===== -->
           <section class="view" id="view-ai">
