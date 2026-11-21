@@ -3703,6 +3703,8 @@ html[data-look-headline="clean"] :is(.section-title, #view-settings h2, #view-se
 .bell-now, .chat-notice strong { color: #ececee !important; }
 a { color: #ececee; }
 ::selection { background: rgba(255,255,255,.18); }
+/* Quick Access removed */
+#dashboardLinksSection, #view-quick, .toggle-row:has(#showDashboardLinks), label:has([data-ch-widget="dashboardLinksSection"]) { display: none !important; }
 /* ===== END MONO LAYER ===== */
 </style>
   </head>
@@ -3724,9 +3726,7 @@ a { color: #ececee; }
             <span class="nav-icon">⌂</span><span class="nav-text">Home</span>
           </button>
           <div class="nav-group-label" aria-hidden="true">Library</div>
-          <button class="nav-btn" data-view="quick">
-            <span class="nav-icon">▦</span><span class="nav-text">Quick Access</span></button
-          ><button class="nav-btn" data-view="favorites">
+          <button class="nav-btn" data-view="favorites">
             <span class="nav-icon">☆</span><span class="nav-text">Favorites</span>
           </button>
           <div class="nav-group-label" aria-hidden="true">Tools</div>
@@ -4301,7 +4301,6 @@ a { color: #ececee; }
                   <label for="startPage">Startup page</label
                   ><select class="select" id="startPage">
                     <option value="dashboard">Home</option>
-                    <option value="quick">Quick Access</option>
                     <option value="youtube">YouTube</option>
                   </select>
                 </div>
@@ -4469,8 +4468,6 @@ a { color: #ececee; }
         <div class="command-list" id="commandList">
           <button class="command-item" type="button" data-command-view="dashboard">
             <span>⌂</span><span>Home</span></button
-          ><button class="command-item" type="button" data-command-view="quick">
-            <span>▦</span><span>Quick Access</span></button
           ><button class="command-item" type="button" data-command-view="ai">
             <span>✦</span><span>AI</span></button
           ><button class="command-item" type="button" data-command-view="youtube">
@@ -7061,7 +7058,7 @@ a { color: #ececee; }
           setInterval(updateClock, 30000);
           updateSchoolTimer();
           setInterval(updateSchoolTimer, 1000);
-          goView(state.settings.startPage || "dashboard");
+          goView(["quick", "browser"].includes(state.settings.startPage) ? "dashboard" : (state.settings.startPage || "dashboard"));
         }
         init();
 
